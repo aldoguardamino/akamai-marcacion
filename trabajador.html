@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akamai — Marcación</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;}
+.header{background:#1a1a2e;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+.logo{width:36px;height:36px;border-radius:50%;background:#00adef;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
+.header h1{font-size:15px;font-weight:700;}
+.header p{font-size:11px;opacity:.5;margin-top:1px;}
+.clock-bar{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.clock{font-size:26px;font-weight:700;color:#00adef;font-family:'Courier New',monospace;}
+.clock-date{font-size:12px;color:#64748b;}
+.main{max-width:500px;margin:24px auto;padding:0 16px 40px;}
+.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:16px;}
+.card h2{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:16px;}
+.field{margin-bottom:14px;}
+.field label{font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;}
+.field select,.field input{width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:Arial,sans-serif;color:#1e293b;outline:none;background:#fff;}
+.field select:focus,.field input:focus{border-color:#00adef;}
+.btn{display:block;width:100%;padding:13px;border-radius:9px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:Arial,sans-serif;margin-bottom:10px;text-align:center;transition:opacity .15s;}
+.btn:last-child{margin-bottom:0;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.btn-p{background:#00adef;color:#fff;}
+.btn-g{background:#22c55e;color:#fff;}
+.btn-r{background:#ef4444;color:#fff;}
+.btn-gris{background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0;font-size:13px;padding:10px;}
+.avatar-big{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 12px;}
+.wname{font-size:18px;font-weight:700;text-align:center;color:#1e293b;}
+.wsub{font-size:12px;color:#64748b;text-align:center;margin-top:3px;}
+.divider{border:none;border-top:1px solid #f1f5f9;margin:16px 0;}
+.sbox{border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.s-en{background:#f0fdf4;border:1.5px solid #86efac;}
+.s-fuera{background:#fff7ed;border:1.5px solid #fed7aa;}
+.s-nada{background:#f8fafc;border:1.5px solid #e2e8f0;}
+.sdot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.din{background:#22c55e;}
+.dout{background:#f59e0b;}
+.dnone{background:#94a3b8;}
+.stxt{font-size:13px;font-weight:700;color:#1e293b;}
+.stime{font-size:11px;color:#64748b;margin-top:3px;}
+.tw{overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:#1a1a2e;color:#fff;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+tbody td{padding:9px 10px;border-bottom:1px solid #f1f5f9;color:#1e293b;}
+tbody tr:last-child td{border-bottom:none;}
+.mono{font-family:'Courier New',monospace;font-size:11px;}
+.badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;}
+.bg{background:#dcfce7;color:#15803d;}
+.ba{background:#fef3c7;color:#92400e;}
+.bgr{background:#f1f5f9;color:#64748b;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25);}
+.toast.show{opacity:1;}
+.toast.ok{background:#16a34a;}
+.toast.err{background:#dc2626;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:6px;}
+@keyframes sp{to{transform:rotate(360deg);}}
+.hidden{display:none;}
+.err-txt{color:#ef4444;font-size:12px;margin-top:6px;font-weight:600;}
+.pill{display:flex;align-items:center;gap:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;padding:5px 14px;font-size:12px;color:#0369a1;font-weight:600;margin-left:auto;flex-shrink:0;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">AK</div>
+  <div><h1>Akamai — Marcación</h1><p>Portal del trabajador</p></div>
+</div>
+
+<div class="clock-bar">
+  <div>
+    <div class="clock" id="clk">00:00:00</div>
+    <div class="clock-date" id="clkd"></div>
+  </div>
+  <div id="upill" class="pill hidden">
+    <span id="upill-nm"></span>
+    <button onclick="logout()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:12px;padding:0 0 0 4px;">✕ Salir</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- LOGIN -->
+  <div id="sec-login">
+    <div class="card">
+      <h2>👤 Identifícate</h2>
+      <div class="field">
+        <label>Selecciona tu nombre</label>
+        <select id="sel-w"><option value="">— Elige tu nombre —</option></select>
+      </div>
+      <div class="field">
+        <label>Tu DNI / Identificador</label>
+        <input type="text" id="inp-dni" placeholder="Ej: 48221357" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <p class="err-txt" id="login-err"></p>
+      <button class="btn btn-p" onclick="doLogin()">Ingresar</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="sec-dash" class="hidden">
+
+    <div class="card" style="text-align:center;padding-bottom:20px;">
+      <div class="avatar-big" id="av"></div>
+      <div class="wname" id="d-name"></div>
+      <div class="wsub" id="d-gr"></div>
+      <hr class="divider">
+      <div style="font-size:13px;font-weight:600;color:#475569;" id="d-turno"></div>
+    </div>
+
+    <div class="sbox s-nada" id="sbox">
+      <div class="sdot dnone" id="sdot"></div>
+      <div>
+        <div class="stxt" id="stxt">Sin marcación hoy</div>
+        <div class="stime" id="stime"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <button class="btn btn-g" id="btn-e" onclick="marcar('entrada')">▶ Registrar Entrada</button>
+      <button class="btn btn-r" id="btn-s" onclick="marcar('salida')">◀ Registrar Salida</button>
+      <button class="btn btn-gris" onclick="logout()">Cambiar usuario</button>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom:14px;">📋 Mis registros recientes</h2>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr><th>Fecha</th><th>Entró</th><th>Salió</th><th>Horas</th><th>Estado</th></tr>
+          </thead>
+          <tbody id="mis-regs"></tbody>
+        </table>
+      </div>
+      <div id="mis-empty" style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;display:none;">
+        Aún no tienes registros.
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var WORKERS = [
+  {id:'48221357',ap:'NEYRA RUJEL',       nm:'WENDY STEFANNY', gr:'ADMINISTRACION Y COMPRAS',  tu:'09:00 - 18:00'},
+  {id:'41318261',ap:'GUARDAMINO RIOS',   nm:'ALDO JESUS',     gr:'ADMINISTRACION Y FINANZAS', tu:'09:00 - 18:00'},
+  {id:'72783491',ap:'VASQUEZ CHIPANA',   nm:'YANETT NATIVIDAD',gr:'ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00'},
+  {id:'46261114',ap:'ESPINOZA MONTESINOS',nm:'DALMA NEREA',   gr:'COBRANZAS',                 tu:'09:00 - 18:00'},
+  {id:'70447785',ap:'CORDOVA VIDAL',     nm:'RAI EDU',        gr:'PROYECTOS',                 tu:'09:00 - 18:00'},
+  {id:'72726407',ap:'SAAVEDRA VIGO',     nm:'MARIANA ROCIO',  gr:'PROYECTOS',                 tu:'09:00 - 18:00'},
+];
+
+var PAL = ['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef4444','#14b8a6'];
+function ini(n){ return n.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); }
+function gc(n){ var h=0; for(var i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))&0xffff; return PAL[h%PAL.length]; }
+function today(){ return new Date().toISOString().slice(0,10); }
+function nowT(){ return new Date().toTimeString().slice(0,5); }
+var DIAS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+function fGeo(f){ var p=f.split('-'); var dt=new Date(+p[0],+p[1]-1,+p[2]); var i=dt.getDay()===0?6:dt.getDay()-1; return DIAS[i]+' '+p[2]+'-'+p[1]+'-'+p[0]; }
+function t2d(t){ if(!t) return null; var p=t.split(':'); return(+p[0]*60+ +p[1])/1440; }
+function fmtHT(eh,sh){ if(!eh||!sh) return '—'; var d=t2d(sh)-t2d(eh); if(d<0)d+=1; var m=Math.round(d*1440); return Math.floor(m/60)+'h '+m%60+'m'; }
+
+var CW = null;
+
+// Reloj
+function tick(){
+  var n = new Date();
+  document.getElementById('clk').textContent  = n.toTimeString().slice(0,8);
+  document.getElementById('clkd').textContent = n.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+}
+setInterval(tick, 1000); tick();
+
+// Llenar lista de trabajadores
+(function(){
+  var sel = document.getElementById('sel-w');
+  WORKERS.forEach(function(w){
+    var o = document.createElement('option');
+    o.value = w.id;
+    o.textContent = w.ap + ', ' + w.nm;
+    sel.appendChild(o);
+  });
+})();
+
+// ── Login ────────────────────────────────────────────────────────────────────
+function doLogin(){
+  var wid = document.getElementById('sel-w').value;
+  var dni = document.getElementById('inp-dni').value.trim();
+  var err = document.getElementById('login-err');
+  err.textContent = '';
+  if(!wid){ err.textContent = 'Selecciona tu nombre.'; return; }
+  var w = WORKERS.find(function(x){ return x.id === wid; });
+  if(!w || w.id !== dni){ err.textContent = 'El DNI no coincide. Intenta de nuevo.'; return; }
+  CW = w;
+  // Mostrar dashboard
+  document.getElementById('sec-login').classList.add('hidden');
+  document.getElementById('sec-dash').classList.remove('hidden');
+  // Pill usuario
+  var pill = document.getElementById('upill');
+  pill.classList.remove('hidden');
+  pill.style.display = 'flex';
+  document.getElementById('upill-nm').textContent = w.nm;
+  // Perfil
+  var av = document.getElementById('av');
+  av.textContent = ini(w.nm); av.style.background = gc(w.ap);
+  document.getElementById('d-name').textContent = w.nm + ' ' + w.ap;
+  document.getElementById('d-gr').textContent   = w.gr;
+  document.getElementById('d-turno').textContent = 'Turno: ' + w.tu;
+  cargarRegistros();
+}
+
+function logout(){
+  CW = null;
+  document.getElementById('sec-login').classList.remove('hidden');
+  document.getElementById('sec-dash').classList.add('hidden');
+  document.getElementById('upill').classList.add('hidden');
+  document.getElementById('sel-w').value = '';
+  document.getElementById('inp-dni').value = '';
+  document.getElementById('login-err').textContent = '';
+}
+
+// ── Cargar registros ──────────────────────────────────────────────────────────
+function cargarRegistros(){
+  fetch('/api/registros')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var regs = (data.regs || []).filter(function(r){ return r.wid === CW.id; });
+      renderDash(regs);
+    })
+    .catch(function(){ toast('No se pudo conectar al servidor', 'err'); });
+}
+
+// ── Renderizar dashboard ──────────────────────────────────────────────────────
+function renderDash(regs){
+  var td = today();
+  var tE = regs.find(function(r){ return r.f===td && r.t==='entrada'; });
+  var tS = regs.find(function(r){ return r.f===td && r.t==='salida';  });
+
+  // Estado del día
+  var box  = document.getElementById('sbox');
+  var dot  = document.getElementById('sdot');
+  var stxt = document.getElementById('stxt');
+  var stime= document.getElementById('stime');
+  box.className = 'sbox';
+  if(tE && tS){
+    box.classList.add('s-fuera'); dot.className='sdot dout';
+    stxt.textContent  = 'Jornada completada ✓';
+    stime.textContent = 'Entrada: '+tE.h+' · Salida: '+tS.h+' · '+fmtHT(tE.h,tS.h);
+  } else if(tE){
+    box.classList.add('s-en'); dot.className='sdot din';
+    stxt.textContent  = 'En turno — entrada registrada';
+    stime.textContent = 'Entraste a las ' + tE.h;
+  } else {
+    box.classList.add('s-nada'); dot.className='sdot dnone';
+    stxt.textContent  = 'Sin marcación hoy';
+    stime.textContent = '';
+  }
+
+  // Botones
+  document.getElementById('btn-e').disabled = !!(tE);
+  document.getElementById('btn-s').disabled = !(tE && !tS);
+
+  // Tabla historial
+  var fechas = [];
+  regs.forEach(function(r){ if(fechas.indexOf(r.f)<0) fechas.push(r.f); });
+  fechas.sort().reverse();
+
+  var rows = [];
+  fechas.slice(0,20).forEach(function(f){
+    var e = regs.find(function(r){ return r.f===f && r.t==='entrada'; });
+    var s = regs.find(function(r){ return r.f===f && r.t==='salida';  });
+    var badge = e&&s ? '<span class="badge bg">Completo</span>'
+              : e    ? '<span class="badge ba">En turno</span>'
+                     : '<span class="badge bgr">Sin marcar</span>';
+    rows.push(
+      '<tr>' +
+      '<td style="font-size:11px">' + fGeo(f) + '</td>' +
+      '<td class="mono" style="color:#15803d;font-weight:700">' + (e ? e.h : '—') + '</td>' +
+      '<td class="mono" style="color:#dc2626;font-weight:700">' + (s ? s.h : '—') + '</td>' +
+      '<td>' + fmtHT(e&&e.h, s&&s.h) + '</td>' +
+      '<td>' + badge + '</td>' +
+      '</tr>'
+    );
+  });
+
+  document.getElementById('mis-regs').innerHTML = rows.join('');
+  document.getElementById('mis-empty').style.display = rows.length ? 'none' : 'block';
+}
+
+// ── Marcar entrada / salida ───────────────────────────────────────────────────
+function marcar(tipo){
+  var btnId = tipo === 'entrada' ? 'btn-e' : 'btn-s';
+  var btn   = document.getElementById(btnId);
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span>Guardando...';
+
+  var marca = {
+    wid: CW.id,  f: today(), h: nowT(),
+    t: tipo,     p: 'Ninguno',
+    ap: CW.ap,   nm: CW.nm,
+    gr: CW.gr,   tu: CW.tu
+  };
+
+  fetch('/api/marcar', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(marca)
+  })
+  .then(function(r){ return r.json().then(function(d){ return { status: r.status, data: d }; }); })
+  .then(function(res){
+    if(res.status === 409){
+      toast(res.data.error, 'err');
+    } else if(res.data.ok){
+      toast((tipo==='entrada' ? '✓ Entrada' : '✓ Salida') + ' registrada: ' + marca.h, 'ok');
+      cargarRegistros();
+    } else {
+      toast('Error: ' + (res.data.error || 'desconocido'), 'err');
+    }
+  })
+  .catch(function(){ toast('Error de conexión con el servidor', 'err'); })
+  .finally(function(){
+    btn.disabled = false;
+    btn.innerHTML = tipo === 'entrada' ? '▶ Registrar Entrada' : '◀ Registrar Salida';
+  });
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(msg, tipo){
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show' + (tipo ? ' ' + tipo : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+}
+</script>
+</body>
+</html>
