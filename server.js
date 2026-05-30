@@ -33,9 +33,52 @@ function serveHTML(res, filePath) {
     res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
     res.end(content);
   } catch(e) {
-    res.writeHead(404);
-    res.end('Not found: ' + filePath);
+    res.writeHead(404); res.end('Not found');
   }
+}
+
+// Generar CSV con formato Excel (separado por comas, con BOM UTF-8)
+function generarCSV(regs, workers) {
+  const DIAS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+  function fGeo(f) {
+    const [y,mo,d] = f.split('-').map(Number);
+    const dt = new Date(y, mo-1, d);
+    const i = dt.getDay() === 0 ? 6 : dt.getDay()-1;
+    return `${DIAS[i]} ${String(d).padStart(2,'0')}-${String(mo).padStart(2,'0')}-${y}`;
+  }
+  function fmtHT(eh, sh) {
+    if(!eh || !sh) return '';
+    const t2d = t => { const [h,m] = t.split(':').map(Number); return (h*60+m)/1440; };
+    let d = t2d(sh) - t2d(eh); if(d < 0) d += 1;
+    const m = Math.round(d * 1440);
+    return `${Math.floor(m/60)}h ${m%60}m`;
+  }
+
+  const headers = ['Apellidos','Nombre','Identificador','Grupo','Fecha','Permiso','Turno','Entró','Salió','H. Trabajadas','Estado','Cargo'];
+  const rows = [headers.map(h => `"${h}"`).join(',')];
+
+  workers.forEach(w => {
+    const wr = regs.filter(r => r.wid === w.id);
+    const fechas = [...new Set(wr.map(r => r.f))].sort();
+    fechas.forEach(f => {
+      const e = wr.find(r => r.f===f && r.t==='entrada');
+      const s = wr.find(r => r.f===f && r.t==='salida');
+      const perm = (e&&e.p)||(s&&s.p)||'Ninguno';
+      const estado = e&&s?'Completo':e?'En turno':'Sin marcar';
+      const row = [
+        w.ap, w.nm, w.id, w.gr,
+        fGeo(f), perm, w.tu,
+        e ? e.h : '',
+        s ? s.h : '',
+        fmtHT(e&&e.h, s&&s.h),
+        estado,
+        w.ca || ''
+      ];
+      rows.push(row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
+    });
+  });
+
+  return '\uFEFF' + rows.join('\r\n'); // BOM + CRLF
 }
 
 const server = http.createServer((req, res) => {
@@ -70,6 +113,37 @@ const server = http.createServer((req, res) => {
         return jsonResp(res, 200, { ok: true });
       } catch(e) {
         return jsonResp(res, 400, { error: e.message });
+      }
+    });
+    return;
+  }
+
+  // API exportar Excel (CSV real que Excel abre perfectamente)
+  if (method === 'POST' && url === '/api/exportar') {
+    let body = '';
+    req.on('data', d => body += d);
+    req.on('end', () => {
+      try {
+        const { workers, filtroFecha, filtroGrupo } = JSON.parse(body);
+        let regs = readData().regs;
+
+        // Aplicar filtros
+        if (filtroFecha) regs = regs.filter(r => r.f === filtroFecha);
+        if (filtroGrupo) regs = regs.filter(r => r.gr === filtroGrupo);
+
+        const csv = generarCSV(regs, workers);
+        const fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
+        const fname = `Asistencia_${fecha}.csv`;
+
+        cors(res);
+        res.writeHead(200, {
+          'Content-Type': 'text/csv; charset=utf-8',
+          'Content-Disposition': `attachment; filename="${fname}"`,
+          'Content-Length': Buffer.byteLength(csv, 'utf8')
+        });
+        res.end(csv, 'utf8');
+      } catch(e) {
+        jsonResp(res, 400, { error: e.message });
       }
     });
     return;
