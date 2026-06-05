@@ -1,21 +1,43 @@
-const http = require('http');
-const fs   = require('fs');
-const path = require('path');
+const http       = require('http');
+const fs         = require('fs');
+const path       = require('path');
+const { MongoClient } = require('mongodb');
 
-const PORT = process.env.PORT || 3000;
-const DATA_FILE = '/tmp/marcaciones.json';
+const PORT        = process.env.PORT || 3000;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!fs.existsSync(DATA_FILE)) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify({ regs: [] }));
+let db = null;
+
+// Conectar a MongoDB
+async function conectarDB() {
+  try {
+    const client = new MongoClient(MONGODB_URI);
+    await client.connect();
+    db = client.db('akamai');
+    console.log('MongoDB conectado OK');
+  } catch(e) {
+    console.error('Error MongoDB:', e.message);
+  }
 }
 
-function readData() {
-  try { return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8')); }
-  catch(e) { return { regs: [] }; }
+async function getRegs() {
+  if(!db) return [];
+  try {
+    return await db.collection('marcaciones').find({}).toArray();
+  } catch(e) { return []; }
 }
-function writeData(d) {
-  fs.writeFileSync(DATA_FILE, JSON.stringify(d));
+
+async function addReg(marca) {
+  if(!db) throw new Error('Sin conexion a base de datos');
+  await db.collection('marcaciones').insertOne(marca);
 }
+
+async function existeReg(wid, f, t) {
+  if(!db) return false;
+  const r = await db.collection('marcaciones').findOne({ wid, f, t });
+  return !!r;
+}
+
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -37,7 +59,6 @@ function serveHTML(res, filePath) {
   }
 }
 
-// Generar CSV con formato Excel (separado por comas, con BOM UTF-8)
 function generarCSV(regs, workers) {
   const DIAS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   function fGeo(f) {
@@ -53,10 +74,8 @@ function generarCSV(regs, workers) {
     const m = Math.round(d * 1440);
     return `${Math.floor(m/60)}h ${m%60}m`;
   }
-
   const headers = ['Apellidos','Nombre','Identificador','Grupo','Fecha','Permiso','Turno','Entró','Salió','H. Trabajadas','Estado','Cargo'];
   const rows = [headers.map(h => `"${h}"`).join(',')];
-
   workers.forEach(w => {
     const wr = regs.filter(r => r.wid === w.id);
     const fechas = [...new Set(wr.map(r => r.f))].sort();
@@ -65,23 +84,15 @@ function generarCSV(regs, workers) {
       const s = wr.find(r => r.f===f && r.t==='salida');
       const perm = (e&&e.p)||(s&&s.p)||'Ninguno';
       const estado = e&&s?'Completo':e?'En turno':'Sin marcar';
-      const row = [
-        w.ap, w.nm, w.id, w.gr,
-        fGeo(f), perm, w.tu,
-        e ? e.h : '',
-        s ? s.h : '',
-        fmtHT(e&&e.h, s&&s.h),
-        estado,
-        w.ca || ''
-      ];
+      const row = [w.ap, w.nm, w.id, w.gr, fGeo(f), perm, w.tu,
+        e?e.h:'', s?s.h:'', fmtHT(e&&e.h, s&&s.h), estado, w.ca||''];
       rows.push(row.map(v => `"${String(v).replace(/"/g,'""')}"`).join(','));
     });
   });
-
-  return '\uFEFF' + rows.join('\r\n'); // BOM + CRLF
+  return '\uFEFF' + rows.join('\r\n');
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const url    = req.url.split('?')[0];
   const method = req.method;
 
@@ -93,23 +104,24 @@ const server = http.createServer((req, res) => {
   if (method === 'GET' && (url === '/admin' || url === '/administrador' || url === '/administrador.html'))
     return serveHTML(res, path.join(__dirname, 'administrador.html'));
 
-  if (method === 'GET' && url === '/api/registros')
-    return jsonResp(res, 200, readData());
+  if (method === 'GET' && url === '/api/registros') {
+    const regs = await getRegs();
+    // Limpiar _id de MongoDB para no enviarlo al cliente
+    const clean = regs.map(r => { const {_id, ...rest} = r; return rest; });
+    return jsonResp(res, 200, { regs: clean });
+  }
 
   if (method === 'POST' && url === '/api/marcar') {
     let body = '';
     req.on('data', d => body += d);
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
         const marca = JSON.parse(body);
-        const data  = readData();
-        const existe = data.regs.find(r =>
-          r.wid === marca.wid && r.f === marca.f && r.t === marca.t
-        );
+        const existe = await existeReg(marca.wid, marca.f, marca.t);
         if (existe) return jsonResp(res, 409, { error: 'Ya registraste ' + marca.t + ' hoy' });
         marca.id = Date.now();
-        data.regs.push(marca);
-        writeData(data);
+        await addReg(marca);
+        console.log('MARCA:', marca.nm, marca.ap, '-', marca.t.toUpperCase(), marca.h);
         return jsonResp(res, 200, { ok: true });
       } catch(e) {
         return jsonResp(res, 400, { error: e.message });
@@ -118,28 +130,21 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // API exportar Excel (CSV real que Excel abre perfectamente)
   if (method === 'POST' && url === '/api/exportar') {
     let body = '';
     req.on('data', d => body += d);
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
         const { workers, filtroFecha, filtroGrupo } = JSON.parse(body);
-        let regs = readData().regs;
-
-        // Aplicar filtros
+        let regs = await getRegs();
         if (filtroFecha) regs = regs.filter(r => r.f === filtroFecha);
         if (filtroGrupo) regs = regs.filter(r => r.gr === filtroGrupo);
-
         const csv = generarCSV(regs, workers);
         const fecha = new Date().toISOString().slice(0,10).replace(/-/g,'');
-        const fname = `Asistencia_${fecha}.csv`;
-
         cors(res);
         res.writeHead(200, {
           'Content-Type': 'text/csv; charset=utf-8',
-          'Content-Disposition': `attachment; filename="${fname}"`,
-          'Content-Length': Buffer.byteLength(csv, 'utf8')
+          'Content-Disposition': `attachment; filename="Asistencia_${fecha}.csv"`,
         });
         res.end(csv, 'utf8');
       } catch(e) {
@@ -152,6 +157,9 @@ const server = http.createServer((req, res) => {
   res.writeHead(404); res.end('Not found');
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log('Servidor OK puerto ' + PORT);
+// Iniciar servidor después de conectar MongoDB
+conectarDB().then(() => {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log('Servidor OK puerto ' + PORT);
+  });
 });
