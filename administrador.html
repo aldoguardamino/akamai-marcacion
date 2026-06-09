@@ -280,7 +280,7 @@ function logout(){
 }
 
 function loadAll(){
-  fetch('/api/registros')
+  return fetch('/api/registros')
     .then(function(r){return r.json();})
     .then(function(data){
       allRegs=data.regs||[];
@@ -461,12 +461,19 @@ function guardarEdicion(){
     if(d.ok){
       toast('Marcación actualizada correctamente','ok');
       closeEditModal();
-      loadAll().then ? loadAll().then(function(){abrirWorkerFecha(editingWid,nuevaFecha);}) : (loadAll(), setTimeout(function(){abrirWorkerFecha(editingWid,nuevaFecha);},1000));
+      var wid = editingWid;
+      var fecha = nuevaFecha;
+      loadAll().then(function(){
+        abrirWorkerFecha(wid, fecha);
+      });
     } else {
       toast('Error: '+(d.error||'desconocido'));
     }
   })
-  .catch(function(){toast('Error de conexión');});
+  .catch(function(err){
+    console.error('Error editar:', err);
+    toast('Error de conexión al guardar');
+  });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
