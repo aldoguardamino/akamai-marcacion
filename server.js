@@ -8,7 +8,6 @@ const MONGODB_URI = process.env.MONGODB_URI;
 
 let db = null;
 
-// Conectar a MongoDB
 async function conectarDB() {
   try {
     const client = new MongoClient(MONGODB_URI);
@@ -22,16 +21,13 @@ async function conectarDB() {
 
 async function getRegs() {
   if(!db) return [];
-  try {
-    return await db.collection('marcaciones').find({}).toArray();
-  } catch(e) { return []; }
+  try { return await db.collection('marcaciones').find({}).toArray(); }
+  catch(e) { return []; }
 }
-
 async function addReg(marca) {
   if(!db) throw new Error('Sin conexion a base de datos');
   await db.collection('marcaciones').insertOne(marca);
 }
-
 async function existeReg(wid, f, t) {
   if(!db) return false;
   const r = await db.collection('marcaciones').findOne({ wid, f, t });
@@ -106,7 +102,6 @@ const server = http.createServer(async (req, res) => {
 
   if (method === 'GET' && url === '/api/registros') {
     const regs = await getRegs();
-    // Limpiar _id de MongoDB para no enviarlo al cliente
     const clean = regs.map(r => { const {_id, ...rest} = r; return rest; });
     return jsonResp(res, 200, { regs: clean });
   }
@@ -123,6 +118,52 @@ const server = http.createServer(async (req, res) => {
         await addReg(marca);
         console.log('MARCA:', marca.nm, marca.ap, '-', marca.t.toUpperCase(), marca.h);
         return jsonResp(res, 200, { ok: true });
+      } catch(e) {
+        return jsonResp(res, 400, { error: e.message });
+      }
+    });
+    return;
+  }
+
+  // EDITAR marcación de un día
+  if (method === 'POST' && url === '/api/editar') {
+    let body = '';
+    req.on('data', d => body += d);
+    req.on('end', async () => {
+      try {
+        const { wid, fechaOriginal, nuevaFecha, entrada, salida } = JSON.parse(body);
+        // Eliminar registros originales del día
+        await db.collection('marcaciones').deleteMany({ wid, f: fechaOriginal });
+        // Insertar nuevos registros
+        if (entrada) {
+          await db.collection('marcaciones').insertOne({
+            id: Date.now(), wid, f: nuevaFecha, h: entrada, t: 'entrada', p: 'Ninguno'
+          });
+        }
+        if (salida) {
+          await db.collection('marcaciones').insertOne({
+            id: Date.now()+1, wid, f: nuevaFecha, h: salida, t: 'salida', p: 'Ninguno'
+          });
+        }
+        console.log('EDICION:', wid, fechaOriginal, '->', nuevaFecha, entrada, salida);
+        return jsonResp(res, 200, { ok: true });
+      } catch(e) {
+        return jsonResp(res, 400, { error: e.message });
+      }
+    });
+    return;
+  }
+
+  // ELIMINAR todas las marcaciones de un día
+  if (method === 'POST' && url === '/api/eliminar') {
+    let body = '';
+    req.on('data', d => body += d);
+    req.on('end', async () => {
+      try {
+        const { wid, fecha } = JSON.parse(body);
+        const result = await db.collection('marcaciones').deleteMany({ wid, f: fecha });
+        console.log('ELIMINACION:', wid, fecha, '- registros borrados:', result.deletedCount);
+        return jsonResp(res, 200, { ok: true, deleted: result.deletedCount });
       } catch(e) {
         return jsonResp(res, 400, { error: e.message });
       }
@@ -157,7 +198,6 @@ const server = http.createServer(async (req, res) => {
   res.writeHead(404); res.end('Not found');
 });
 
-// Iniciar servidor después de conectar MongoDB
 conectarDB().then(() => {
   server.listen(PORT, '0.0.0.0', () => {
     console.log('Servidor OK puerto ' + PORT);
