@@ -423,8 +423,8 @@ function cargarVacaciones(){
           '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Retorno</b><br>'+fmtFechaDisp(v.retorno)+'</div>'+
           '</div>'+
           '<div style="display:flex;gap:8px;">'+
-          '<button class="btn btn-g" style="flex:1;padding:8px;font-size:12px;" onclick="aprobarVacacion(''+v.id+'')">Aprobar</button>'+
-          '<button class="btn" style="flex:1;padding:8px;font-size:12px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;" onclick="rechazarVacacion(''+v.id+'')">Rechazar</button>'+
+          '<button class="btn btn-g" style="flex:1;padding:8px;font-size:12px;" onclick="aprobarVacacion(\''+v.id+'\')">Aprobar</button>'+
+          '<button class="btn" style="flex:1;padding:8px;font-size:12px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;" onclick="rechazarVacacion(\''+v.id+'\')">Rechazar</button>'+
           '</div></div>';
       }).join('');
     }
@@ -436,7 +436,7 @@ function cargarVacaciones(){
       divH.innerHTML = hist.map(function(v){
         var estadoClass=v.estado==='aprobado'?'bg':'brej';
         var estadoTxt=v.estado==='aprobado'?'Aprobado':'Rechazado';
-        var btnPDF=v.estado==='aprobado'?'<button class="btn-sm" onclick="window.open('/api/vacaciones/pdf/'+v.id+'','_blank')" style="margin-top:8px">Ver PDF</button>':'';
+        var btnPDF=v.estado==='aprobado'?'<button class="btn-sm" onclick="window.open('/api/vacaciones/pdf/'+v.id,'_blank')" style="margin-top:8px">Ver PDF</button>':'';
         return '<div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">'+
           '<div style="flex:1">'+
           '<div style="font-weight:700;font-size:13px;">'+v.nombres+' '+v.apellidos+'</div>'+
