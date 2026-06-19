@@ -81,6 +81,8 @@ tbody tr:hover td{background:#f8faff;}
 .err-txt{color:#ef4444;font-size:12px;margin-top:6px;font-weight:600;}
 .last-up{font-size:11px;color:#94a3b8;}
 .empty{text-align:center;padding:30px;color:#94a3b8;font-size:13px;}
+.bpend{background:#dbeafe;color:#1e40af;}
+.brej{background:#fee2e2;color:#b91c1c;}
 /* Modal */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;padding:16px;}
 .overlay.show{display:flex;}
@@ -135,6 +137,7 @@ tbody tr:hover td{background:#f8faff;}
   <div class="tabs">
     <div class="tab active" onclick="swTab('hoy')">📅 Hoy</div>
     <div class="tab" onclick="swTab('historial')">🕐 Historial</div>
+    <div class="tab" onclick="swTab('vacaciones')">🏖 Vacaciones</div>
   </div>
 
   <!-- HOY -->
@@ -179,6 +182,22 @@ tbody tr:hover td{background:#f8faff;}
     </table></div>
     <div class="empty" id="empty-hist" style="display:none">No hay registros.</div>
   </div>
+
+  <!-- VACACIONES -->
+  <div class="panel" id="tab-vacaciones">
+    <div class="toolbar">
+      <div style="font-size:13px;font-weight:600;color:#475569;">Solicitudes de vacaciones</div>
+      <button class="btn btn-sm" style="margin-left:auto" onclick="cargarVacaciones()">⟳ Actualizar</button>
+    </div>
+
+    <!-- Pendientes -->
+    <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:10px;">⏳ Pendientes de aprobación</div>
+    <div id="vac-pendientes"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px;">Cargando...</p></div>
+
+    <div style="font-size:13px;font-weight:700;color:#1e293b;margin:18px 0 10px;">✓ Aprobadas / Rechazadas</div>
+    <div id="vac-historial"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px;">Cargando...</p></div>
+  </div>
+
 </div>
 
 <!-- MODAL historial trabajador -->
@@ -267,6 +286,9 @@ function doLogin(){
   document.getElementById('hoy-fecha').textContent='Hoy: '+fGeo(today());
   updDept();loadAll();
   timer=setInterval(loadAll,20000);
+  // Detectar qué jefe es según usuario (para firma en aprobaciones)
+  // Por defecto Aldo Guardamino como admin principal
+  CW_ADMIN_WID = '41318261';
 }
 
 function logout(){
@@ -365,10 +387,95 @@ function updDept(){
   s.innerHTML='<option value="">Todos los grupos</option>'+gs.map(function(g){return'<option value="'+g+'">'+g+'</option>';}).join('');
 }
 function swTab(t){
-  document.querySelectorAll('.tab').forEach(function(x,i){x.classList.toggle('active',['hoy','historial'][i]===t);});
+  document.querySelectorAll('.tab').forEach(function(x,i){x.classList.toggle('active',['hoy','historial','vacaciones'][i]===t);});
   document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
   document.getElementById('tab-'+t).classList.add('active');
+  if(t==='vacaciones') cargarVacaciones();
 }
+
+// ── VACACIONES ADMIN ──────────────────────────────────────────────────────────
+var JEFES_WID = {'41318261':true,'41084859':true,'73173155':true};
+
+function cargarVacaciones(){
+  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
+    var vacs = data.vacaciones||[];
+    var pendientes = vacs.filter(function(v){return v.estado==='pendiente';});
+    var hist = vacs.filter(function(v){return v.estado!=='pendiente';});
+    hist.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
+
+    var divP = document.getElementById('vac-pendientes');
+    if(!pendientes.length){
+      divP.innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">No hay solicitudes pendientes.</p>';
+    } else {
+      divP.innerHTML = pendientes.map(function(v){
+        var w = WORKERS.find(function(x){return x.id===v.wid;});
+        var esJefe = JEFES_WID[CW_ADMIN_WID];
+        return '<div style="background:#fff;border-radius:10px;border:1.5px solid #fcd34d;padding:16px;margin-bottom:10px;">'+
+          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
+          '<div style="width:36px;height:36px;border-radius:50%;background:'+gc(v.apellidos||'')+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">'+ini(v.nombres||'')+'</div>'+
+          '<div><div style="font-weight:700;font-size:13px;">'+v.nombres+' '+v.apellidos+'</div>'+
+          '<div style="font-size:11px;color:#64748b;">'+v.area+' · '+(v.cargo||'')+'</div></div>'+
+          '<span class="badge bpend" style="margin-left:auto">⏳ Pendiente</span></div>'+
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">'+
+          '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Desde</b><br>'+fmtFechaDisp(v.desde)+'</div>'+
+          '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Hasta</b><br>'+fmtFechaDisp(v.hasta)+'</div>'+
+          '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>N° días</b><br>'+v.dias+'</div>'+
+          '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Retorno</b><br>'+fmtFechaDisp(v.retorno)+'</div>'+
+          '</div>'+
+          '<div style="display:flex;gap:8px;">'+
+          '<button class="btn btn-g" style="flex:1;padding:8px;font-size:12px;" onclick="aprobarVacacion(''+v.id+'')">✓ Aprobar</button>'+
+          '<button class="btn" style="flex:1;padding:8px;font-size:12px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;" onclick="rechazarVacacion(''+v.id+'')">✗ Rechazar</button>'+
+          '</div></div>';
+      }).join('');
+    }
+
+    var divH = document.getElementById('vac-historial');
+    if(!hist.length){
+      divH.innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Sin historial aún.</p>';
+    } else {
+      divH.innerHTML = hist.map(function(v){
+        var estadoClass=v.estado==='aprobado'?'bg':'brej';
+        var estadoTxt=v.estado==='aprobado'?'✓ Aprobado':'✗ Rechazado';
+        var btnPDF=v.estado==='aprobado'?'<button class="btn-sm" onclick="window.open('/api/vacaciones/pdf/'+v.id+'','_blank')" style="margin-top:8px">📄 Ver PDF</button>':'';
+        return '<div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">'+
+          '<div style="flex:1">'+
+          '<div style="font-weight:700;font-size:13px;">'+v.nombres+' '+v.apellidos+'</div>'+
+          '<div style="font-size:11px;color:#64748b;">'+fmtFechaDisp(v.desde)+' al '+fmtFechaDisp(v.hasta)+' ('+v.dias+' días)</div>'+
+          (v.jefeNombre?'<div style="font-size:11px;color:#64748b;">Por: '+v.jefeNombre+'</div>':'')+
+          '</div>'+
+          '<div style="text-align:right"><span class="badge '+estadoClass+'">'+estadoTxt+'</span><br>'+btnPDF+'</div>'+
+          '</div>';
+      }).join('');
+    }
+  }).catch(function(){toast('Error al cargar vacaciones');});
+}
+
+var CW_ADMIN_WID = null;
+
+function aprobarVacacion(id){
+  var w = WORKERS.find(function(x){return x.id===CW_ADMIN_WID;});
+  var jefeNombre = w ? w.nm+' '+w.ap : 'Administrador';
+  fetch('/api/vacaciones/aprobar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,jefeNombre:jefeNombre,jefeWid:CW_ADMIN_WID||''})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.ok){toast('✓ Vacaciones aprobadas. Se notificó al trabajador.','ok');cargarVacaciones();}
+    else toast('Error: '+(d.error||'desconocido'));
+  }).catch(function(){toast('Error de conexión');});
+}
+
+function rechazarVacacion(id){
+  var motivo=prompt('Motivo del rechazo (opcional):');
+  var w = WORKERS.find(function(x){return x.id===CW_ADMIN_WID;});
+  var jefeNombre = w ? w.nm+' '+w.ap : 'Administrador';
+  fetch('/api/vacaciones/rechazar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,motivo:motivo||'',jefeNombre:jefeNombre})})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.ok){toast('Solicitud rechazada','ok');cargarVacaciones();}
+    else toast('Error: '+(d.error||'desconocido'));
+  }).catch(function(){toast('Error de conexión');});
+}
+
+function fmtFechaDisp(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 
 // ══════════════════════════════════════════════════════════════════════════════
 // MODAL HISTORIAL POR TRABAJADOR
