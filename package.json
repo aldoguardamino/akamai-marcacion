@@ -1,7 +1,7 @@
 {
   "name": "akamai-marcacion",
   "version": "1.0.0",
-  "description": "Sistema de marcacion Akamai",
+  "description": "Sistema de marcacion y vacaciones Akamai",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
