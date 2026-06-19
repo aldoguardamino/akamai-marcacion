@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Akamai — Administrador</title>
+<title>Akamai -- Administrador</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;}
@@ -108,7 +108,7 @@ tbody tr:hover td{background:#f8faff;}
 
 <div class="header">
   <div class="logo">AK</div>
-  <div><h1>Akamai — Panel Administrador</h1><p>Control completo de asistencia</p></div>
+  <div><h1>Akamai -- Panel Administrador</h1><p>Control completo de asistencia</p></div>
   <div class="hright">
     <div class="clock" id="hclk">00:00:00</div>
     <div class="live" id="live-badge" style="display:none"><span class="live-dot"></span>EN VIVO</div>
@@ -147,7 +147,7 @@ tbody tr:hover td{background:#f8faff;}
       <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <span class="last-up" id="last-up"></span>
         <button class="btn btn-sm" onclick="loadAll()">⟳ Actualizar</button>
-        <button class="btn btn-g" id="btnExH" onclick="exportar('hoy')">⬇ Exportar Excel (hoy)</button>
+        <button class="btn btn-g" id="btnExH" onclick="exportar('hoy')">Exportar Excel (hoy)</button>
       </div>
     </div>
     <div class="cards-row">
@@ -174,7 +174,7 @@ tbody tr:hover td{background:#f8faff;}
         <select id="fdept-h" onchange="renderHist()"></select>
       </div>
       <button class="btn btn-sm" onclick="loadAll()">⟳ Actualizar</button>
-      <button class="btn btn-g" id="btnExHist" onclick="exportar('historial')">⬇ Exportar Excel</button>
+      <button class="btn btn-g" id="btnExHist" onclick="exportar('historial')">Exportar Excel</button>
     </div>
     <div class="tw"><table>
       <thead><tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>ID</th><th>Grupo</th><th>Fecha</th><th>Permiso</th><th>Turno</th><th>Entró</th><th>Salió</th><th>H. Trabajadas</th><th>Estado</th><th>Gestión</th></tr></thead>
@@ -191,7 +191,7 @@ tbody tr:hover td{background:#f8faff;}
     </div>
 
     <!-- Pendientes -->
-    <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:10px;">⏳ Pendientes de aprobación</div>
+    <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:10px;">Pendientes de aprobación</div>
     <div id="vac-pendientes"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px;">Cargando...</p></div>
 
     <div style="font-size:13px;font-weight:700;color:#1e293b;margin:18px 0 10px;">✓ Aprobadas / Rechazadas</div>
@@ -266,7 +266,7 @@ function today(){var now=new Date();var peru=new Date(now.getTime()-(5*60*60*100
 var DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 function fGeo(f){var p=f.split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);var i=dt.getDay()===0?6:dt.getDay()-1;return DIAS[i]+' '+p[2]+'-'+p[1]+'-'+p[0];}
 function t2d(t){if(!t)return null;var p=t.split(':');return(+p[0]*60+ +p[1])/1440;}
-function fmtHT(eh,sh){if(!eh||!sh)return'—';var d=t2d(sh)-t2d(eh);if(d<0)d+=1;var m=Math.round(d*1440);return Math.floor(m/60)+'h '+m%60+'m';}
+function fmtHT(eh,sh){if(!eh||!sh)return'--';var d=t2d(sh)-t2d(eh);if(d<0)d+=1;var m=Math.round(d*1440);return Math.floor(m/60)+'h '+m%60+'m';}
 
 var allRegs=[], timer=null, editingWid=null, editingFecha=null;
 
@@ -312,7 +312,7 @@ function loadAll(){
     .catch(function(){toast('Error al conectar');});
 }
 
-// ── Renderizar HOY ────────────────────────────────────────────────────────────
+
 function renderHoy(){
   var td=today();var pr=0,sa=0,n=0;
   var gcards=[],rows=[];
@@ -334,10 +334,10 @@ function renderHoy(){
     rows.push('<tr><td>'+n+'</td><td><b>'+w.ap+'</b></td><td>'+w.nm+'</td>'+
       '<td class="mono">'+w.id+'</td><td>'+w.gr+'</td>'+
       '<td style="font-size:11px">'+w.tu+'</td>'+
-      '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'—')+'</td>'+
-      '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'—')+'</td>'+
+      '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td>'+
+      '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td>'+
       '<td>'+fmtHT(e&&e.h,s&&s.h)+'</td><td>'+tbadge+'</td>'+
-      '<td><button class="btn-sm" onclick="abrirWorker(\''+w.id+'\')">✏️ Gestionar</button></td></tr>');
+      '<td><button class="btn-sm" onclick="abrirWorker(\''+w.id+'\')">Gestionar</button></td></tr>');
   });
   document.getElementById('wgrid').innerHTML=gcards.join('');
   document.getElementById('tbody-hoy').innerHTML=rows.join('');
@@ -348,7 +348,7 @@ function renderHoy(){
   document.getElementById('s-t').textContent=WORKERS.length;
 }
 
-// ── Renderizar HISTORIAL ──────────────────────────────────────────────────────
+
 function renderHist(){
   var srch=document.getElementById('srch-h').value.toLowerCase();
   var fd=document.getElementById('fdate-h').value;
@@ -371,10 +371,10 @@ function renderHist(){
         '<td class="mono">'+w.id+'</td><td>'+w.gr+'</td>'+
         '<td style="font-size:11px">'+fGeo(f)+'</td><td>'+perm+'</td>'+
         '<td style="font-size:11px">'+w.tu+'</td>'+
-        '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'—')+'</td>'+
-        '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'—')+'</td>'+
+        '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td>'+
+        '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td>'+
         '<td>'+fmtHT(e&&e.h,s&&s.h)+'</td><td>'+badge+'</td>'+
-        '<td><button class="btn-sm" onclick="abrirWorkerFecha(\''+w.id+'\',\''+f+'\')">✏️ Gestionar</button></td></tr>');
+        '<td><button class="btn-sm" onclick="abrirWorkerFecha(\''+w.id+'\',\''+f+'\')">Gestionar</button></td></tr>');
     });
   });
   document.getElementById('empty-hist').style.display=rows.length?'none':'block';
@@ -393,7 +393,7 @@ function swTab(t){
   if(t==='vacaciones') cargarVacaciones();
 }
 
-// ── VACACIONES ADMIN ──────────────────────────────────────────────────────────
+
 var JEFES_WID = {'41318261':true,'41084859':true,'73173155':true};
 
 function cargarVacaciones(){
@@ -415,7 +415,7 @@ function cargarVacaciones(){
           '<div style="width:36px;height:36px;border-radius:50%;background:'+gc(v.apellidos||'')+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">'+ini(v.nombres||'')+'</div>'+
           '<div><div style="font-weight:700;font-size:13px;">'+v.nombres+' '+v.apellidos+'</div>'+
           '<div style="font-size:11px;color:#64748b;">'+v.area+' · '+(v.cargo||'')+'</div></div>'+
-          '<span class="badge bpend" style="margin-left:auto">⏳ Pendiente</span></div>'+
+          '<span class="badge bpend" style="margin-left:auto">Pendiente</span></div>'+
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">'+
           '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Desde</b><br>'+fmtFechaDisp(v.desde)+'</div>'+
           '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Hasta</b><br>'+fmtFechaDisp(v.hasta)+'</div>'+
@@ -423,8 +423,8 @@ function cargarVacaciones(){
           '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Retorno</b><br>'+fmtFechaDisp(v.retorno)+'</div>'+
           '</div>'+
           '<div style="display:flex;gap:8px;">'+
-          '<button class="btn btn-g" style="flex:1;padding:8px;font-size:12px;" onclick="aprobarVacacion(''+v.id+'')">✓ Aprobar</button>'+
-          '<button class="btn" style="flex:1;padding:8px;font-size:12px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;" onclick="rechazarVacacion(''+v.id+'')">✗ Rechazar</button>'+
+          '<button class="btn btn-g" style="flex:1;padding:8px;font-size:12px;" onclick="aprobarVacacion(''+v.id+'')">Aprobar</button>'+
+          '<button class="btn" style="flex:1;padding:8px;font-size:12px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;" onclick="rechazarVacacion(''+v.id+'')">Rechazar</button>'+
           '</div></div>';
       }).join('');
     }
@@ -435,8 +435,8 @@ function cargarVacaciones(){
     } else {
       divH.innerHTML = hist.map(function(v){
         var estadoClass=v.estado==='aprobado'?'bg':'brej';
-        var estadoTxt=v.estado==='aprobado'?'✓ Aprobado':'✗ Rechazado';
-        var btnPDF=v.estado==='aprobado'?'<button class="btn-sm" onclick="window.open('/api/vacaciones/pdf/'+v.id+'','_blank')" style="margin-top:8px">📄 Ver PDF</button>':'';
+        var estadoTxt=v.estado==='aprobado'?'Aprobado':'Rechazado';
+        var btnPDF=v.estado==='aprobado'?'<button class="btn-sm" onclick="window.open('/api/vacaciones/pdf/'+v.id+'','_blank')" style="margin-top:8px">Ver PDF</button>':'';
         return '<div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">'+
           '<div style="flex:1">'+
           '<div style="font-weight:700;font-size:13px;">'+v.nombres+' '+v.apellidos+'</div>'+
@@ -458,7 +458,7 @@ function aprobarVacacion(id){
   fetch('/api/vacaciones/aprobar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,jefeNombre:jefeNombre,jefeWid:CW_ADMIN_WID||''})})
   .then(function(r){return r.json();})
   .then(function(d){
-    if(d.ok){toast('✓ Vacaciones aprobadas. Se notificó al trabajador.','ok');cargarVacaciones();}
+    if(d.ok){toast('Vacaciones aprobadas. Se notifico al trabajador.','ok');cargarVacaciones();}
     else toast('Error: '+(d.error||'desconocido'));
   }).catch(function(){toast('Error de conexión');});
 }
@@ -477,9 +477,9 @@ function rechazarVacacion(id){
 
 function fmtFechaDisp(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 
-// ══════════════════════════════════════════════════════════════════════════════
+
 // MODAL HISTORIAL POR TRABAJADOR
-// ══════════════════════════════════════════════════════════════════════════════
+
 function abrirWorker(wid){
   abrirWorkerFecha(wid, null);
 }
@@ -504,12 +504,12 @@ function abrirWorkerFecha(wid, filtroFecha){
     var e = wr.find(function(r){return r.f===f&&r.t==='entrada';});
     var s = wr.find(function(r){return r.f===f&&r.t==='salida';});
     var badge = e&&s?'<span class="badge bg">Completo</span>':e?'<span class="badge ba">En turno</span>':'<span class="badge bgr">Sin marcar</span>';
-    var btnEdit = '<button class="btn-sm btn-edit" onclick="abrirEditar(\''+wid+'\',\''+f+'\')" style="margin-right:4px">✏️ Editar</button>';
-    var btnDel  = '<button class="btn-sm btn-del"  onclick="eliminarDia(\''+wid+'\',\''+f+'\')">🗑 Eliminar día</button>';
+    var btnEdit = '<button class="btn-sm btn-edit" onclick="abrirEditar(\''+wid+'\',\''+f+'\')" style="margin-right:4px">Editar</button>';
+    var btnDel  = '<button class="btn-sm btn-del"  onclick="eliminarDia(\''+wid+'\',\''+f+'\')">Eliminar dia</button>';
     rows.push('<tr>'+
       '<td style="font-size:11px">'+fGeo(f)+'</td>'+
-      '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'—')+'</td>'+
-      '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'—')+'</td>'+
+      '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td>'+
+      '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td>'+
       '<td>'+fmtHT(e&&e.h,s&&s.h)+'</td>'+
       '<td>'+badge+'</td>'+
       '<td>'+btnEdit+btnDel+'</td>'+
@@ -525,9 +525,9 @@ function closeWorkerModal(){
   document.getElementById('ov-worker').classList.remove('show');
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+
 // EDITAR MARCACIÓN
-// ══════════════════════════════════════════════════════════════════════════════
+
 function abrirEditar(wid, fecha){
   editingWid   = wid;
   editingFecha = fecha;
@@ -535,7 +535,7 @@ function abrirEditar(wid, fecha){
   var e  = wr.find(function(r){return r.f===fecha&&r.t==='entrada';});
   var s  = wr.find(function(r){return r.f===fecha&&r.t==='salida';});
   var w  = WORKERS.find(function(x){return x.id===wid;});
-  document.getElementById('edit-title').textContent = 'Editar marcación — ' + (w?w.nm:'') + ' · ' + fGeo(fecha);
+  document.getElementById('edit-title').textContent = 'Editar marcación -- ' + (w?w.nm:'') + ' · ' + fGeo(fecha);
   document.getElementById('edit-fecha').value   = fecha;
   document.getElementById('edit-entrada').value = e ? e.h : '';
   document.getElementById('edit-salida').value  = s ? s.h : '';
@@ -583,9 +583,9 @@ function guardarEdicion(){
   });
 }
 
-// ══════════════════════════════════════════════════════════════════════════════
+
 // ELIMINAR DÍA COMPLETO
-// ══════════════════════════════════════════════════════════════════════════════
+
 function eliminarDia(wid, fecha){
   var w = WORKERS.find(function(x){return x.id===wid;});
   if(!confirm('¿Eliminar TODAS las marcaciones de '+(w?w.nm:wid)+'  el '+fGeo(fecha)+'?\nEsta acción no se puede deshacer.')) return;
@@ -608,7 +608,7 @@ function eliminarDia(wid, fecha){
   .catch(function(){toast('Error de conexión');});
 }
 
-// ── Exportar CSV ──────────────────────────────────────────────────────────────
+
 function exportar(modo){
   var btnId=modo==='hoy'?'btnExH':'btnExHist';
   var btn=document.getElementById(btnId);
@@ -636,7 +636,7 @@ function exportar(modo){
     toast('Excel descargado: '+fname);
   })
   .catch(function(e){toast('Error: '+e.message);})
-  .finally(function(){btn.disabled=false;btn.innerHTML='⬇ Exportar Excel';});
+  .finally(function(){btn.disabled=false;btn.innerHTML='Exportar Excel';});
 }
 
 function toast(msg,tipo){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(tipo?' '+tipo:'');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3500);}
