@@ -3,45 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Akamai — Marcación</title>
+<title>Akamai — Portal del Trabajador</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;}
-.header{background:#1a1a2e;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+.header{background:#1a1a2e;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .logo{width:36px;height:36px;border-radius:50%;background:#00adef;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
 .header h1{font-size:15px;font-weight:700;}
 .header p{font-size:11px;opacity:.5;margin-top:1px;}
 .clock-bar{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
 .clock{font-size:26px;font-weight:700;color:#00adef;font-family:'Courier New',monospace;}
 .clock-date{font-size:12px;color:#64748b;}
-.main{max-width:500px;margin:24px auto;padding:0 16px 40px;}
-.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:16px;}
-.card h2{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:16px;}
-.field{margin-bottom:14px;}
-.field label{font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;}
-.field select,.field input{width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:Arial,sans-serif;color:#1e293b;outline:none;background:#fff;}
-.field select:focus,.field input:focus{border-color:#00adef;}
-.btn{display:block;width:100%;padding:13px;border-radius:9px;font-size:15px;font-weight:700;cursor:pointer;border:none;font-family:Arial,sans-serif;margin-bottom:10px;text-align:center;transition:opacity .15s;}
-.btn:last-child{margin-bottom:0;}
+.pill{display:flex;align-items:center;gap:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;padding:5px 14px;font-size:12px;color:#0369a1;font-weight:600;margin-left:auto;}
+.main{max-width:520px;margin:24px auto;padding:0 16px 40px;}
+.tabs{display:flex;background:#f8f9fa;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:600;color:#64748b;cursor:pointer;border:none;background:none;}
+.tab.active{background:#1a1a2e;color:#fff;}
+.panel{display:none;}
+.panel.active{display:block;}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;}
+.card h2{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:14px;}
+.field{margin-bottom:12px;}
+.field label{font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;}
+.field input,.field select{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:Arial,sans-serif;color:#1e293b;outline:none;}
+.field input:focus,.field select:focus{border-color:#00adef;}
+.btn{display:block;width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:Arial,sans-serif;margin-bottom:8px;text-align:center;}
 .btn:disabled{opacity:.45;cursor:not-allowed;}
 .btn-p{background:#00adef;color:#fff;}
 .btn-g{background:#22c55e;color:#fff;}
 .btn-r{background:#ef4444;color:#fff;}
-.btn-gris{background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0;font-size:13px;padding:10px;}
-.avatar-big{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 12px;}
-.wname{font-size:18px;font-weight:700;text-align:center;color:#1e293b;}
-.wsub{font-size:12px;color:#64748b;text-align:center;margin-top:3px;}
-.divider{border:none;border-top:1px solid #f1f5f9;margin:16px 0;}
-.sbox{border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.btn-gris{background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0;font-size:13px;padding:9px;}
+.avatar-big{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 10px;}
+.wname{font-size:17px;font-weight:700;text-align:center;color:#1e293b;}
+.wsub{font-size:12px;color:#64748b;text-align:center;margin-top:2px;}
+.sbox{border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
 .s-en{background:#f0fdf4;border:1.5px solid #86efac;}
 .s-fuera{background:#fff7ed;border:1.5px solid #fed7aa;}
 .s-nada{background:#f8fafc;border:1.5px solid #e2e8f0;}
 .sdot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
-.din{background:#22c55e;}
-.dout{background:#f59e0b;}
-.dnone{background:#94a3b8;}
+.din{background:#22c55e;}.dout{background:#f59e0b;}.dnone{background:#94a3b8;}
 .stxt{font-size:13px;font-weight:700;color:#1e293b;}
-.stime{font-size:11px;color:#64748b;margin-top:3px;}
+.stime{font-size:11px;color:#64748b;margin-top:2px;}
 .tw{overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
 thead th{background:#1a1a2e;color:#fff;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
@@ -52,7 +54,9 @@ tbody tr:last-child td{border-bottom:none;}
 .bg{background:#dcfce7;color:#15803d;}
 .ba{background:#fef3c7;color:#92400e;}
 .bgr{background:#f1f5f9;color:#64748b;}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25);}
+.bpend{background:#dbeafe;color:#1e40af;}
+.brej{background:#fee2e2;color:#b91c1c;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
 .toast.ok{background:#16a34a;}
 .toast.err{background:#dc2626;}
@@ -60,25 +64,25 @@ tbody tr:last-child td{border-bottom:none;}
 @keyframes sp{to{transform:rotate(360deg);}}
 .hidden{display:none;}
 .err-txt{color:#ef4444;font-size:12px;margin-top:6px;font-weight:600;}
-.pill{display:flex;align-items:center;gap:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;padding:5px 14px;font-size:12px;color:#0369a1;font-weight:600;margin-left:auto;flex-shrink:0;}
+.firma-area{border:2px dashed #e2e8f0;border-radius:8px;padding:16px;text-align:center;margin-bottom:12px;}
+.firma-area img{max-height:80px;max-width:200px;object-fit:contain;}
+.firma-area p{font-size:12px;color:#94a3b8;margin-bottom:8px;}
+.vac-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;margin-bottom:10px;}
+.vac-card .vac-estado{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:6px;}
+.vac-info{font-size:12px;color:#475569;margin-top:4px;}
+.divider{border:none;border-top:1px solid #f1f5f9;margin:14px 0;}
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="logo">AK</div>
-  <div><h1>Akamai — Marcación</h1><p>Portal del trabajador</p></div>
+  <div><h1>Akamai — Portal del Trabajador</h1><p>Marcación y solicitud de vacaciones</p></div>
 </div>
 
 <div class="clock-bar">
-  <div>
-    <div class="clock" id="clk">00:00:00</div>
-    <div class="clock-date" id="clkd"></div>
-  </div>
-  <div id="upill" class="pill hidden">
-    <span id="upill-nm"></span>
-    <button onclick="logout()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:12px;padding:0 0 0 4px;">✕ Salir</button>
-  </div>
+  <div><div class="clock" id="clk">00:00:00</div><div class="clock-date" id="clkd"></div></div>
+  <div id="upill" class="pill hidden"><span id="upill-nm"></span><button onclick="logout()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:12px;margin-left:4px;">✕ Salir</button></div>
 </div>
 
 <div class="main">
@@ -87,14 +91,8 @@ tbody tr:last-child td{border-bottom:none;}
   <div id="sec-login">
     <div class="card">
       <h2>👤 Identifícate</h2>
-      <div class="field">
-        <label>Selecciona tu nombre</label>
-        <select id="sel-w"><option value="">— Elige tu nombre —</option></select>
-      </div>
-      <div class="field">
-        <label>Tu DNI / Identificador</label>
-        <input type="text" id="inp-dni" placeholder="Ej: 48221357" onkeydown="if(event.key==='Enter')doLogin()">
-      </div>
+      <div class="field"><label>Selecciona tu nombre</label><select id="sel-w"><option value="">— Elige tu nombre —</option></select></div>
+      <div class="field"><label>Tu DNI / Identificador</label><input type="text" id="inp-dni" placeholder="Ej: 48221357" onkeydown="if(event.key==='Enter')doLogin()"></div>
       <p class="err-txt" id="login-err"></p>
       <button class="btn btn-p" onclick="doLogin()">Ingresar</button>
     </div>
@@ -103,40 +101,81 @@ tbody tr:last-child td{border-bottom:none;}
   <!-- DASHBOARD -->
   <div id="sec-dash" class="hidden">
 
-    <div class="card" style="text-align:center;padding-bottom:20px;">
+    <div class="card" style="text-align:center;padding-bottom:16px;">
       <div class="avatar-big" id="av"></div>
       <div class="wname" id="d-name"></div>
       <div class="wsub" id="d-gr"></div>
-      <hr class="divider">
-      <div style="font-size:13px;font-weight:600;color:#475569;" id="d-turno"></div>
+      <div style="font-size:13px;font-weight:600;color:#475569;margin-top:6px;" id="d-turno"></div>
     </div>
 
-    <div class="sbox s-nada" id="sbox">
-      <div class="sdot dnone" id="sdot"></div>
-      <div>
-        <div class="stxt" id="stxt">Sin marcación hoy</div>
-        <div class="stime" id="stime"></div>
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" onclick="swPanel('marcacion')">⏱ Marcación</button>
+      <button class="tab" onclick="swPanel('vacaciones')">🏖 Vacaciones</button>
+      <button class="tab" onclick="swPanel('perfil')">👤 Mi perfil</button>
+    </div>
+
+    <!-- PANEL MARCACION -->
+    <div class="panel active" id="panel-marcacion">
+      <div class="sbox s-nada" id="sbox">
+        <div class="sdot dnone" id="sdot"></div>
+        <div><div class="stxt" id="stxt">Sin marcación hoy</div><div class="stime" id="stime"></div></div>
       </div>
-    </div>
-
-    <div class="card">
-      <button class="btn btn-g" id="btn-e" onclick="marcar('entrada')">▶ Registrar Entrada</button>
-      <button class="btn btn-r" id="btn-s" onclick="marcar('salida')">◀ Registrar Salida</button>
-      <button class="btn btn-gris" onclick="logout()">Cambiar usuario</button>
-    </div>
-
-    <div class="card">
-      <h2 style="margin-bottom:14px;">📋 Mis registros recientes</h2>
-      <div class="tw">
-        <table>
-          <thead>
-            <tr><th>Fecha</th><th>Entró</th><th>Salió</th><th>Horas</th><th>Estado</th></tr>
-          </thead>
+      <div class="card">
+        <button class="btn btn-g" id="btn-e" onclick="marcar('entrada')">▶ Registrar Entrada</button>
+        <button class="btn btn-r" id="btn-s" onclick="marcar('salida')">◀ Registrar Salida</button>
+        <button class="btn btn-gris" onclick="logout()">Cambiar usuario</button>
+      </div>
+      <div class="card">
+        <h2 style="margin-bottom:12px;">📋 Mis registros recientes</h2>
+        <div class="tw"><table>
+          <thead><tr><th>Fecha</th><th>Entró</th><th>Salió</th><th>Horas</th><th>Estado</th></tr></thead>
           <tbody id="mis-regs"></tbody>
-        </table>
+        </table></div>
+        <div id="mis-empty" style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;display:none;">Sin registros aún.</div>
       </div>
-      <div id="mis-empty" style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;display:none;">
-        Aún no tienes registros.
+    </div>
+
+    <!-- PANEL VACACIONES -->
+    <div class="panel" id="panel-vacaciones">
+      <div class="card">
+        <h2 style="margin-bottom:14px;">🏖 Solicitar vacaciones</h2>
+        <div class="field"><label>Fecha de inicio</label><input type="date" id="vac-desde"></div>
+        <div class="field"><label>Fecha de fin</label><input type="date" id="vac-hasta" onchange="calcDias()"></div>
+        <div class="field">
+          <label>N° de días</label>
+          <input type="text" id="vac-dias" readonly style="background:#f8f9fa;color:#64748b;">
+        </div>
+        <div class="field">
+          <label>Fecha de retorno</label>
+          <input type="date" id="vac-retorno">
+        </div>
+        <button class="btn btn-p" id="btn-solicitar" onclick="solicitarVacaciones()">📤 Enviar solicitud</button>
+        <p style="font-size:11px;color:#94a3b8;margin-top:8px;text-align:center;">La solicitud llegará por email a tu jefe directo para aprobación</p>
+      </div>
+
+      <div class="card">
+        <h2 style="margin-bottom:12px;">📄 Mis solicitudes</h2>
+        <div id="mis-vacs"><p style="text-align:center;color:#94a3b8;font-size:13px;padding:20px;">Cargando...</p></div>
+      </div>
+    </div>
+
+    <!-- PANEL PERFIL -->
+    <div class="panel" id="panel-perfil">
+      <div class="card">
+        <h2 style="margin-bottom:14px;">✉️ Mi correo</h2>
+        <div class="field">
+          <label>Email corporativo</label>
+          <input type="email" id="perfil-email" placeholder="tunombre@akamai.com.pe">
+        </div>
+        <h2 style="margin-bottom:10px;margin-top:16px;">✍️ Mi firma digital</h2>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Sube una foto o scan de tu firma en papel blanco. Se usará en tus documentos de vacaciones.</p>
+        <div class="firma-area" id="firma-preview">
+          <p>Sin firma cargada</p>
+          <input type="file" id="firma-file" accept="image/*" onchange="previewFirma(event)" style="display:none">
+          <button class="btn btn-gris" style="width:auto;display:inline-block;padding:7px 16px;" onclick="document.getElementById('firma-file').click()">📎 Seleccionar imagen de firma</button>
+        </div>
+        <button class="btn btn-p" onclick="guardarPerfil()">💾 Guardar perfil</button>
       </div>
     </div>
 
@@ -147,209 +186,226 @@ tbody tr:last-child td{border-bottom:none;}
 
 <script>
 var WORKERS = [
-  {id:'48221357',ap:'NEYRA RUJEL',nm:'WENDY STEFANNY',gr:'ADMINISTRACION Y COMPRAS',tu:'09:00 - 18:00'},
-  {id:'41318261',ap:'GUARDAMINO RIOS',nm:'ALDO JESUS',gr:'ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00'},
-  {id:'72783491',ap:'VASQUEZ CHIPANA',nm:'YANETT NATIVIDAD',gr:'ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00'},
-  {id:'46261114',ap:'ESPINOZA MONTESINOS',nm:'DALMA NEREA',gr:'COBRANZAS',tu:'09:00 - 18:00'},
-  {id:'41084859',ap:'SARCO CUELLAR',nm:'GUSTAVO ADOLFO',gr:'COBRANZAS',tu:'09:00 - 18:00'},
-  {id:'70447785',ap:'CORDOVA VIDAL',nm:'RAI EDU',gr:'PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'43903530',ap:'GRANADOS SAENZ',nm:'NOEL ALONSO',gr:'PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'73173155',ap:'MELENDEZ SOTO',nm:'NATALIA VERONICA',gr:'PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'72726407',ap:'SAAVEDRA VIGO',nm:'MARIANA ROCIO',gr:'PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'76577354',ap:'TAFUR QUISPE',nm:'ROSA LINDA',gr:'PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'74071705',ap:'PEREZ ZAMBRANO',nm:'LESLY MAGNOLIA',gr:'COBRANZAS',tu:'09:00 - 18:00'},
-  {id:'71526127',ap:'CANO SANCHEZ',nm:'ANDREA KATHERINE',gr:'ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00'},
+  {id:'48221357',ap:'NEYRA RUJEL',nm:'WENDY STEFANNY',gr:'ADMINISTRACION Y COMPRAS',ca:'COORDINADORA DE ADMINISTRACION Y COMPRAS',tu:'09:00 - 18:00'},
+  {id:'41318261',ap:'GUARDAMINO RIOS',nm:'ALDO JESUS',gr:'ADMINISTRACION Y FINANZAS',ca:'JEFE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00'},
+  {id:'72783491',ap:'VASQUEZ CHIPANA',nm:'YANETT NATIVIDAD',gr:'ADMINISTRACION Y FINANZAS',ca:'ANALISTA DE FINANZAS Y TESORERIA',tu:'09:00 - 18:00'},
+  {id:'46261114',ap:'ESPINOZA MONTESINOS',nm:'DALMA NEREA',gr:'COBRANZAS',ca:'ASISTENTE DE COBRANZAS',tu:'09:00 - 18:00'},
+  {id:'41084859',ap:'SARCO CUELLAR',nm:'GUSTAVO ADOLFO',gr:'COBRANZAS',ca:'JEFE DE COBRANZAS',tu:'09:00 - 18:00'},
+  {id:'70447785',ap:'CORDOVA VIDAL',nm:'RAI EDU',gr:'PROYECTOS',ca:'COORDINADOR DE PROYECTOS',tu:'09:00 - 18:00'},
+  {id:'43903530',ap:'GRANADOS SAENZ',nm:'NOEL ALONSO',gr:'PROYECTOS',ca:'GERENTE GENERAL',tu:'09:00 - 18:00'},
+  {id:'73173155',ap:'MELENDEZ SOTO',nm:'NATALIA VERONICA',gr:'PROYECTOS',ca:'JEFE DE PROYECTOS',tu:'09:00 - 18:00'},
+  {id:'72726407',ap:'SAAVEDRA VIGO',nm:'MARIANA ROCIO',gr:'PROYECTOS',ca:'ARQUITECTA DE NUEVOS PROYECTOS',tu:'09:00 - 18:00'},
+  {id:'76577354',ap:'TAFUR QUISPE',nm:'ROSA LINDA',gr:'PROYECTOS',ca:'PRACTICANTE DE PROYECTOS',tu:'09:00 - 18:00'},
+  {id:'74071705',ap:'PEREZ ZAMBRANO',nm:'LESLY MAGNOLIA',gr:'COBRANZAS',ca:'ASISTENTE DE ADMINISTRACION DE VENTAS',tu:'09:00 - 18:00'},
+  {id:'71526127',ap:'CANO SANCHEZ',nm:'ANDREA KATHERINE',gr:'ADMINISTRACION Y FINANZAS',ca:'ASISTENTE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00'},
 ];
 
-var PAL = ['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef4444','#14b8a6'];
-function ini(n){ return n.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); }
-function gc(n){ var h=0; for(var i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))&0xffff; return PAL[h%PAL.length]; }
-function today(){
-  var now = new Date();
-  var peru = new Date(now.getTime() - (5 * 60 * 60 * 1000));
-  return peru.toISOString().slice(0,10);
-}
-function nowT(){
-  var now = new Date();
-  var peru = new Date(now.getTime() - (5 * 60 * 60 * 1000));
-  return peru.toISOString().slice(11,16);
-}
-var DIAS = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
-function fGeo(f){ var p=f.split('-'); var dt=new Date(+p[0],+p[1]-1,+p[2]); var i=dt.getDay()===0?6:dt.getDay()-1; return DIAS[i]+' '+p[2]+'-'+p[1]+'-'+p[0]; }
-function t2d(t){ if(!t) return null; var p=t.split(':'); return(+p[0]*60+ +p[1])/1440; }
-function fmtHT(eh,sh){ if(!eh||!sh) return '—'; var d=t2d(sh)-t2d(eh); if(d<0)d+=1; var m=Math.round(d*1440); return Math.floor(m/60)+'h '+m%60+'m'; }
+var PAL=['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef4444','#14b8a6'];
+function ini(n){return n.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+function gc(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))&0xffff;return PAL[h%PAL.length];}
+function today(){var now=new Date();var peru=new Date(now.getTime()-(5*60*60*1000));return peru.toISOString().slice(0,10);}
+function nowT(){var now=new Date();var peru=new Date(now.getTime()-(5*60*60*1000));return peru.toISOString().slice(11,16);}
+var DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+function fGeo(f){var p=f.split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);var i=dt.getDay()===0?6:dt.getDay()-1;return DIAS[i]+' '+p[2]+'-'+p[1]+'-'+p[0];}
+function t2d(t){if(!t)return null;var p=t.split(':');return(+p[0]*60+ +p[1])/1440;}
+function fmtHT(eh,sh){if(!eh||!sh)return'—';var d=t2d(sh)-t2d(eh);if(d<0)d+=1;var m=Math.round(d*1440);return Math.floor(m/60)+'h '+m%60+'m';}
+function fmtFechaDisp(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 
-var CW = null;
+var CW=null, firmaB64=null;
 
-// Reloj
-function tick(){
-  var n = new Date();
-  document.getElementById('clk').textContent  = n.toTimeString().slice(0,8);
-  document.getElementById('clkd').textContent = n.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-}
-setInterval(tick, 1000); tick();
+function tick(){var n=new Date();document.getElementById('clk').textContent=n.toTimeString().slice(0,8);document.getElementById('clkd').textContent=n.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+setInterval(tick,1000);tick();
 
-// Llenar lista de trabajadores
 (function(){
-  var sel = document.getElementById('sel-w');
-  WORKERS.forEach(function(w){
-    var o = document.createElement('option');
-    o.value = w.id;
-    o.textContent = w.ap + ', ' + w.nm;
-    sel.appendChild(o);
-  });
+  var sel=document.getElementById('sel-w');
+  WORKERS.forEach(function(w){var o=document.createElement('option');o.value=w.id;o.textContent=w.ap+', '+w.nm;sel.appendChild(o);});
 })();
 
-// ── Login ────────────────────────────────────────────────────────────────────
 function doLogin(){
-  var wid = document.getElementById('sel-w').value;
-  var dni = document.getElementById('inp-dni').value.trim();
-  var err = document.getElementById('login-err');
-  err.textContent = '';
-  if(!wid){ err.textContent = 'Selecciona tu nombre.'; return; }
-  var w = WORKERS.find(function(x){ return x.id === wid; });
-  if(!w || w.id !== dni){ err.textContent = 'El DNI no coincide. Intenta de nuevo.'; return; }
-  CW = w;
-  // Mostrar dashboard
+  var wid=document.getElementById('sel-w').value;
+  var dni=document.getElementById('inp-dni').value.trim();
+  var err=document.getElementById('login-err');err.textContent='';
+  if(!wid){err.textContent='Selecciona tu nombre.';return;}
+  var w=WORKERS.find(function(x){return x.id===wid;});
+  if(!w||w.id!==dni){err.textContent='El DNI no coincide.';return;}
+  CW=w;
   document.getElementById('sec-login').classList.add('hidden');
   document.getElementById('sec-dash').classList.remove('hidden');
-  // Pill usuario
-  var pill = document.getElementById('upill');
-  pill.classList.remove('hidden');
-  pill.style.display = 'flex';
-  document.getElementById('upill-nm').textContent = w.nm;
-  // Perfil
-  var av = document.getElementById('av');
-  av.textContent = ini(w.nm); av.style.background = gc(w.ap);
-  document.getElementById('d-name').textContent = w.nm + ' ' + w.ap;
-  document.getElementById('d-gr').textContent   = w.gr;
-  document.getElementById('d-turno').textContent = 'Turno: ' + w.tu;
+  var pill=document.getElementById('upill');pill.classList.remove('hidden');pill.style.display='flex';
+  document.getElementById('upill-nm').textContent=w.nm;
+  var av=document.getElementById('av');av.textContent=ini(w.nm);av.style.background=gc(w.ap);
+  document.getElementById('d-name').textContent=w.nm+' '+w.ap;
+  document.getElementById('d-gr').textContent=w.gr;
+  document.getElementById('d-turno').textContent='Turno: '+w.tu;
   cargarRegistros();
+  cargarPerfil();
 }
 
-function logout(){
-  CW = null;
-  document.getElementById('sec-login').classList.remove('hidden');
-  document.getElementById('sec-dash').classList.add('hidden');
-  document.getElementById('upill').classList.add('hidden');
-  document.getElementById('sel-w').value = '';
-  document.getElementById('inp-dni').value = '';
-  document.getElementById('login-err').textContent = '';
+function logout(){CW=null;firmaB64=null;document.getElementById('sec-login').classList.remove('hidden');document.getElementById('sec-dash').classList.add('hidden');document.getElementById('upill').classList.add('hidden');document.getElementById('sel-w').value='';document.getElementById('inp-dni').value='';document.getElementById('login-err').textContent='';}
+
+function swPanel(p){
+  document.querySelectorAll('.tab').forEach(function(x,i){x.classList.toggle('active',['marcacion','vacaciones','perfil'][i]===p);});
+  document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
+  document.getElementById('panel-'+p).classList.add('active');
+  if(p==='vacaciones') cargarMisVacaciones();
 }
 
-// ── Cargar registros ──────────────────────────────────────────────────────────
+// ── MARCACION ────────────────────────────────────────────────────────────────
 function cargarRegistros(){
-  fetch('/api/registros')
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      var regs = (data.regs || []).filter(function(r){ return r.wid === CW.id; });
-      renderDash(regs);
-    })
-    .catch(function(){ toast('No se pudo conectar al servidor', 'err'); });
+  fetch('/api/registros').then(function(r){return r.json();}).then(function(data){
+    var regs=(data.regs||[]).filter(function(r){return r.wid===CW.id;});
+    renderDash(regs);
+  }).catch(function(){toast('Error al conectar','err');});
 }
 
-// ── Renderizar dashboard ──────────────────────────────────────────────────────
 function renderDash(regs){
-  var td = today();
-  var tE = regs.find(function(r){ return r.f===td && r.t==='entrada'; });
-  var tS = regs.find(function(r){ return r.f===td && r.t==='salida';  });
-
-  // Estado del día
-  var box  = document.getElementById('sbox');
-  var dot  = document.getElementById('sdot');
-  var stxt = document.getElementById('stxt');
-  var stime= document.getElementById('stime');
-  box.className = 'sbox';
-  if(tE && tS){
-    box.classList.add('s-fuera'); dot.className='sdot dout';
-    stxt.textContent  = 'Jornada completada ✓';
-    stime.textContent = 'Entrada: '+tE.h+' · Salida: '+tS.h+' · '+fmtHT(tE.h,tS.h);
-  } else if(tE){
-    box.classList.add('s-en'); dot.className='sdot din';
-    stxt.textContent  = 'En turno — entrada registrada';
-    stime.textContent = 'Entraste a las ' + tE.h;
-  } else {
-    box.classList.add('s-nada'); dot.className='sdot dnone';
-    stxt.textContent  = 'Sin marcación hoy';
-    stime.textContent = '';
-  }
-
-  // Botones
-  document.getElementById('btn-e').disabled = !!(tE);
-  document.getElementById('btn-s').disabled = !(tE && !tS);
-
-  // Tabla historial
-  var fechas = [];
-  regs.forEach(function(r){ if(fechas.indexOf(r.f)<0) fechas.push(r.f); });
-  fechas.sort().reverse();
-
-  var rows = [];
+  var td=today();
+  var tE=regs.find(function(r){return r.f===td&&r.t==='entrada';});
+  var tS=regs.find(function(r){return r.f===td&&r.t==='salida';});
+  var box=document.getElementById('sbox'),dot=document.getElementById('sdot'),stxt=document.getElementById('stxt'),stime=document.getElementById('stime');
+  box.className='sbox';
+  if(tE&&tS){box.classList.add('s-fuera');dot.className='sdot dout';stxt.textContent='Jornada completada ✓';stime.textContent='Entrada: '+tE.h+' · Salida: '+tS.h+' · '+fmtHT(tE.h,tS.h);}
+  else if(tE){box.classList.add('s-en');dot.className='sdot din';stxt.textContent='En turno — entrada registrada';stime.textContent='Entraste a las '+tE.h;}
+  else{box.classList.add('s-nada');dot.className='sdot dnone';stxt.textContent='Sin marcación hoy';stime.textContent='';}
+  document.getElementById('btn-e').disabled=!!(tE);
+  document.getElementById('btn-s').disabled=!(tE&&!tS);
+  var fechas=[];regs.forEach(function(r){if(fechas.indexOf(r.f)<0)fechas.push(r.f);});fechas.sort().reverse();
+  var rows=[];
   fechas.slice(0,20).forEach(function(f){
-    var e = regs.find(function(r){ return r.f===f && r.t==='entrada'; });
-    var s = regs.find(function(r){ return r.f===f && r.t==='salida';  });
-    var badge = e&&s ? '<span class="badge bg">Completo</span>'
-              : e    ? '<span class="badge ba">En turno</span>'
-                     : '<span class="badge bgr">Sin marcar</span>';
-    rows.push(
-      '<tr>' +
-      '<td style="font-size:11px">' + fGeo(f) + '</td>' +
-      '<td class="mono" style="color:#15803d;font-weight:700">' + (e ? e.h : '—') + '</td>' +
-      '<td class="mono" style="color:#dc2626;font-weight:700">' + (s ? s.h : '—') + '</td>' +
-      '<td>' + fmtHT(e&&e.h, s&&s.h) + '</td>' +
-      '<td>' + badge + '</td>' +
-      '</tr>'
-    );
+    var e=regs.find(function(r){return r.f===f&&r.t==='entrada';});
+    var s=regs.find(function(r){return r.f===f&&r.t==='salida';});
+    var badge=e&&s?'<span class="badge bg">Completo</span>':e?'<span class="badge ba">En turno</span>':'<span class="badge bgr">Sin marcar</span>';
+    rows.push('<tr><td style="font-size:11px">'+fGeo(f)+'</td><td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'—')+'</td><td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'—')+'</td><td>'+fmtHT(e&&e.h,s&&s.h)+'</td><td>'+badge+'</td></tr>');
   });
-
-  document.getElementById('mis-regs').innerHTML = rows.join('');
-  document.getElementById('mis-empty').style.display = rows.length ? 'none' : 'block';
+  document.getElementById('mis-regs').innerHTML=rows.join('');
+  document.getElementById('mis-empty').style.display=rows.length?'none':'block';
 }
 
-// ── Marcar entrada / salida ───────────────────────────────────────────────────
 function marcar(tipo){
-  var btnId = tipo === 'entrada' ? 'btn-e' : 'btn-s';
-  var btn   = document.getElementById(btnId);
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spin"></span>Guardando...';
+  var btnId=tipo==='entrada'?'btn-e':'btn-s';
+  var btn=document.getElementById(btnId);btn.disabled=true;btn.innerHTML='<span class="spin"></span>Guardando...';
+  var marca={wid:CW.id,f:today(),h:nowT(),t:tipo,p:'Ninguno',ap:CW.ap,nm:CW.nm,gr:CW.gr,tu:CW.tu};
+  fetch('/api/marcar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(marca)})
+  .then(function(r){return r.json().then(function(d){return{status:r.status,data:d};});})
+  .then(function(res){
+    if(res.status===409){toast(res.data.error,'err');}
+    else if(res.data.ok){toast((tipo==='entrada'?'✓ Entrada':'✓ Salida')+' registrada: '+marca.h,'ok');cargarRegistros();}
+    else{toast('Error: '+(res.data.error||'desconocido'),'err');}
+  })
+  .catch(function(){toast('Error de conexión','err');})
+  .finally(function(){btn.disabled=false;btn.innerHTML=tipo==='entrada'?'▶ Registrar Entrada':'◀ Registrar Salida';});
+}
 
-  var marca = {
-    wid: CW.id,  f: today(), h: nowT(),
-    t: tipo,     p: 'Ninguno',
-    ap: CW.ap,   nm: CW.nm,
-    gr: CW.gr,   tu: CW.tu
+// ── VACACIONES ───────────────────────────────────────────────────────────────
+function calcDias(){
+  var desde=document.getElementById('vac-desde').value;
+  var hasta=document.getElementById('vac-hasta').value;
+  if(!desde||!hasta){document.getElementById('vac-dias').value='';return;}
+  var d1=new Date(desde),d2=new Date(hasta);
+  var diff=Math.round((d2-d1)/(1000*60*60*24))+1;
+  document.getElementById('vac-dias').value=diff>0?diff+' días':'—';
+  // Auto calcular retorno (día siguiente al fin)
+  var ret=new Date(d2);ret.setDate(ret.getDate()+1);
+  document.getElementById('vac-retorno').value=ret.toISOString().slice(0,10);
+}
+
+function solicitarVacaciones(){
+  var desde=document.getElementById('vac-desde').value;
+  var hasta=document.getElementById('vac-hasta').value;
+  var retorno=document.getElementById('vac-retorno').value;
+  if(!desde||!hasta||!retorno){toast('Completa todas las fechas','err');return;}
+  var d1=new Date(desde),d2=new Date(hasta);
+  var dias=Math.round((d2-d1)/(1000*60*60*24))+1;
+  if(dias<=0){toast('La fecha de fin debe ser posterior al inicio','err');return;}
+
+  var btn=document.getElementById('btn-solicitar');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Enviando...';
+
+  var sol={
+    wid:CW.id,dni:CW.id,apellidos:CW.ap,nombres:CW.nm,
+    cargo:CW.ca,area:CW.gr,desde,hasta,dias,retorno,
+    fechaSolicitud:today()
   };
 
-  fetch('/api/marcar', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(marca)
+  fetch('/api/vacaciones/solicitar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sol)})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.ok){
+      toast('✓ Solicitud enviada. Tu jefe recibirá un email.','ok');
+      document.getElementById('vac-desde').value='';
+      document.getElementById('vac-hasta').value='';
+      document.getElementById('vac-dias').value='';
+      document.getElementById('vac-retorno').value='';
+      cargarMisVacaciones();
+    } else {toast('Error: '+(d.error||'desconocido'),'err');}
   })
-  .then(function(r){ return r.json().then(function(d){ return { status: r.status, data: d }; }); })
-  .then(function(res){
-    if(res.status === 409){
-      toast(res.data.error, 'err');
-    } else if(res.data.ok){
-      toast((tipo==='entrada' ? '✓ Entrada' : '✓ Salida') + ' registrada: ' + marca.h, 'ok');
-      cargarRegistros();
-    } else {
-      toast('Error: ' + (res.data.error || 'desconocido'), 'err');
-    }
-  })
-  .catch(function(){ toast('Error de conexión con el servidor', 'err'); })
-  .finally(function(){
-    btn.disabled = false;
-    btn.innerHTML = tipo === 'entrada' ? '▶ Registrar Entrada' : '◀ Registrar Salida';
-  });
+  .catch(function(){toast('Error de conexión','err');})
+  .finally(function(){btn.disabled=false;btn.innerHTML='📤 Enviar solicitud';});
 }
 
-// ── Toast ─────────────────────────────────────────────────────────────────────
-function toast(msg, tipo){
-  var t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className   = 'toast show' + (tipo ? ' ' + tipo : '');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(function(){ t.classList.remove('show'); }, 3200);
+function cargarMisVacaciones(){
+  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
+    var vacs=(data.vacaciones||[]).filter(function(v){return v.wid===CW.id;});
+    vacs.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
+    var container=document.getElementById('mis-vacs');
+    if(!vacs.length){container.innerHTML='<p style="text-align:center;color:#94a3b8;font-size:13px;padding:20px;">No tienes solicitudes aún.</p>';return;}
+    container.innerHTML=vacs.map(function(v){
+      var estadoClass=v.estado==='aprobado'?'bg':v.estado==='rechazado'?'brej':'bpend';
+      var estadoTxt=v.estado==='aprobado'?'✓ Aprobado':v.estado==='rechazado'?'✗ Rechazado':'⏳ Pendiente';
+      var btnPDF=v.estado==='aprobado'?'<button class="btn btn-gris" style="width:auto;display:inline-block;padding:6px 12px;margin-top:8px;font-size:12px;" onclick="descargarPDF(\''+v.id+'\')">📄 Descargar PDF</button>':'';
+      return '<div class="vac-card">'+
+        '<span class="badge '+estadoClass+' vac-estado">'+estadoTxt+'</span>'+
+        '<div style="font-weight:700;font-size:13px;">'+fmtFechaDisp(v.desde)+' al '+fmtFechaDisp(v.hasta)+'</div>'+
+        '<div class="vac-info">'+v.dias+' días · Retorno: '+fmtFechaDisp(v.retorno)+'</div>'+
+        '<div class="vac-info">Solicitado: '+fmtFechaDisp(v.fechaSolicitud)+'</div>'+
+        (v.jefeNombre?'<div class="vac-info">'+(v.estado==='aprobado'?'Aprobado':'Gestionado')+' por: '+v.jefeNombre+'</div>':'')+
+        (v.motivoRechazo?'<div class="vac-info" style="color:#dc2626;">Motivo: '+v.motivoRechazo+'</div>':'')+
+        btnPDF+
+        '</div>';
+    }).join('');
+  }).catch(function(){document.getElementById('mis-vacs').innerHTML='<p style="text-align:center;color:#94a3b8;font-size:13px;padding:20px;">Error al cargar.</p>';});
 }
+
+function descargarPDF(id){
+  var win=window.open('/api/vacaciones/pdf/'+id,'_blank');
+  setTimeout(function(){if(win)win.print();},1500);
+}
+
+// ── PERFIL / FIRMA ───────────────────────────────────────────────────────────
+function cargarPerfil(){
+  fetch('/api/firma/'+CW.id).then(function(r){return r.json();}).then(function(d){
+    if(d.email) document.getElementById('perfil-email').value=d.email;
+    if(d.firma){
+      firmaB64=d.firma;
+      var prev=document.getElementById('firma-preview');
+      prev.innerHTML='<img src="'+d.firma+'" style="max-height:80px;max-width:200px;object-fit:contain;display:block;margin:0 auto 8px"><button class="btn btn-gris" style="width:auto;display:inline-block;padding:7px 16px;" onclick="document.getElementById(\'firma-file\').click()">🔄 Cambiar firma</button><input type="file" id="firma-file" accept="image/*" onchange="previewFirma(event)" style="display:none">';
+    }
+  }).catch(function(){});
+}
+
+function previewFirma(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    firmaB64=ev.target.result;
+    var prev=document.getElementById('firma-preview');
+    prev.innerHTML='<img src="'+firmaB64+'" style="max-height:80px;max-width:200px;object-fit:contain;display:block;margin:0 auto 8px"><button class="btn btn-gris" style="width:auto;display:inline-block;padding:7px 16px;" onclick="document.getElementById(\'firma-file\').click()">🔄 Cambiar firma</button><input type="file" id="firma-file" accept="image/*" onchange="previewFirma(event)" style="display:none">';
+  };
+  reader.readAsDataURL(file);
+}
+
+function guardarPerfil(){
+  var email=document.getElementById('perfil-email').value.trim();
+  if(!email){toast('Ingresa tu email','err');return;}
+  if(!email.endsWith('@akamai.com.pe')){toast('Debe ser un email @akamai.com.pe','err');return;}
+  if(!firmaB64){toast('Sube tu firma digital primero','err');return;}
+  fetch('/api/firma/guardar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wid:CW.id,email,firmaBase64:firmaB64})})
+  .then(function(r){return r.json();})
+  .then(function(d){if(d.ok)toast('✓ Perfil guardado correctamente','ok');else toast('Error al guardar','err');})
+  .catch(function(){toast('Error de conexión','err');});
+}
+
+function toast(msg,tipo){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(tipo?' '+tipo:'');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3500);}
 </script>
 </body>
 </html>
