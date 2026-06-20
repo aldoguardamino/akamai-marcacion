@@ -90,74 +90,33 @@ async function enviarRecordatorios() {
 
 function enviarCorreo(to, subject, htmlBody) {
   return new Promise((resolve, reject) => {
-    const tls = require('tls');
-    const b64 = (s) => Buffer.from(s).toString('base64');
-    const passClean = GMAIL_PASS.replace(/\s/g, '');
-    
-    const socket = tls.connect(465, 'smtp.gmail.com', { rejectUnauthorized: false });
-    let buffer = '';
-    let step = 0;
-    let done = false;
-
-    const boundary = 'boundary_' + Date.now();
-    const dataMsg = [
-      'From: Sistema Akamai <' + GMAIL_USER + '>',
-      'To: ' + to,
-      'Subject: ' + subject,
-      'MIME-Version: 1.0',
-      'Content-Type: text/html; charset=UTF-8',
-      '',
-      htmlBody,
-      '',
-      '.'
-    ].join('\r\n') + '\r\n';
-
-    const cmds = [
-      'EHLO akamai.com\r\n',
-      'AUTH LOGIN\r\n',
-      b64(GMAIL_USER) + '\r\n',
-      b64(passClean) + '\r\n',
-      'MAIL FROM:<' + GMAIL_USER + '>\r\n',
-      'RCPT TO:<' + to + '>\r\n',
-      'DATA\r\n',
-      dataMsg,
-      'QUIT\r\n'
-    ];
-
-    const next = () => {
-      if (step < cmds.length) {
-        socket.write(cmds[step++]);
-      } else {
-        done = true;
-        socket.end();
-        resolve(true);
-      }
-    };
-
-    socket.on('connect', () => { console.log('SMTP conectado'); });
-
-    socket.on('data', (data) => {
-      buffer += data.toString();
-      const lines = buffer.split('\r\n');
-      buffer = lines.pop();
-      for (const line of lines) {
-        console.log('SMTP <', line.slice(0,80));
-        const code = parseInt(line.slice(0,3));
-        if (line[3] === ' ' || line[3] === undefined) {
-          if (code >= 200 && code < 400) {
-            next();
-          } else if (code >= 400) {
-            socket.destroy();
-            reject(new Error('SMTP error: ' + line));
-            return;
-          }
+    try {
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: GMAIL_USER,
+          pass: GMAIL_PASS.replace(/\s/g, '')
         }
-      }
-    });
-
-    socket.on('error', (e) => { console.error('SMTP socket error:', e.message); reject(e); });
-    socket.on('close', () => { if (!done) resolve(true); });
-    socket.setTimeout(15000, () => { socket.destroy(); reject(new Error('SMTP timeout')); });
+      });
+      transporter.sendMail({
+        from: '"Sistema Akamai" <' + GMAIL_USER + '>',
+        to: to,
+        subject: subject,
+        html: htmlBody
+      }, (err, info) => {
+        if (err) {
+          console.error('Email error:', err.message);
+          reject(err);
+        } else {
+          console.log('Email enviado:', info.messageId, '-> ', to);
+          resolve(true);
+        }
+      });
+    } catch(e) {
+      console.error('nodemailer error:', e.message);
+      reject(e);
+    }
   });
 }
 
