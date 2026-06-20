@@ -7,6 +7,7 @@ const PORT        = process.env.PORT || 3000;
 const MONGODB_URI = process.env.MONGODB_URI;
 const GMAIL_USER  = process.env.GMAIL_USER  || 'aldo.guardamino@gmail.com';
 const GMAIL_PASS  = process.env.GMAIL_PASS  || 'honj ukik xmmm xpdg';
+const RESEND_KEY  = process.env.RESEND_KEY  || 're_QmK18m4c_63LKVvmM33jbM17XcBrv4BtN';
 const APP_URL     = process.env.APP_URL     || 'https://akamai-marcacion.onrender.com';
 
 let db = null;
@@ -91,33 +92,43 @@ async function enviarRecordatorios() {
 function enviarCorreo(to, subject, htmlBody) {
   return new Promise((resolve, reject) => {
     try {
-      const nodemailer = require('nodemailer');
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: GMAIL_USER,
-          pass: GMAIL_PASS.replace(/\s/g, '')
-        },
-        tls: { rejectUnauthorized: false }
-      });
-      transporter.sendMail({
-        from: '"Sistema Akamai" <' + GMAIL_USER + '>',
-        to: to,
+      const https = require('https');
+      const body = JSON.stringify({
+        from: 'Sistema Akamai <onboarding@resend.dev>',
+        to: [to],
         subject: subject,
         html: htmlBody
-      }, (err, info) => {
-        if (err) {
-          console.error('Email error:', err.message);
-          reject(err);
-        } else {
-          console.log('Email enviado:', info.messageId, '-> ', to);
-          resolve(true);
-        }
       });
+      const options = {
+        hostname: 'api.resend.com',
+        path: '/emails',
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + RESEND_KEY,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body)
+        }
+      };
+      const req = https.request(options, (res) => {
+        let data = '';
+        res.on('data', chunk => data += chunk);
+        res.on('end', () => {
+          console.log('Resend response:', res.statusCode, data.slice(0,100));
+          if (res.statusCode >= 200 && res.statusCode < 300) {
+            resolve(true);
+          } else {
+            reject(new Error('Resend error ' + res.statusCode + ': ' + data));
+          }
+        });
+      });
+      req.on('error', (e) => {
+        console.error('Resend request error:', e.message);
+        reject(e);
+      });
+      req.write(body);
+      req.end();
     } catch(e) {
-      console.error('nodemailer error:', e.message);
+      console.error('enviarCorreo error:', e.message);
       reject(e);
     }
   });
