@@ -295,6 +295,24 @@ function doLogin(){
   cargarPerfil();
 }
 
+function resetFirmaPreview(){
+  var p=document.getElementById('firma-preview');
+  if(!p)return;
+  p.innerHTML='';
+  var txt=document.createElement('p');
+  txt.style.cssText='color:#94a3b8;font-size:12px;margin-bottom:8px';
+  txt.textContent='Sin firma cargada';
+  var inp=document.createElement('input');
+  inp.type='file';inp.id='firma-file';inp.accept='image/*';
+  inp.style.display='none';
+  inp.onchange=function(e){previewFirma(e);};
+  var btn=document.createElement('button');
+  btn.className='btn-sm';
+  btn.textContent='Seleccionar imagen de firma';
+  btn.onclick=function(){document.getElementById('firma-file').click();};
+  p.appendChild(txt);p.appendChild(inp);p.appendChild(btn);
+}
+
 function logout(){
   CW=null;firmaB64=null;ES_JEFE=false;ES_SOLO_JEFE=false;
   document.getElementById('sec-login').classList.remove('hidden');
@@ -304,6 +322,12 @@ function logout(){
   document.getElementById('inp-dni').value='';
   document.getElementById('login-err').textContent='';
   document.getElementById('tab-btn-marcacion').style.display='';
+  document.getElementById('perfil-email').value='';
+  resetFirmaPreview();
+  document.getElementById('sec-aprobar').classList.add('hidden');
+  document.getElementById('panel-marcacion').classList.add('active');
+  document.getElementById('panel-vacaciones').classList.remove('active');
+  document.getElementById('panel-perfil').classList.remove('active');
 }
 
 function swPanel(p){
@@ -378,6 +402,9 @@ function solicitarVacaciones(){
   var hasta=document.getElementById('vac-hasta').value;
   var retorno=document.getElementById('vac-retorno').value;
   if(!desde||!hasta||!retorno){toast('Completa todas las fechas','err');return;}
+  if(!firmaB64){toast('Debes subir tu firma digital en Mi perfil primero','err');swPanel('perfil');return;}
+  var emailPerfil=document.getElementById('perfil-email').value.trim();
+  if(!emailPerfil){toast('Debes ingresar tu email en Mi perfil primero','err');swPanel('perfil');return;}
   var d1=new Date(desde),d2=new Date(hasta);
   var dias=Math.round((d2-d1)/(1000*60*60*24))+1;
   if(dias<=0){toast('La fecha de fin debe ser posterior al inicio','err');return;}
