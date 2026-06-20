@@ -3,640 +3,511 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Akamai -- Administrador</title>
+<title>Akamai — Portal del Trabajador</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;}
 .header{background:#1a1a2e;color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.logo{width:36px;height:36px;border-radius:50%;background:#00adef;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
+.logo-hdr{width:36px;height:36px;border-radius:50%;background:#00adef;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
 .header h1{font-size:15px;font-weight:700;}
 .header p{font-size:11px;opacity:.5;margin-top:1px;}
-.hright{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.clock{font-size:18px;font-weight:700;color:#00adef;font-family:'Courier New',monospace;}
-.live{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.15);border:1px solid #86efac;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#86efac;}
-.live-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;animation:pulse 1.5s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
-.login-wrap{max-width:360px;margin:60px auto;padding:0 16px;}
-.card{background:#fff;border-radius:12px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:16px;}
-.card h2{font-size:15px;font-weight:700;color:#1e293b;margin-bottom:16px;}
-.field{margin-bottom:14px;}
-.field label{font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:5px;}
-.field input{width:100%;padding:11px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:Arial,sans-serif;color:#1e293b;outline:none;}
-.field input:focus{border-color:#00adef;}
-.btn{padding:10px 16px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:Arial,sans-serif;display:inline-flex;align-items:center;gap:7px;}
-.btn:hover{opacity:.85;}
+.clock-bar{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.clock{font-size:26px;font-weight:700;color:#00adef;font-family:'Courier New',monospace;}
+.clock-date{font-size:12px;color:#64748b;}
+.pill{display:flex;align-items:center;gap:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;padding:5px 14px;font-size:12px;color:#0369a1;font-weight:600;margin-left:auto;flex-shrink:0;}
+.main{max-width:520px;margin:24px auto;padding:0 16px 40px;}
+.tabs{display:flex;background:#f8f9fa;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;overflow:hidden;}
+.tab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;border:none;background:none;}
+.tab.active{background:#1a1a2e;color:#fff;}
+.panel{display:none;}
+.panel.active{display:block;}
+.card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 12px rgba(0,0,0,.08);margin-bottom:14px;}
+.card h2{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:14px;}
+.field{margin-bottom:12px;}
+.field label{font-size:12px;font-weight:600;color:#64748b;display:block;margin-bottom:4px;}
+.field input,.field select{width:100%;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:Arial,sans-serif;color:#1e293b;outline:none;}
+.field input:focus,.field select:focus{border-color:#00adef;}
+.btn{display:block;width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:Arial,sans-serif;margin-bottom:8px;text-align:center;transition:opacity .15s;}
 .btn:disabled{opacity:.45;cursor:not-allowed;}
-.btn-full{width:100%;justify-content:center;padding:13px;}
 .btn-p{background:#00adef;color:#fff;}
 .btn-g{background:#22c55e;color:#fff;}
-.btn-sm{padding:5px 10px;font-size:11px;background:#f1f5f9;border:1.5px solid #e2e8f0;color:#475569;border-radius:7px;cursor:pointer;font-family:Arial,sans-serif;font-weight:600;}
-.btn-sm:hover{background:#e2e8f0;}
-.btn-edit{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}
-.btn-del{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;}
-.btn-danger{background:#ef4444;color:#fff;padding:6px 12px;font-size:12px;}
-.tabs{display:flex;background:#f8f9fa;border-bottom:1px solid #e2e8f0;padding:0 20px;overflow-x:auto;}
-.tab{padding:10px 16px;font-size:13px;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500;}
-.tab.active{color:#00adef;border-bottom-color:#00adef;font-weight:700;}
-.panel{display:none;padding:20px;}
-.panel.active{display:block;}
-.cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
-@media(max-width:560px){.cards-row{grid-template-columns:repeat(2,1fr);}}
-.sc{background:#fff;border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0;}
-.sn{font-size:28px;font-weight:700;}
-.sl{font-size:11px;color:#64748b;margin-top:3px;}
-/* Worker grid */
-.wgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:18px;}
-.wcard{background:#fff;border:2px solid #e2e8f0;border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:border-color .15s, box-shadow .15s;}
-.wcard:hover{border-color:#00adef;box-shadow:0 2px 12px rgba(0,173,239,.15);}
-.wcard.presente{border-color:#22c55e;}
-.wcard.salio{border-color:#f59e0b;}
-.av{width:40px;height:40px;border-radius:50%;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;}
-.wn{font-size:11px;font-weight:700;color:#1e293b;}
-.wa{font-size:10px;color:#64748b;}
-.wg{font-size:10px;color:#94a3b8;}
-.wbg{font-size:10px;padding:2px 8px;border-radius:20px;margin-top:5px;display:inline-block;font-weight:600;}
-.b-in{background:#dcfce7;color:#15803d;}
-.b-out{background:#f1f5f9;color:#64748b;}
-.b-gone{background:#fef3c7;color:#92400e;}
-.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
-.filters{display:flex;gap:8px;flex:1;flex-wrap:wrap;}
-.filters input,.filters select{font-size:13px;padding:7px 11px;border:1.5px solid #e2e8f0;border-radius:8px;color:#1e293b;outline:none;background:#fff;font-family:Arial,sans-serif;}
-.filters input{flex:1;min-width:130px;}
-.tw{overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px;background:#fff;}
+.btn-r{background:#ef4444;color:#fff;}
+.btn-gris{background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0;font-size:13px;padding:9px;}
+.btn-sm{padding:6px 12px;font-size:11px;background:#f1f5f9;border:1.5px solid #e2e8f0;color:#475569;border-radius:7px;cursor:pointer;font-family:Arial,sans-serif;font-weight:600;display:inline-block;}
+.btn-apro{background:#dcfce7;color:#15803d;border:1px solid #86efac;}
+.btn-rech{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;}
+.avatar-big{width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 10px;}
+.wname{font-size:17px;font-weight:700;text-align:center;color:#1e293b;}
+.wsub{font-size:12px;color:#64748b;text-align:center;margin-top:2px;}
+.sbox{border-radius:10px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.s-en{background:#f0fdf4;border:1.5px solid #86efac;}
+.s-fuera{background:#fff7ed;border:1.5px solid #fed7aa;}
+.s-nada{background:#f8fafc;border:1.5px solid #e2e8f0;}
+.sdot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.din{background:#22c55e;}.dout{background:#f59e0b;}.dnone{background:#94a3b8;}
+.stxt{font-size:13px;font-weight:700;color:#1e293b;}
+.stime{font-size:11px;color:#64748b;margin-top:2px;}
+.tw{overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0;}
 table{width:100%;border-collapse:collapse;font-size:12px;}
 thead th{background:#1a1a2e;color:#fff;padding:9px 10px;text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
-tbody td{padding:9px 10px;border-bottom:1px solid #f1f5f9;white-space:nowrap;color:#1e293b;}
+tbody td{padding:9px 10px;border-bottom:1px solid #f1f5f9;color:#1e293b;}
 tbody tr:last-child td{border-bottom:none;}
-tbody tr:hover td{background:#f8faff;}
 .mono{font-family:'Courier New',monospace;font-size:11px;}
 .badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;}
 .bg{background:#dcfce7;color:#15803d;}
 .ba{background:#fef3c7;color:#92400e;}
 .bgr{background:#f1f5f9;color:#64748b;}
-.toast{position:fixed;bottom:20px;right:20px;background:#1e293b;color:#fff;padding:11px 20px;border-radius:9px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;max-width:380px;}
+.bpend{background:#dbeafe;color:#1e40af;}
+.brej{background:#fee2e2;color:#b91c1c;}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:600;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;max-width:90vw;}
 .toast.show{opacity:1;}
-.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;}
+.toast.ok{background:#16a34a;}
+.toast.err{background:#dc2626;}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;vertical-align:middle;margin-right:6px;}
 @keyframes sp{to{transform:rotate(360deg);}}
 .hidden{display:none;}
 .err-txt{color:#ef4444;font-size:12px;margin-top:6px;font-weight:600;}
-.last-up{font-size:11px;color:#94a3b8;}
-.empty{text-align:center;padding:30px;color:#94a3b8;font-size:13px;}
-.bpend{background:#dbeafe;color:#1e40af;}
-.brej{background:#fee2e2;color:#b91c1c;}
-/* Modal */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;padding:16px;}
-.overlay.show{display:flex;}
-.modal{background:#fff;border-radius:12px;padding:24px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.2);}
-.modal-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
-.modal-avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;}
-.modal-title{font-size:15px;font-weight:700;color:#1e293b;}
-.modal-sub{font-size:12px;color:#64748b;margin-top:2px;}
-.modal-close{margin-left:auto;background:none;border:none;cursor:pointer;color:#94a3b8;font-size:20px;line-height:1;padding:4px;}
-.modal-close:hover{color:#1e293b;}
-/* Edit form */
-.edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center;z-index:300;padding:16px;}
-.edit-overlay.show{display:flex;}
-.edit-modal{background:#fff;border-radius:12px;padding:24px;width:100%;max-width:360px;}
-.edit-modal h3{font-size:15px;font-weight:700;margin-bottom:16px;color:#1e293b;}
-.edit-modal label{font-size:12px;font-weight:600;color:#64748b;display:block;margin-top:12px;margin-bottom:4px;}
-.edit-modal input{width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:Arial,sans-serif;}
-.edit-modal input:focus{outline:none;border-color:#00adef;}
-.edit-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end;}
+.firma-area{border:2px dashed #e2e8f0;border-radius:8px;padding:16px;text-align:center;margin-bottom:12px;}
+.vac-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;margin-bottom:10px;}
+.pend-card{background:#fff;border-radius:10px;border:1.5px solid #fcd34d;padding:16px;margin-bottom:10px;}
+.pend-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;}
+.pend-item{background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;}
+.pend-item b{display:block;color:#64748b;font-size:10px;margin-bottom:2px;}
+.divider{border:none;border-top:1px solid #f1f5f9;margin:14px 0;}
+.info-jefe{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px 14px;font-size:12px;color:#0369a1;margin-bottom:12px;}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo">AK</div>
-  <div><h1>Akamai -- Panel Administrador</h1><p>Control completo de asistencia</p></div>
-  <div class="hright">
-    <div class="clock" id="hclk">00:00:00</div>
-    <div class="live" id="live-badge" style="display:none"><span class="live-dot"></span>EN VIVO</div>
-    <button id="btn-logout" class="btn btn-danger" onclick="logout()" style="display:none">Salir</button>
-  </div>
+  <div class="logo-hdr">AK</div>
+  <div><h1>Akamai — Portal del Trabajador</h1><p>Marcacion y vacaciones</p></div>
 </div>
 
-<!-- LOGIN -->
-<div id="sec-login">
-  <div class="login-wrap">
+<div class="clock-bar">
+  <div><div class="clock" id="clk">00:00:00</div><div class="clock-date" id="clkd"></div></div>
+  <div id="upill" class="pill hidden"><span id="upill-nm"></span><button onclick="logout()" style="background:none;border:none;color:#94a3b8;cursor:pointer;font-size:12px;margin-left:4px;">x Salir</button></div>
+</div>
+
+<div class="main">
+
+  <!-- LOGIN -->
+  <div id="sec-login">
     <div class="card">
-      <h2>🔐 Acceso Administrador</h2>
-      <div class="field"><label>Usuario</label><input type="text" id="a-user" placeholder="admin"></div>
-      <div class="field"><label>Contraseña</label><input type="password" id="a-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-      <p class="err-txt" id="a-err"></p>
-      <button class="btn btn-p btn-full" onclick="doLogin()">Ingresar al panel</button>
-      <p style="font-size:11px;color:#94a3b8;margin-top:12px;text-align:center;">
-        Usuario: <b>admin</b> &nbsp;|&nbsp; Contraseña: <b>akamai2024</b>
-      </p>
+      <h2>Identificate</h2>
+      <div class="field"><label>Selecciona tu nombre</label><select id="sel-w"><option value="">-- Elige tu nombre --</option></select></div>
+      <div class="field"><label>Tu DNI</label><input type="text" id="inp-dni" placeholder="Ej: 48221357" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <p class="err-txt" id="login-err"></p>
+      <button class="btn btn-p" onclick="doLogin()">Ingresar</button>
     </div>
   </div>
-</div>
 
-<!-- DASHBOARD -->
-<div id="sec-dash" class="hidden">
-  <div class="tabs">
-    <div class="tab active" onclick="swTab('hoy')">📅 Hoy</div>
-    <div class="tab" onclick="swTab('historial')">🕐 Historial</div>
-    <div class="tab" onclick="swTab('vacaciones')">🏖 Vacaciones</div>
-  </div>
+  <!-- DASHBOARD -->
+  <div id="sec-dash" class="hidden">
+    <div class="card" style="text-align:center;padding-bottom:16px;">
+      <div class="avatar-big" id="av"></div>
+      <div class="wname" id="d-name"></div>
+      <div class="wsub" id="d-gr"></div>
+      <div style="font-size:12px;color:#475569;margin-top:6px;" id="d-turno"></div>
+    </div>
 
-  <!-- HOY -->
-  <div class="panel active" id="tab-hoy">
-    <div class="toolbar">
-      <div style="font-size:13px;font-weight:600;color:#475569;" id="hoy-fecha"></div>
-      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <span class="last-up" id="last-up"></span>
-        <button class="btn btn-sm" onclick="loadAll()">⟳ Actualizar</button>
-        <button class="btn btn-g" id="btnExH" onclick="exportar('hoy')">Exportar Excel (hoy)</button>
+    <div class="tabs" id="tabs-row">
+      <button class="tab active" id="tab-btn-marcacion" onclick="swPanel('marcacion')">Marcacion</button>
+      <button class="tab" id="tab-btn-vacaciones" onclick="swPanel('vacaciones')">Vacaciones</button>
+      <button class="tab" id="tab-btn-perfil" onclick="swPanel('perfil')">Mi perfil</button>
+    </div>
+
+    <!-- MARCACION -->
+    <div class="panel active" id="panel-marcacion">
+      <div class="sbox s-nada" id="sbox">
+        <div class="sdot dnone" id="sdot"></div>
+        <div><div class="stxt" id="stxt">Sin marcacion hoy</div><div class="stime" id="stime"></div></div>
+      </div>
+      <div class="card">
+        <button class="btn btn-g" id="btn-e" onclick="marcar('entrada')">Registrar Entrada</button>
+        <button class="btn btn-r" id="btn-s" onclick="marcar('salida')">Registrar Salida</button>
+        <button class="btn btn-gris" onclick="logout()">Cambiar usuario</button>
+      </div>
+      <div class="card">
+        <h2 style="margin-bottom:12px;">Mis registros recientes</h2>
+        <div class="tw"><table>
+          <thead><tr><th>Fecha</th><th>Entro</th><th>Salio</th><th>Horas</th><th>Estado</th></tr></thead>
+          <tbody id="mis-regs"></tbody>
+        </table></div>
+        <div id="mis-empty" style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;display:none;">Sin registros aun.</div>
       </div>
     </div>
-    <div class="cards-row">
-      <div class="sc"><div class="sn" id="s-p" style="color:#22c55e">0</div><div class="sl">Presentes</div></div>
-      <div class="sc"><div class="sn" id="s-a" style="color:#ef4444">0</div><div class="sl">Ausentes</div></div>
-      <div class="sc"><div class="sn" id="s-s" style="color:#f59e0b">0</div><div class="sl">Salieron</div></div>
-      <div class="sc"><div class="sn" id="s-t" style="color:#00adef">0</div><div class="sl">Total</div></div>
-    </div>
-    <!-- Grid clickable -->
-    <div class="wgrid" id="wgrid"></div>
-    <div class="tw"><table>
-      <thead><tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>ID</th><th>Grupo</th><th>Turno</th><th>Entró</th><th>Salió</th><th>H. Trabajadas</th><th>Estado</th><th>Gestión</th></tr></thead>
-      <tbody id="tbody-hoy"></tbody>
-    </table></div>
-    <div class="empty" id="empty-hoy" style="display:none">Esperando marcaciones...</div>
-  </div>
 
-  <!-- HISTORIAL -->
-  <div class="panel" id="tab-historial">
-    <div class="toolbar">
-      <div class="filters">
-        <input type="text" placeholder="Buscar nombre o ID..." id="srch-h" oninput="renderHist()">
-        <input type="date" id="fdate-h" onchange="renderHist()">
-        <select id="fdept-h" onchange="renderHist()"></select>
+    <!-- VACACIONES -->
+    <div class="panel" id="panel-vacaciones">
+
+      <!-- Solicitudes pendientes para aprobar (solo jefes) -->
+      <div id="sec-aprobar" class="hidden">
+        <div class="card">
+          <h2 style="margin-bottom:4px;">Solicitudes pendientes de aprobacion</h2>
+          <p style="font-size:12px;color:#64748b;margin-bottom:14px;">Como jefe debes aprobar o rechazar las solicitudes de tu equipo</p>
+          <div id="pendientes-lista"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Cargando...</p></div>
+        </div>
       </div>
-      <button class="btn btn-sm" onclick="loadAll()">⟳ Actualizar</button>
-      <button class="btn btn-g" id="btnExHist" onclick="exportar('historial')">Exportar Excel</button>
-    </div>
-    <div class="tw"><table>
-      <thead><tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>ID</th><th>Grupo</th><th>Fecha</th><th>Permiso</th><th>Turno</th><th>Entró</th><th>Salió</th><th>H. Trabajadas</th><th>Estado</th><th>Gestión</th></tr></thead>
-      <tbody id="tbody-hist"></tbody>
-    </table></div>
-    <div class="empty" id="empty-hist" style="display:none">No hay registros.</div>
-  </div>
 
-  <!-- VACACIONES -->
-  <div class="panel" id="tab-vacaciones">
-    <div class="toolbar">
-      <div style="font-size:13px;font-weight:600;color:#475569;">Solicitudes de vacaciones</div>
-      <button class="btn btn-sm" style="margin-left:auto" onclick="cargarVacaciones()">⟳ Actualizar</button>
-    </div>
-
-    <!-- Pendientes -->
-    <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:10px;">Pendientes de aprobación</div>
-    <div id="vac-pendientes"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px;">Cargando...</p></div>
-
-    <div style="font-size:13px;font-weight:700;color:#1e293b;margin:18px 0 10px;">✓ Aprobadas / Rechazadas</div>
-    <div id="vac-historial"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px;">Cargando...</p></div>
-  </div>
-
-</div>
-
-<!-- MODAL historial trabajador -->
-<div class="overlay" id="ov-worker">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-avatar" id="mw-av"></div>
-      <div>
-        <div class="modal-title" id="mw-name"></div>
-        <div class="modal-sub" id="mw-sub"></div>
+      <!-- Solicitar vacaciones (todos excepto Noel en marcacion) -->
+      <div id="sec-solicitar">
+        <div class="card">
+          <h2 style="margin-bottom:14px;">Solicitar vacaciones</h2>
+          <div class="info-jefe" id="info-jefe"></div>
+          <div class="field"><label>Fecha de inicio</label><input type="date" id="vac-desde" onchange="calcDias()"></div>
+          <div class="field"><label>Fecha de fin</label><input type="date" id="vac-hasta" onchange="calcDias()"></div>
+          <div class="field"><label>N de dias</label><input type="text" id="vac-dias" readonly style="background:#f8f9fa;color:#64748b;"></div>
+          <div class="field"><label>Fecha de retorno</label><input type="date" id="vac-retorno"></div>
+          <button class="btn btn-p" id="btn-solicitar" onclick="solicitarVacaciones()">Enviar solicitud</button>
+          <p style="font-size:11px;color:#94a3b8;margin-top:8px;text-align:center;">La solicitud llegara por email a tu jefe directo</p>
+        </div>
       </div>
-      <button class="modal-close" onclick="closeWorkerModal()">✕</button>
-    </div>
-    <div class="tw">
-      <table>
-        <thead><tr><th>Fecha</th><th>Entró</th><th>Salió</th><th>Horas</th><th>Estado</th><th>Acciones</th></tr></thead>
-        <tbody id="mw-tbody"></tbody>
-      </table>
-    </div>
-    <div id="mw-empty" style="text-align:center;padding:20px;color:#94a3b8;font-size:13px;display:none;">Sin registros.</div>
-  </div>
-</div>
 
-<!-- MODAL editar marcación -->
-<div class="edit-overlay" id="ov-edit">
-  <div class="edit-modal">
-    <h3 id="edit-title">Editar marcación</h3>
-    <label>Fecha</label>
-    <input type="date" id="edit-fecha">
-    <label>Hora entrada</label>
-    <input type="time" id="edit-entrada" placeholder="HH:MM">
-    <label>Hora salida</label>
-    <input type="time" id="edit-salida" placeholder="HH:MM">
-    <div class="edit-actions">
-      <button class="btn btn-sm" onclick="closeEditModal()">Cancelar</button>
-      <button class="btn btn-p" onclick="guardarEdicion()">Guardar cambios</button>
+      <!-- Mis solicitudes -->
+      <div class="card">
+        <h2 style="margin-bottom:12px;">Mis solicitudes</h2>
+        <div id="mis-vacs"><p style="text-align:center;color:#94a3b8;font-size:13px;padding:20px;">Cargando...</p></div>
+      </div>
     </div>
+
+    <!-- PERFIL -->
+    <div class="panel" id="panel-perfil">
+      <div class="card">
+        <h2 style="margin-bottom:14px;">Mi correo corporativo</h2>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="perfil-email" placeholder="tunombre@akamai.com.pe">
+        </div>
+        <h2 style="margin-bottom:10px;margin-top:16px;">Mi firma digital</h2>
+        <p style="font-size:12px;color:#64748b;margin-bottom:10px;">Sube una foto de tu firma en papel blanco. Se usara en tus documentos de vacaciones.</p>
+        <div class="firma-area" id="firma-preview">
+          <p style="color:#94a3b8;font-size:12px;margin-bottom:8px;">Sin firma cargada</p>
+          <input type="file" id="firma-file" accept="image/*" onchange="previewFirma(event)" style="display:none">
+          <button class="btn-sm" onclick="document.getElementById('firma-file').click()">Seleccionar imagen de firma</button>
+        </div>
+        <button class="btn btn-p" onclick="guardarPerfil()">Guardar perfil</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-var ADMIN_USER = 'admin';
-var ADMIN_PASS = 'akamai2024';
-
-var WORKERS = [
-  {id:'48221357',ap:'NEYRA RUJEL',nm:'WENDY STEFANNY',gr:'ADMINISTRACION Y COMPRAS',ca:'COORDINADORA DE ADMINISTRACION Y COMPRAS',tu:'09:00 - 18:00'},
-  {id:'41318261',ap:'GUARDAMINO RIOS',nm:'ALDO JESUS',gr:'ADMINISTRACION Y FINANZAS',ca:'JEFE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00'},
-  {id:'72783491',ap:'VASQUEZ CHIPANA',nm:'YANETT NATIVIDAD',gr:'ADMINISTRACION Y FINANZAS',ca:'ANALISTA DE FINANZAS Y TESORERIA',tu:'09:00 - 18:00'},
-  {id:'46261114',ap:'ESPINOZA MONTESINOS',nm:'DALMA NEREA',gr:'COBRANZAS',ca:'ASISTENTE DE COBRANZAS',tu:'09:00 - 18:00'},
-  {id:'41084859',ap:'SARCO CUELLAR',nm:'GUSTAVO ADOLFO',gr:'COBRANZAS',ca:'JEFE DE COBRANZAS',tu:'09:00 - 18:00'},
-  {id:'70447785',ap:'CORDOVA VIDAL',nm:'RAI EDU',gr:'PROYECTOS',ca:'COORDINADOR DE PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'43903530',ap:'GRANADOS SAENZ',nm:'NOEL ALONSO',gr:'PROYECTOS',ca:'GERENTE GENERAL',tu:'09:00 - 18:00'},
-  {id:'73173155',ap:'MELENDEZ SOTO',nm:'NATALIA VERONICA',gr:'PROYECTOS',ca:'JEFE DE PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'72726407',ap:'SAAVEDRA VIGO',nm:'MARIANA ROCIO',gr:'PROYECTOS',ca:'ARQUITECTA DE NUEVOS PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'76577354',ap:'TAFUR QUISPE',nm:'ROSA LINDA',gr:'PROYECTOS',ca:'PRACTICANTE DE PROYECTOS',tu:'09:00 - 18:00'},
-  {id:'74071705',ap:'PEREZ ZAMBRANO',nm:'LESLY MAGNOLIA',gr:'COBRANZAS',ca:'ASISTENTE DE ADMINISTRACION DE VENTAS',tu:'09:00 - 18:00'},
-  {id:'71526127',ap:'CANO SANCHEZ',nm:'ANDREA KATHERINE',gr:'ADMINISTRACION Y FINANZAS',ca:'ASISTENTE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00'},
-];
+var WORKERS = [];
+var CW = null;
+var firmaB64 = null;
+var ES_JEFE = false;
+var ES_SOLO_JEFE = false; // Noel: solo aprueba, no marca
 
 var PAL=['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ef4444','#14b8a6'];
 function ini(n){return n.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
 function gc(n){var h=0;for(var i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))&0xffff;return PAL[h%PAL.length];}
 function today(){var now=new Date();var peru=new Date(now.getTime()-(5*60*60*1000));return peru.toISOString().slice(0,10);}
-var DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+function nowT(){var now=new Date();var peru=new Date(now.getTime()-(5*60*60*1000));return peru.toISOString().slice(11,16);}
+var DIAS=['Lun','Mar','Mie','Jue','Vie','Sab','Dom'];
 function fGeo(f){var p=f.split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);var i=dt.getDay()===0?6:dt.getDay()-1;return DIAS[i]+' '+p[2]+'-'+p[1]+'-'+p[0];}
+function fmtF(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 function t2d(t){if(!t)return null;var p=t.split(':');return(+p[0]*60+ +p[1])/1440;}
 function fmtHT(eh,sh){if(!eh||!sh)return'--';var d=t2d(sh)-t2d(eh);if(d<0)d+=1;var m=Math.round(d*1440);return Math.floor(m/60)+'h '+m%60+'m';}
 
-var allRegs=[], timer=null, editingWid=null, editingFecha=null;
-
-function tick(){document.getElementById('hclk').textContent=new Date().toTimeString().slice(0,8);}
+function tick(){var n=new Date();document.getElementById('clk').textContent=n.toTimeString().slice(0,8);document.getElementById('clkd').textContent=n.toLocaleDateString('es-PE',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
 setInterval(tick,1000);tick();
 
+// Cargar lista de trabajadores desde el servidor
+fetch('/api/workers').then(function(r){return r.json();}).then(function(data){
+  WORKERS = data.workers||[];
+  var sel = document.getElementById('sel-w');
+  WORKERS.forEach(function(w){
+    var o = document.createElement('option');
+    o.value = w.id;
+    o.textContent = w.ap+', '+w.nm;
+    sel.appendChild(o);
+  });
+}).catch(function(){
+  // Fallback lista hardcoded
+  WORKERS = [
+    {id:'48221357',ap:'NEYRA RUJEL',nm:'WENDY STEFANNY',gr:'ADMINISTRACION Y COMPRAS',ca:'COORDINADORA DE ADMINISTRACION Y COMPRAS',tu:'09:00 - 18:00',jefeWid:'41318261',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',esJefe:false},
+    {id:'41318261',ap:'GUARDAMINO RIOS',nm:'ALDO JESUS',gr:'ADMINISTRACION Y FINANZAS',ca:'JEFE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00',jefeWid:'43903530',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',esJefe:true},
+    {id:'72783491',ap:'VASQUEZ CHIPANA',nm:'YANETT NATIVIDAD',gr:'ADMINISTRACION Y FINANZAS',ca:'COORDINADORA DE FINANZAS Y TESORERIA',tu:'09:00 - 18:00',jefeWid:'41318261',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',esJefe:false},
+    {id:'46261114',ap:'ESPINOZA MONTESINOS',nm:'DALMA NEREA',gr:'COBRANZAS',ca:'ASISTENTE DE ADMINISTRACION DE VENTAS',tu:'09:00 - 18:00',jefeWid:'41084859',jefeNombre:'GUSTAVO ADOLFO SARCO CUELLAR',esJefe:false},
+    {id:'41084859',ap:'SARCO CUELLAR',nm:'GUSTAVO ADOLFO',gr:'COBRANZAS',ca:'JEFE DE ADMINISTRACION Y VENTAS',tu:'09:00 - 18:00',jefeWid:'43903530',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',esJefe:true},
+    {id:'70447785',ap:'CORDOVA VIDAL',nm:'RAI EDU',gr:'PROYECTOS',ca:'COORDINADOR DE PROYECTOS',tu:'09:00 - 18:00',jefeWid:'73173155',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',esJefe:false},
+    {id:'43903530',ap:'GRANADOS SAENZ',nm:'NOEL ALONSO',gr:'PROYECTOS',ca:'GERENTE GENERAL',tu:'',jefeWid:'',jefeNombre:'',esJefe:true},
+    {id:'73173155',ap:'MELENDEZ SOTO',nm:'NATALIA VERONICA',gr:'PROYECTOS',ca:'JEFE DE PROYECTOS Y NUEVOS NEGOCIOS',tu:'09:00 - 18:00',jefeWid:'43903530',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',esJefe:true},
+    {id:'72726407',ap:'SAAVEDRA VIGO',nm:'MARIANA ROCIO',gr:'PROYECTOS',ca:'ARQUITECTA DE NUEVOS PROYECTOS',tu:'09:00 - 18:00',jefeWid:'73173155',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',esJefe:false},
+    {id:'76577354',ap:'TAFUR QUISPE',nm:'ROSA LINDA',gr:'PROYECTOS',ca:'ASISTENTE DE PROYECTOS',tu:'09:00 - 18:00',jefeWid:'73173155',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',esJefe:false},
+    {id:'74071705',ap:'PEREZ ZAMBRANO',nm:'LESLY MAGNOLIA',gr:'COBRANZAS',ca:'ASISTENTE DE ADMINISTRACION DE VENTAS',tu:'09:00 - 18:00',jefeWid:'41084859',jefeNombre:'GUSTAVO ADOLFO SARCO CUELLAR',esJefe:false},
+    {id:'71526127',ap:'CANO SANCHEZ',nm:'ANDREA KATHERINE',gr:'ADMINISTRACION Y FINANZAS',ca:'ASISTENTE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00',jefeWid:'41318261',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',esJefe:false},
+  ];
+  var sel = document.getElementById('sel-w');
+  sel.innerHTML = '<option value="">-- Elige tu nombre --</option>';
+  WORKERS.forEach(function(w){
+    var o = document.createElement('option');
+    o.value = w.id;
+    o.textContent = w.ap+', '+w.nm;
+    sel.appendChild(o);
+  });
+});
+
 function doLogin(){
-  var u=document.getElementById('a-user').value.trim();
-  var p=document.getElementById('a-pass').value;
-  var err=document.getElementById('a-err');
-  err.textContent='';
-  if(u!==ADMIN_USER||p!==ADMIN_PASS){err.textContent='Usuario o contraseña incorrectos.';return;}
+  var wid = document.getElementById('sel-w').value;
+  var dni = document.getElementById('inp-dni').value.trim();
+  var err = document.getElementById('login-err');
+  err.textContent = '';
+  if(!wid){err.textContent='Selecciona tu nombre.';return;}
+  var w = WORKERS.find(function(x){return x.id===wid;});
+  if(!w||w.id!==dni){err.textContent='El DNI no coincide.';return;}
+  CW = w;
+  ES_JEFE = w.esJefe||false;
+  ES_SOLO_JEFE = w.id==='43903530'; // Noel: solo aprueba
+
   document.getElementById('sec-login').classList.add('hidden');
   document.getElementById('sec-dash').classList.remove('hidden');
-  document.getElementById('live-badge').style.display='flex';
-  document.getElementById('btn-logout').style.display='flex';
-  document.getElementById('hoy-fecha').textContent='Hoy: '+fGeo(today());
-  updDept();loadAll();
-  timer=setInterval(loadAll,20000);
-  // Detectar qué jefe es según usuario (para firma en aprobaciones)
-  // Por defecto Aldo Guardamino como admin principal
-  CW_ADMIN_WID = '41318261';
+  var pill=document.getElementById('upill');pill.classList.remove('hidden');pill.style.display='flex';
+  document.getElementById('upill-nm').textContent=w.nm;
+  var av=document.getElementById('av');av.textContent=ini(w.nm);av.style.background=gc(w.ap);
+  document.getElementById('d-name').textContent=w.nm+' '+w.ap;
+  document.getElementById('d-gr').textContent=w.gr+(w.ca?' - '+w.ca:'');
+  document.getElementById('d-turno').textContent=w.tu?'Turno: '+w.tu:'';
+
+  // Si es solo jefe (Noel), ocultar tab marcacion
+  if(ES_SOLO_JEFE){
+    document.getElementById('tab-btn-marcacion').style.display='none';
+    document.getElementById('panel-marcacion').innerHTML='';
+    swPanel('vacaciones');
+  } else {
+    cargarRegistros();
+  }
+
+  // Mostrar seccion de aprobar si es jefe
+  if(ES_JEFE){
+    document.getElementById('sec-aprobar').classList.remove('hidden');
+  }
+
+  // Info del jefe en solicitar
+  if(w.jefeNombre){
+    document.getElementById('info-jefe').textContent='Tu solicitud sera enviada a: '+w.jefeNombre;
+  }
+
+  cargarPerfil();
 }
 
 function logout(){
-  clearInterval(timer);
+  CW=null;firmaB64=null;ES_JEFE=false;ES_SOLO_JEFE=false;
   document.getElementById('sec-login').classList.remove('hidden');
   document.getElementById('sec-dash').classList.add('hidden');
-  document.getElementById('live-badge').style.display='none';
-  document.getElementById('btn-logout').style.display='none';
-  document.getElementById('a-pass').value='';
-  document.getElementById('a-user').value='';
+  document.getElementById('upill').classList.add('hidden');
+  document.getElementById('sel-w').value='';
+  document.getElementById('inp-dni').value='';
+  document.getElementById('login-err').textContent='';
+  document.getElementById('tab-btn-marcacion').style.display='';
 }
 
-function loadAll(){
-  return fetch('/api/registros')
-    .then(function(r){return r.json();})
-    .then(function(data){
-      allRegs=data.regs||[];
-      document.getElementById('last-up').textContent='Actualizado: '+new Date().toTimeString().slice(0,8);
-      renderHoy();renderHist();
-    })
-    .catch(function(){toast('Error al conectar');});
-}
-
-
-function renderHoy(){
-  var td=today();var pr=0,sa=0,n=0;
-  var gcards=[],rows=[];
-  WORKERS.forEach(function(w){
-    var e=allRegs.find(function(r){return r.wid===w.id&&r.f===td&&r.t==='entrada';});
-    var s=allRegs.find(function(r){return r.wid===w.id&&r.f===td&&r.t==='salida';});
-    var cls='',badge='',time='';
-    if(e&&!s){cls='presente';badge='<span class="wbg b-in">Presente</span>';time=e.h;pr++;}
-    else if(e&&s){cls='salio';badge='<span class="wbg b-gone">Salió '+s.h+'</span>';time=e.h;sa++;}
-    else badge='<span class="wbg b-out">Sin marcar</span>';
-    gcards.push('<div class="wcard '+cls+'" onclick="abrirWorker(\''+w.id+'\')">'+
-      '<div class="av" style="background:'+gc(w.ap)+'">'+ini(w.nm)+'</div>'+
-      '<div class="wn">'+w.nm+'</div><div class="wa">'+w.ap+'</div>'+
-      '<div class="wg">'+w.gr+'</div>'+badge+
-      (time?'<div style="font-size:10px;color:#94a3b8;margin-top:3px;">'+time+'</div>':'')+
-      '</div>');
-    var tbadge=e&&s?'<span class="badge bg">Completo</span>':e?'<span class="badge ba">En turno</span>':'<span class="badge bgr">Sin marcar</span>';
-    n++;
-    rows.push('<tr><td>'+n+'</td><td><b>'+w.ap+'</b></td><td>'+w.nm+'</td>'+
-      '<td class="mono">'+w.id+'</td><td>'+w.gr+'</td>'+
-      '<td style="font-size:11px">'+w.tu+'</td>'+
-      '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td>'+
-      '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td>'+
-      '<td>'+fmtHT(e&&e.h,s&&s.h)+'</td><td>'+tbadge+'</td>'+
-      '<td><button class="btn-sm" onclick="abrirWorker(\''+w.id+'\')">Gestionar</button></td></tr>');
-  });
-  document.getElementById('wgrid').innerHTML=gcards.join('');
-  document.getElementById('tbody-hoy').innerHTML=rows.join('');
-  document.getElementById('empty-hoy').style.display=allRegs.some(function(r){return r.f===td;})?'none':'block';
-  document.getElementById('s-p').textContent=pr;
-  document.getElementById('s-a').textContent=WORKERS.length-pr-sa;
-  document.getElementById('s-s').textContent=sa;
-  document.getElementById('s-t').textContent=WORKERS.length;
-}
-
-
-function renderHist(){
-  var srch=document.getElementById('srch-h').value.toLowerCase();
-  var fd=document.getElementById('fdate-h').value;
-  var fg=document.getElementById('fdept-h').value;
-  var rows=[],n=0;
-  WORKERS.forEach(function(w){
-    if(fg&&w.gr!==fg)return;
-    if(srch&&w.nm.toLowerCase().indexOf(srch)<0&&w.ap.toLowerCase().indexOf(srch)<0&&w.id.indexOf(srch)<0)return;
-    var wr=allRegs.filter(function(r){return r.wid===w.id;});
-    var fechas=[];wr.forEach(function(r){if(fechas.indexOf(r.f)<0)fechas.push(r.f);});
-    fechas.sort().reverse();
-    if(fd)fechas=fechas.filter(function(f){return f===fd;});
-    fechas.forEach(function(f){
-      var e=wr.find(function(r){return r.f===f&&r.t==='entrada';});
-      var s=wr.find(function(r){return r.f===f&&r.t==='salida';});
-      var perm=(e&&e.p)||(s&&s.p)||'Ninguno';
-      var badge=e&&s?'<span class="badge bg">Completo</span>':e?'<span class="badge ba">En turno</span>':'<span class="badge bgr">Sin marcar</span>';
-      n++;
-      rows.push('<tr><td>'+n+'</td><td><b>'+w.ap+'</b></td><td>'+w.nm+'</td>'+
-        '<td class="mono">'+w.id+'</td><td>'+w.gr+'</td>'+
-        '<td style="font-size:11px">'+fGeo(f)+'</td><td>'+perm+'</td>'+
-        '<td style="font-size:11px">'+w.tu+'</td>'+
-        '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td>'+
-        '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td>'+
-        '<td>'+fmtHT(e&&e.h,s&&s.h)+'</td><td>'+badge+'</td>'+
-        '<td><button class="btn-sm" onclick="abrirWorkerFecha(\''+w.id+'\',\''+f+'\')">Gestionar</button></td></tr>');
-    });
-  });
-  document.getElementById('empty-hist').style.display=rows.length?'none':'block';
-  document.getElementById('tbody-hist').innerHTML=rows.join('');
-}
-
-function updDept(){
-  var s=document.getElementById('fdept-h'),gs=[];
-  WORKERS.forEach(function(w){if(gs.indexOf(w.gr)<0)gs.push(w.gr);});gs.sort();
-  s.innerHTML='<option value="">Todos los grupos</option>'+gs.map(function(g){return'<option value="'+g+'">'+g+'</option>';}).join('');
-}
-function swTab(t){
-  document.querySelectorAll('.tab').forEach(function(x,i){x.classList.toggle('active',['hoy','historial','vacaciones'][i]===t);});
+function swPanel(p){
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+  var btn=document.getElementById('tab-btn-'+p);
+  if(btn)btn.classList.add('active');
   document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
-  document.getElementById('tab-'+t).classList.add('active');
-  if(t==='vacaciones') cargarVacaciones();
+  document.getElementById('panel-'+p).classList.add('active');
+  if(p==='vacaciones'){cargarMisVacaciones();if(ES_JEFE)cargarPendientes();}
 }
 
+// MARCACION
+function cargarRegistros(){
+  fetch('/api/registros').then(function(r){return r.json();}).then(function(data){
+    var regs=(data.regs||[]).filter(function(r){return r.wid===CW.id;});
+    renderDash(regs);
+  }).catch(function(){toast('Error al conectar','err');});
+}
 
-var JEFES_WID = {'41318261':true,'41084859':true,'73173155':true};
+function renderDash(regs){
+  var td=today();
+  var tE=regs.find(function(r){return r.f===td&&r.t==='entrada';});
+  var tS=regs.find(function(r){return r.f===td&&r.t==='salida';});
+  var box=document.getElementById('sbox'),dot=document.getElementById('sdot'),stxt=document.getElementById('stxt'),stime=document.getElementById('stime');
+  box.className='sbox';
+  if(tE&&tS){box.classList.add('s-fuera');dot.className='sdot dout';stxt.textContent='Jornada completada';stime.textContent='Entrada: '+tE.h+' - Salida: '+tS.h+' - '+fmtHT(tE.h,tS.h);}
+  else if(tE){box.classList.add('s-en');dot.className='sdot din';stxt.textContent='En turno - entrada registrada';stime.textContent='Entraste a las '+tE.h;}
+  else{box.classList.add('s-nada');dot.className='sdot dnone';stxt.textContent='Sin marcacion hoy';stime.textContent='';}
+  document.getElementById('btn-e').disabled=!!(tE);
+  document.getElementById('btn-s').disabled=!(tE&&!tS);
+  var fechas=[];regs.forEach(function(r){if(fechas.indexOf(r.f)<0)fechas.push(r.f);});fechas.sort().reverse();
+  var rows=[];
+  fechas.slice(0,20).forEach(function(f){
+    var e=regs.find(function(r){return r.f===f&&r.t==='entrada';});
+    var s=regs.find(function(r){return r.f===f&&r.t==='salida';});
+    var badge=e&&s?'<span class="badge bg">Completo</span>':e?'<span class="badge ba">En turno</span>':'<span class="badge bgr">Sin marcar</span>';
+    rows.push('<tr><td style="font-size:11px">'+fGeo(f)+'</td><td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td><td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td><td>'+fmtHT(e&&e.h,s&&s.h)+'</td><td>'+badge+'</td></tr>');
+  });
+  document.getElementById('mis-regs').innerHTML=rows.join('');
+  document.getElementById('mis-empty').style.display=rows.length?'none':'block';
+}
 
-function cargarVacaciones(){
+function marcar(tipo){
+  var btnId=tipo==='entrada'?'btn-e':'btn-s';
+  var btn=document.getElementById(btnId);btn.disabled=true;btn.innerHTML='<span class="spin"></span>Guardando...';
+  var marca={wid:CW.id,f:today(),h:nowT(),t:tipo,p:'Ninguno',ap:CW.ap,nm:CW.nm,gr:CW.gr,tu:CW.tu};
+  fetch('/api/marcar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(marca)})
+  .then(function(r){return r.json().then(function(d){return{status:r.status,data:d};});})
+  .then(function(res){
+    if(res.status===409){toast(res.data.error,'err');}
+    else if(res.data.ok){toast((tipo==='entrada'?'Entrada':'Salida')+' registrada: '+marca.h,'ok');cargarRegistros();}
+    else{toast('Error: '+(res.data.error||'desconocido'),'err');}
+  })
+  .catch(function(){toast('Error de conexion','err');})
+  .finally(function(){btn.disabled=false;btn.innerHTML=tipo==='entrada'?'Registrar Entrada':'Registrar Salida';});
+}
+
+// VACACIONES - Solicitar
+function calcDias(){
+  var desde=document.getElementById('vac-desde').value;
+  var hasta=document.getElementById('vac-hasta').value;
+  if(!desde||!hasta){document.getElementById('vac-dias').value='';return;}
+  var d1=new Date(desde),d2=new Date(hasta);
+  var diff=Math.round((d2-d1)/(1000*60*60*24))+1;
+  document.getElementById('vac-dias').value=diff>0?diff+' dias':'--';
+  var ret=new Date(d2);ret.setDate(ret.getDate()+1);
+  document.getElementById('vac-retorno').value=ret.toISOString().slice(0,10);
+}
+
+function solicitarVacaciones(){
+  var desde=document.getElementById('vac-desde').value;
+  var hasta=document.getElementById('vac-hasta').value;
+  var retorno=document.getElementById('vac-retorno').value;
+  if(!desde||!hasta||!retorno){toast('Completa todas las fechas','err');return;}
+  var d1=new Date(desde),d2=new Date(hasta);
+  var dias=Math.round((d2-d1)/(1000*60*60*24))+1;
+  if(dias<=0){toast('La fecha de fin debe ser posterior al inicio','err');return;}
+  var btn=document.getElementById('btn-solicitar');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Enviando...';
+  var sol={wid:CW.id,dni:CW.id,apellidos:CW.ap,nombres:CW.nm,cargo:CW.ca,area:CW.gr,desde:desde,hasta:hasta,dias:dias,retorno:retorno,fechaSolicitud:today()};
+  fetch('/api/vacaciones/solicitar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sol)})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.ok){
+      toast('Solicitud enviada. Tu jefe recibira un email.','ok');
+      document.getElementById('vac-desde').value='';
+      document.getElementById('vac-hasta').value='';
+      document.getElementById('vac-dias').value='';
+      document.getElementById('vac-retorno').value='';
+      cargarMisVacaciones();
+    }else{toast('Error: '+(d.error||'desconocido'),'err');}
+  })
+  .catch(function(){toast('Error de conexion','err');})
+  .finally(function(){btn.disabled=false;btn.innerHTML='Enviar solicitud';});
+}
+
+function cargarMisVacaciones(){
   fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
-    var vacs = data.vacaciones||[];
-    var pendientes = vacs.filter(function(v){return v.estado==='pendiente';});
-    var hist = vacs.filter(function(v){return v.estado!=='pendiente';});
-    hist.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
+    var vacs=(data.vacaciones||[]).filter(function(v){return v.wid===CW.id;});
+    vacs.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
+    var container=document.getElementById('mis-vacs');
+    if(!vacs.length){container.innerHTML='<p style="text-align:center;color:#94a3b8;font-size:13px;padding:20px;">No tienes solicitudes aun.</p>';return;}
+    container.innerHTML=vacs.map(function(v){
+      var estadoClass=v.estado==='aprobado'?'bg':v.estado==='rechazado'?'brej':'bpend';
+      var estadoTxt=v.estado==='aprobado'?'Aprobado':v.estado==='rechazado'?'Rechazado':'Pendiente';
+      var btnPDF=v.estado==='aprobado'?'<br><button class="btn-sm" style="margin-top:8px" onclick="descargarPDF(\''+v.id+'\')">Descargar PDF</button>':'';
+      return '<div class="vac-card">'+
+        '<span class="badge '+estadoClass+'">'+estadoTxt+'</span>'+
+        '<div style="font-weight:700;font-size:13px;margin-top:6px;">'+fmtF(v.desde)+' al '+fmtF(v.hasta)+'</div>'+
+        '<div style="font-size:12px;color:#475569;margin-top:3px;">'+v.dias+' dias - Retorno: '+fmtF(v.retorno)+'</div>'+
+        '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Solicitado: '+fmtF(v.fechaSolicitud)+'</div>'+
+        (v.jefeNombre?'<div style="font-size:11px;color:#64748b;margin-top:2px;">Gestionado por: '+v.jefeNombre+'</div>':'')+
+        (v.motivoRechazo?'<div style="font-size:11px;color:#dc2626;margin-top:2px;">Motivo: '+v.motivoRechazo+'</div>':'')+
+        btnPDF+'</div>';
+    }).join('');
+  }).catch(function(){document.getElementById('mis-vacs').innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:20px;">Error al cargar.</p>';});
+}
 
-    var divP = document.getElementById('vac-pendientes');
+function descargarPDF(id){
+  var win=window.open('/api/vacaciones/pdf/'+id,'_blank');
+  setTimeout(function(){if(win)win.print();},1500);
+}
+
+// VACACIONES - Aprobar (jefes)
+function cargarPendientes(){
+  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
+    var todas=data.vacaciones||[];
+    // Filtrar solo las solicitudes de subordinados directos
+    var subordinados=WORKERS.filter(function(w){return w.jefeWid===CW.id;}).map(function(w){return w.id;});
+    var pendientes=todas.filter(function(v){return v.estado==='pendiente'&&subordinados.indexOf(v.wid)>=0;});
+    var container=document.getElementById('pendientes-lista');
     if(!pendientes.length){
-      divP.innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">No hay solicitudes pendientes.</p>';
-    } else {
-      divP.innerHTML = pendientes.map(function(v){
-        var w = WORKERS.find(function(x){return x.id===v.wid;});
-        var esJefe = JEFES_WID[CW_ADMIN_WID];
-        return '<div style="background:#fff;border-radius:10px;border:1.5px solid #fcd34d;padding:16px;margin-bottom:10px;">'+
-          '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'+
-          '<div style="width:36px;height:36px;border-radius:50%;background:'+gc(v.apellidos||'')+';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff">'+ini(v.nombres||'')+'</div>'+
-          '<div><div style="font-weight:700;font-size:13px;">'+v.nombres+' '+v.apellidos+'</div>'+
-          '<div style="font-size:11px;color:#64748b;">'+v.area+' · '+(v.cargo||'')+'</div></div>'+
-          '<span class="badge bpend" style="margin-left:auto">Pendiente</span></div>'+
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">'+
-          '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Desde</b><br>'+fmtFechaDisp(v.desde)+'</div>'+
-          '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Hasta</b><br>'+fmtFechaDisp(v.hasta)+'</div>'+
-          '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>N° días</b><br>'+v.dias+'</div>'+
-          '<div style="background:#f8f9fa;border-radius:8px;padding:8px;font-size:12px;"><b>Retorno</b><br>'+fmtFechaDisp(v.retorno)+'</div>'+
-          '</div>'+
-          '<div style="display:flex;gap:8px;">'+
-          '<button class="btn btn-g" style="flex:1;padding:8px;font-size:12px;" onclick="aprobarVacacion(\''+v.id+'\')">Aprobar</button>'+
-          '<button class="btn" style="flex:1;padding:8px;font-size:12px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;" onclick="rechazarVacacion(\''+v.id+'\')">Rechazar</button>'+
-          '</div></div>';
-      }).join('');
+      container.innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">No hay solicitudes pendientes de tu equipo.</p>';
+      return;
     }
-
-    var divH = document.getElementById('vac-historial');
-    if(!hist.length){
-      divH.innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Sin historial aún.</p>';
-    } else {
-      divH.innerHTML = hist.map(function(v){
-        var estadoClass=v.estado==='aprobado'?'bg':'brej';
-        var estadoTxt=v.estado==='aprobado'?'Aprobado':'Rechazado';
-        var btnPDF=v.estado==='aprobado'?'<button class="btn-sm" onclick="window.open(\'/api/vacaciones/pdf/\'+v.id,\'_blank\')" style="margin-top:8px">Ver PDF</button>':'';
-        return '<div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">'+
-          '<div style="flex:1">'+
-          '<div style="font-weight:700;font-size:13px;">'+v.nombres+' '+v.apellidos+'</div>'+
-          '<div style="font-size:11px;color:#64748b;">'+fmtFechaDisp(v.desde)+' al '+fmtFechaDisp(v.hasta)+' ('+v.dias+' días)</div>'+
-          (v.jefeNombre?'<div style="font-size:11px;color:#64748b;">Por: '+v.jefeNombre+'</div>':'')+
-          '</div>'+
-          '<div style="text-align:right"><span class="badge '+estadoClass+'">'+estadoTxt+'</span><br>'+btnPDF+'</div>'+
-          '</div>';
-      }).join('');
-    }
-  }).catch(function(){toast('Error al cargar vacaciones');});
+    container.innerHTML=pendientes.map(function(v){
+      return '<div class="pend-card">'+
+        '<div style="font-weight:700;font-size:13px;">'+v.nombres+' '+v.apellidos+'</div>'+
+        '<div style="font-size:11px;color:#64748b;margin-bottom:10px;">'+v.area+'</div>'+
+        '<div class="pend-grid">'+
+        '<div class="pend-item"><b>Desde</b>'+fmtF(v.desde)+'</div>'+
+        '<div class="pend-item"><b>Hasta</b>'+fmtF(v.hasta)+'</div>'+
+        '<div class="pend-item"><b>Dias</b>'+v.dias+'</div>'+
+        '<div class="pend-item"><b>Retorno</b>'+fmtF(v.retorno)+'</div>'+
+        '</div>'+
+        '<div style="display:flex;gap:8px;">'+
+        '<button class="btn-sm btn-apro" style="flex:1;padding:8px;text-align:center;" onclick="aprobar(\''+v.id+'\')">Aprobar</button>'+
+        '<button class="btn-sm btn-rech" style="flex:1;padding:8px;text-align:center;" onclick="rechazar(\''+v.id+'\')">Rechazar</button>'+
+        '</div></div>';
+    }).join('');
+  });
 }
 
-var CW_ADMIN_WID = null;
-
-function aprobarVacacion(id){
-  var w = WORKERS.find(function(x){return x.id===CW_ADMIN_WID;});
-  var jefeNombre = w ? w.nm+' '+w.ap : 'Administrador';
-  fetch('/api/vacaciones/aprobar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,jefeNombre:jefeNombre,jefeWid:CW_ADMIN_WID||''})})
+function aprobar(id){
+  if(!confirm('Confirmas la aprobacion de estas vacaciones?'))return;
+  var jefeNombre=CW.nm+' '+CW.ap;
+  fetch('/api/vacaciones/aprobar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,jefeNombre:jefeNombre,jefeWid:CW.id})})
   .then(function(r){return r.json();})
   .then(function(d){
-    if(d.ok){toast('Vacaciones aprobadas. Se notifico al trabajador.','ok');cargarVacaciones();}
-    else toast('Error: '+(d.error||'desconocido'));
-  }).catch(function(){toast('Error de conexión');});
+    if(d.ok){toast('Vacaciones aprobadas. Se notifico al trabajador.','ok');cargarPendientes();cargarMisVacaciones();}
+    else{toast('Error: '+(d.error||'desconocido'),'err');}
+  }).catch(function(){toast('Error de conexion','err');});
 }
 
-function rechazarVacacion(id){
+function rechazar(id){
   var motivo=prompt('Motivo del rechazo (opcional):');
-  var w = WORKERS.find(function(x){return x.id===CW_ADMIN_WID;});
-  var jefeNombre = w ? w.nm+' '+w.ap : 'Administrador';
-  fetch('/api/vacaciones/rechazar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,motivo:motivo||'',jefeNombre:jefeNombre})})
+  var jefeNombre=CW.nm+' '+CW.ap;
+  fetch('/api/vacaciones/rechazar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:id,motivo:motivo||'',jefeNombre:jefeNombre,jefeWid:CW.id})})
   .then(function(r){return r.json();})
   .then(function(d){
-    if(d.ok){toast('Solicitud rechazada','ok');cargarVacaciones();}
-    else toast('Error: '+(d.error||'desconocido'));
-  }).catch(function(){toast('Error de conexión');});
+    if(d.ok){toast('Solicitud rechazada','ok');cargarPendientes();}
+    else{toast('Error: '+(d.error||'desconocido'),'err');}
+  }).catch(function(){toast('Error de conexion','err');});
 }
 
-function fmtFechaDisp(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
-
-
-// MODAL HISTORIAL POR TRABAJADOR
-
-function abrirWorker(wid){
-  abrirWorkerFecha(wid, null);
-}
-
-function abrirWorkerFecha(wid, filtroFecha){
-  var w = WORKERS.find(function(x){return x.id===wid;});
-  if(!w) return;
-
-  document.getElementById('mw-av').textContent = ini(w.nm);
-  document.getElementById('mw-av').style.background = gc(w.ap);
-  document.getElementById('mw-name').textContent = w.nm + ' ' + w.ap;
-  document.getElementById('mw-sub').textContent = w.gr + ' · ' + (w.ca||'') + ' · DNI: ' + w.id;
-
-  var wr = allRegs.filter(function(r){return r.wid===wid;});
-  var fechas = [];
-  wr.forEach(function(r){if(fechas.indexOf(r.f)<0)fechas.push(r.f);});
-  fechas.sort().reverse();
-  if(filtroFecha) fechas = fechas.filter(function(f){return f===filtroFecha;});
-
-  var rows = [];
-  fechas.forEach(function(f){
-    var e = wr.find(function(r){return r.f===f&&r.t==='entrada';});
-    var s = wr.find(function(r){return r.f===f&&r.t==='salida';});
-    var badge = e&&s?'<span class="badge bg">Completo</span>':e?'<span class="badge ba">En turno</span>':'<span class="badge bgr">Sin marcar</span>';
-    var btnEdit = '<button class="btn-sm btn-edit" onclick="abrirEditar(\''+wid+'\',\''+f+'\')" style="margin-right:4px">Editar</button>';
-    var btnDel  = '<button class="btn-sm btn-del"  onclick="eliminarDia(\''+wid+'\',\''+f+'\')">Eliminar dia</button>';
-    rows.push('<tr>'+
-      '<td style="font-size:11px">'+fGeo(f)+'</td>'+
-      '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td>'+
-      '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td>'+
-      '<td>'+fmtHT(e&&e.h,s&&s.h)+'</td>'+
-      '<td>'+badge+'</td>'+
-      '<td>'+btnEdit+btnDel+'</td>'+
-      '</tr>');
-  });
-
-  document.getElementById('mw-tbody').innerHTML = rows.join('');
-  document.getElementById('mw-empty').style.display = rows.length?'none':'block';
-  document.getElementById('ov-worker').classList.add('show');
-}
-
-function closeWorkerModal(){
-  document.getElementById('ov-worker').classList.remove('show');
-}
-
-
-// EDITAR MARCACIÓN
-
-function abrirEditar(wid, fecha){
-  editingWid   = wid;
-  editingFecha = fecha;
-  var wr = allRegs.filter(function(r){return r.wid===wid;});
-  var e  = wr.find(function(r){return r.f===fecha&&r.t==='entrada';});
-  var s  = wr.find(function(r){return r.f===fecha&&r.t==='salida';});
-  var w  = WORKERS.find(function(x){return x.id===wid;});
-  document.getElementById('edit-title').textContent = 'Editar marcación -- ' + (w?w.nm:'') + ' · ' + fGeo(fecha);
-  document.getElementById('edit-fecha').value   = fecha;
-  document.getElementById('edit-entrada').value = e ? e.h : '';
-  document.getElementById('edit-salida').value  = s ? s.h : '';
-  document.getElementById('ov-edit').classList.add('show');
-}
-
-function closeEditModal(){
-  document.getElementById('ov-edit').classList.remove('show');
-}
-
-function guardarEdicion(){
-  var nuevaFecha   = document.getElementById('edit-fecha').value;
-  var nuevaEntrada = document.getElementById('edit-entrada').value;
-  var nuevaSalida  = document.getElementById('edit-salida').value;
-  if(!nuevaFecha){toast('Ingresa una fecha');return;}
-
-  fetch('/api/editar', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      wid: editingWid,
-      fechaOriginal: editingFecha,
-      nuevaFecha: nuevaFecha,
-      entrada: nuevaEntrada,
-      salida: nuevaSalida
-    })
-  })
-  .then(function(r){return r.json();})
-  .then(function(d){
-    if(d.ok){
-      toast('Marcación actualizada correctamente','ok');
-      closeEditModal();
-      var wid = editingWid;
-      var fecha = nuevaFecha;
-      loadAll().then(function(){
-        abrirWorkerFecha(wid, fecha);
-      });
-    } else {
-      toast('Error: '+(d.error||'desconocido'));
+// PERFIL
+function cargarPerfil(){
+  fetch('/api/firma/'+CW.id).then(function(r){return r.json();}).then(function(d){
+    if(d.email)document.getElementById('perfil-email').value=d.email;
+    if(d.firma){
+      firmaB64=d.firma;
+      document.getElementById('firma-preview').innerHTML='<img src="'+d.firma+'" style="max-height:80px;max-width:200px;object-fit:contain;display:block;margin:0 auto 8px"><input type="file" id="firma-file" accept="image/*" onchange="previewFirma(event)" style="display:none"><button class="btn-sm" onclick="document.getElementById(\'firma-file\').click()">Cambiar firma</button>';
     }
-  })
-  .catch(function(err){
-    console.error('Error editar:', err);
-    toast('Error de conexión al guardar');
-  });
+  }).catch(function(){});
 }
 
+function previewFirma(e){
+  var file=e.target.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    firmaB64=ev.target.result;
+    document.getElementById('firma-preview').innerHTML='<img src="'+firmaB64+'" style="max-height:80px;max-width:200px;object-fit:contain;display:block;margin:0 auto 8px"><input type="file" id="firma-file" accept="image/*" onchange="previewFirma(event)" style="display:none"><button class="btn-sm" onclick="document.getElementById(\'firma-file\').click()">Cambiar firma</button>';
+  };
+  reader.readAsDataURL(file);
+}
 
-// ELIMINAR DÍA COMPLETO
-
-function eliminarDia(wid, fecha){
-  var w = WORKERS.find(function(x){return x.id===wid;});
-  if(!confirm('¿Eliminar TODAS las marcaciones de '+(w?w.nm:wid)+'  el '+fGeo(fecha)+'?\nEsta acción no se puede deshacer.')) return;
-
-  fetch('/api/eliminar', {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({wid: wid, fecha: fecha})
-  })
+function guardarPerfil(){
+  var email=document.getElementById('perfil-email').value.trim();
+  if(!email){toast('Ingresa tu email','err');return;}
+  if(!firmaB64){toast('Sube tu firma digital primero','err');return;}
+  fetch('/api/firma/guardar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wid:CW.id,email:email,firmaBase64:firmaB64})})
   .then(function(r){return r.json();})
-  .then(function(d){
-    if(d.ok){
-      toast('Marcaciones eliminadas');
-      loadAll();
-      closeWorkerModal();
-    } else {
-      toast('Error: '+(d.error||'desconocido'));
-    }
-  })
-  .catch(function(){toast('Error de conexión');});
-}
-
-
-function exportar(modo){
-  var btnId=modo==='hoy'?'btnExH':'btnExHist';
-  var btn=document.getElementById(btnId);
-  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Generando...';
-  var fd=modo==='hoy'?today():(document.getElementById('fdate-h').value||null);
-  var fg=modo==='hoy'?null:(document.getElementById('fdept-h').value||null);
-  var srch=modo==='hoy'?'':(document.getElementById('srch-h').value.toLowerCase());
-  var filtW=WORKERS.filter(function(w){
-    if(fg&&w.gr!==fg)return false;
-    if(srch&&w.nm.toLowerCase().indexOf(srch)<0&&w.ap.toLowerCase().indexOf(srch)<0&&w.id.indexOf(srch)<0)return false;
-    return true;
-  });
-  fetch('/api/exportar',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({workers:filtW,filtroFecha:fd,filtroGrupo:fg})
-  })
-  .then(function(r){return r.blob();})
-  .then(function(blob){
-    var fname='Asistencia_'+today().replace(/-/g,'')+'.csv';
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement('a');
-    a.href=url;a.download=fname;document.body.appendChild(a);a.click();
-    setTimeout(function(){URL.revokeObjectURL(url);a.remove();},3000);
-    toast('Excel descargado: '+fname);
-  })
-  .catch(function(e){toast('Error: '+e.message);})
-  .finally(function(){btn.disabled=false;btn.innerHTML='Exportar Excel';});
+  .then(function(d){if(d.ok)toast('Perfil guardado correctamente','ok');else toast('Error al guardar','err');})
+  .catch(function(){toast('Error de conexion','err');});
 }
 
 function toast(msg,tipo){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(tipo?' '+tipo:'');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3500);}
