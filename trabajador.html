@@ -158,7 +158,7 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="field"><label>Fecha de inicio</label><input type="date" id="vac-desde" onchange="calcDias()"></div>
           <div class="field"><label>Fecha de fin</label><input type="date" id="vac-hasta" onchange="calcDias()"></div>
           <div class="field"><label>N&deg; de dias</label><input type="text" id="vac-dias" readonly style="background:#f8f9fa;color:#64748b;"></div>
-          <div class="field"><label>Fecha de retorno</label><input type="date" id="vac-retorno"></div>
+          <div class="field"><label>Fecha de retorno</label><input type="date" id="vac-retorno" onchange="recalcDias()"></div>
           <button class="btn btn-p" id="btn-solicitar" onclick="solicitarVacaciones()">Enviar solicitud</button>
           <p style="font-size:11px;color:#94a3b8;margin-top:8px;text-align:center;">La solicitud llegara por email a tu jefe directo</p>
         </div>
@@ -393,16 +393,26 @@ function calcDias(){
   var d1=new Date(desde+'T00:00:00');
   var d2=new Date(hasta+'T00:00:00');
   if(d2<d1){document.getElementById('vac-dias').value='--';return;}
-  // Dias calendario (incluyendo sabados y domingos)
-  var diasCal=Math.round((d2-d1)/(1000*60*60*24))+1;
-  document.getElementById('vac-dias').value=diasCal>0?diasCal+' dias':'--';
-  // Fecha de retorno: siguiente dia habil (lunes-viernes) despues de hasta
+  // Fecha de retorno: siguiente dia habil despues de hasta
   var ret=new Date(d2);
   ret.setDate(ret.getDate()+1);
   while(ret.getDay()===0||ret.getDay()===6){
     ret.setDate(ret.getDate()+1);
   }
   document.getElementById('vac-retorno').value=ret.toISOString().slice(0,10);
+  // Dias = retorno - inicio (dias calendario)
+  var dias=Math.round((ret-d1)/(1000*60*60*24));
+  document.getElementById('vac-dias').value=dias>0?dias+' dias':'--';
+}
+
+function recalcDias(){
+  var desde=document.getElementById('vac-desde').value;
+  var retorno=document.getElementById('vac-retorno').value;
+  if(!desde||!retorno)return;
+  var d1=new Date(desde+'T00:00:00');
+  var ret=new Date(retorno+'T00:00:00');
+  var dias=Math.round((ret-d1)/(1000*60*60*24));
+  document.getElementById('vac-dias').value=dias>0?dias+' dias':'--';
 }
 
 function solicitarVacaciones(){
@@ -414,9 +424,11 @@ function solicitarVacaciones(){
   var emailPerfil=document.getElementById('perfil-email').value.trim();
   if(!emailPerfil){toast('Debes ingresar tu email en Mi perfil primero','err');swPanel('perfil');return;}
   var d1=new Date(desde),d2=new Date(hasta);
-  // Dias calendario
-  var dias=Math.round((d2-d1)/(1000*60*60*24))+1;
-  if(dias<=0){toast('La fecha de fin debe ser posterior al inicio','err');return;}
+  // Dias = retorno - inicio
+  var retornoVal=document.getElementById('vac-retorno').value;
+  var dRet=retornoVal?new Date(retornoVal+'T00:00:00'):null;
+  var dias=dRet?Math.round((dRet-d1)/(1000*60*60*24)):Math.round((d2-d1)/(1000*60*60*24))+1;
+  if(dias<=0){toast('Las fechas no son validas','err');return;}
   var btn=document.getElementById('btn-solicitar');
   btn.disabled=true;btn.innerHTML='<span class="spin"></span>Enviando...';
   var sol={wid:CW.id,dni:CW.id,apellidos:CW.ap,nombres:CW.nm,cargo:CW.ca,area:CW.gr,desde:desde,hasta:hasta,dias:dias,retorno:retorno,fechaSolicitud:today()};
