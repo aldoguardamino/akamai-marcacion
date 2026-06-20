@@ -95,6 +95,7 @@ function enviarCorreo(to, subject, htmlBody) {
       const https = require('https');
       const body = JSON.stringify({
         from: 'Sistema Akamai <onboarding@resend.dev>',
+        reply_to: GMAIL_USER,
         to: [to],
         subject: subject,
         html: htmlBody
