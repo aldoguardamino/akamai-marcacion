@@ -90,34 +90,74 @@ async function enviarRecordatorios() {
 
 function enviarCorreo(to, subject, htmlBody) {
   return new Promise((resolve, reject) => {
-    try {
-      const tls = require('tls');
-      const b64 = (s) => Buffer.from(s).toString('base64');
-      const socket = tls.connect(465, 'smtp.gmail.com', {rejectUnauthorized:false}, () => {
-        let step = 0;
-        const cmds = [
-          'EHLO akamai\r\n',
-          'AUTH LOGIN\r\n',
-          b64(GMAIL_USER) + '\r\n',
-          b64(GMAIL_PASS.replace(/\s/g,'')) + '\r\n',
-          `MAIL FROM:<${GMAIL_USER}>\r\n`,
-          `RCPT TO:<${to}>\r\n`,
-          'DATA\r\n',
-          `From: Sistema Akamai <${GMAIL_USER}>\r\nTo: ${to}\r\nSubject: ${subject}\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n${htmlBody}\r\n.\r\n`,
-          'QUIT\r\n'
-        ];
-        socket.on('data', (d) => {
-          const r = d.toString();
-          if(r.match(/^[2345]/m)) {
-            if(step < cmds.length) socket.write(cmds[step++]);
-            else { socket.destroy(); resolve(true); }
+    const tls = require('tls');
+    const b64 = (s) => Buffer.from(s).toString('base64');
+    const passClean = GMAIL_PASS.replace(/\s/g, '');
+    
+    const socket = tls.connect(465, 'smtp.gmail.com', { rejectUnauthorized: false });
+    let buffer = '';
+    let step = 0;
+    let done = false;
+
+    const boundary = 'boundary_' + Date.now();
+    const dataMsg = [
+      'From: Sistema Akamai <' + GMAIL_USER + '>',
+      'To: ' + to,
+      'Subject: ' + subject,
+      'MIME-Version: 1.0',
+      'Content-Type: text/html; charset=UTF-8',
+      '',
+      htmlBody,
+      '',
+      '.'
+    ].join('\r\n') + '\r\n';
+
+    const cmds = [
+      'EHLO akamai.com\r\n',
+      'AUTH LOGIN\r\n',
+      b64(GMAIL_USER) + '\r\n',
+      b64(passClean) + '\r\n',
+      'MAIL FROM:<' + GMAIL_USER + '>\r\n',
+      'RCPT TO:<' + to + '>\r\n',
+      'DATA\r\n',
+      dataMsg,
+      'QUIT\r\n'
+    ];
+
+    const next = () => {
+      if (step < cmds.length) {
+        socket.write(cmds[step++]);
+      } else {
+        done = true;
+        socket.end();
+        resolve(true);
+      }
+    };
+
+    socket.on('connect', () => { console.log('SMTP conectado'); });
+
+    socket.on('data', (data) => {
+      buffer += data.toString();
+      const lines = buffer.split('\r\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        console.log('SMTP <', line.slice(0,80));
+        const code = parseInt(line.slice(0,3));
+        if (line[3] === ' ' || line[3] === undefined) {
+          if (code >= 200 && code < 400) {
+            next();
+          } else if (code >= 400) {
+            socket.destroy();
+            reject(new Error('SMTP error: ' + line));
+            return;
           }
-        });
-        socket.on('error', reject);
-        socket.on('close', () => resolve(true));
-      });
-      socket.on('error', reject);
-    } catch(e) { reject(e); }
+        }
+      }
+    });
+
+    socket.on('error', (e) => { console.error('SMTP socket error:', e.message); reject(e); });
+    socket.on('close', () => { if (!done) resolve(true); });
+    socket.setTimeout(15000, () => { socket.destroy(); reject(new Error('SMTP timeout')); });
   });
 }
 
