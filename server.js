@@ -14,9 +14,9 @@ let db = null;
 
 // Jerarquia completa
 const WORKERS_DATA = [
-  {id:'48221357',ap:'NEYRA RUJEL',nm:'WENDY STEFANNY',gr:'ADMINISTRACION Y COMPRAS',ca:'COORDINADORA DE ADMINISTRACION Y COMPRAS',tu:'09:00 - 18:00',email:'wneyra@akamai.com.pe',jefeEmail:'aguardamino@akamai.com.pe',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',jefeWid:'41318261'},
-  {id:'41318261',ap:'GUARDAMINO RIOS',nm:'ALDO JESUS',gr:'ADMINISTRACION Y FINANZAS',ca:'JEFE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00',email:'aguardamino@akamai.com.pe',jefeEmail:'ngranados@paladinrp.com',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',jefeWid:'43903530'},
-  {id:'72783491',ap:'VASQUEZ CHIPANA',nm:'YANETT NATIVIDAD',gr:'ADMINISTRACION Y FINANZAS',ca:'COORDINADORA DE FINANZAS Y TESORERIA',tu:'09:00 - 18:00',email:'yvasquez@akamai.com.pe',jefeEmail:'aguardamino@akamai.com.pe',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',jefeWid:'41318261'},
+  {id:'48221357',ap:'NEYRA RUJEL',nm:'WENDY STEFANNY',gr:'ADMINISTRACION Y COMPRAS',ca:'COORDINADORA DE ADMINISTRACION Y COMPRAS',tu:'09:00 - 18:00',email:'wneyra@akamai.com.pe',jefeEmail:'aldo.guardamino@gmail.com',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',jefeWid:'41318261'},
+  {id:'41318261',ap:'GUARDAMINO RIOS',nm:'ALDO JESUS',gr:'ADMINISTRACION Y FINANZAS',ca:'JEFE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00',email:'aldo.guardamino@gmail.com',jefeEmail:'ngranados@paladinrp.com',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',jefeWid:'43903530'},
+  {id:'72783491',ap:'VASQUEZ CHIPANA',nm:'YANETT NATIVIDAD',gr:'ADMINISTRACION Y FINANZAS',ca:'COORDINADORA DE FINANZAS Y TESORERIA',tu:'09:00 - 18:00',email:'yvasquez@akamai.com.pe',jefeEmail:'aldo.guardamino@gmail.com',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',jefeWid:'41318261'},
   {id:'46261114',ap:'ESPINOZA MONTESINOS',nm:'DALMA NEREA',gr:'COBRANZAS',ca:'ASISTENTE DE ADMINISTRACION DE VENTAS',tu:'09:00 - 18:00',email:'despinoza@akamai.com.pe',jefeEmail:'gsarco@akamai.com.pe',jefeNombre:'GUSTAVO ADOLFO SARCO CUELLAR',jefeWid:'41084859'},
   {id:'41084859',ap:'SARCO CUELLAR',nm:'GUSTAVO ADOLFO',gr:'COBRANZAS',ca:'JEFE DE ADMINISTRACION Y VENTAS',tu:'09:00 - 18:00',email:'gsarco@akamai.com.pe',jefeEmail:'ngranados@paladinrp.com',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',jefeWid:'43903530'},
   {id:'70447785',ap:'CORDOVA VIDAL',nm:'RAI EDU',gr:'PROYECTOS',ca:'COORDINADOR DE PROYECTOS',tu:'09:00 - 18:00',email:'ecordova@akamai.com.pe',jefeEmail:'nmelendez@akamai.com.pe',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',jefeWid:'73173155'},
@@ -25,7 +25,7 @@ const WORKERS_DATA = [
   {id:'72726407',ap:'SAAVEDRA VIGO',nm:'MARIANA ROCIO',gr:'PROYECTOS',ca:'ARQUITECTA DE NUEVOS PROYECTOS',tu:'09:00 - 18:00',email:'msaavedra@akamai.com.pe',jefeEmail:'nmelendez@akamai.com.pe',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',jefeWid:'73173155'},
   {id:'76577354',ap:'TAFUR QUISPE',nm:'ROSA LINDA',gr:'PROYECTOS',ca:'ASISTENTE DE PROYECTOS',tu:'09:00 - 18:00',email:'rtafur@akamai.com.pe',jefeEmail:'nmelendez@akamai.com.pe',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',jefeWid:'73173155'},
   {id:'74071705',ap:'PEREZ ZAMBRANO',nm:'LESLY MAGNOLIA',gr:'COBRANZAS',ca:'ASISTENTE DE ADMINISTRACION DE VENTAS',tu:'09:00 - 18:00',email:'lzambrano@akamai.com.pe',jefeEmail:'gsarco@akamai.com.pe',jefeNombre:'GUSTAVO ADOLFO SARCO CUELLAR',jefeWid:'41084859'},
-  {id:'71526127',ap:'CANO SANCHEZ',nm:'ANDREA KATHERINE',gr:'ADMINISTRACION Y FINANZAS',ca:'ASISTENTE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00',email:'acano@akamai.com.pe',jefeEmail:'aguardamino@akamai.com.pe',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',jefeWid:'41318261'},
+  {id:'71526127',ap:'CANO SANCHEZ',nm:'ANDREA KATHERINE',gr:'ADMINISTRACION Y FINANZAS',ca:'ASISTENTE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00',email:'acano@akamai.com.pe',jefeEmail:'aldo.guardamino@gmail.com',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',jefeWid:'41318261'},
 ];
 
 // Jefes (pueden aprobar vacaciones)
