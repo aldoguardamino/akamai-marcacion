@@ -511,6 +511,18 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // Endpoint de prueba de email (solo para admin)
+  if(method==='GET'&&url==='/api/test-email'){
+    enviarCorreo(
+      GMAIL_USER,
+      'Test email - Sistema Akamai',
+      '<h2>Email de prueba</h2><p>El sistema de correo esta funcionando correctamente.</p>'
+    )
+    .then(()=>jsonResp(res,200,{ok:true,msg:'Email enviado a '+GMAIL_USER}))
+    .catch(e=>jsonResp(res,500,{error:e.message}));
+    return;
+  }
+
   res.writeHead(404);res.end('Not found');
 });
 
