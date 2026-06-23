@@ -172,15 +172,21 @@ tbody tr:last-child td{border-bottom:none;}
       <!-- Historial de aprobaciones (solo jefes) -->
       <div id="sec-historial" class="hidden">
         <div class="card">
-          <h2 style="margin-bottom:4px;">Mi historial de aprobaciones</h2>
-          <p style="font-size:12px;color:#64748b;margin-bottom:14px;">Solicitudes que aprobaste o rechazaste</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <h2>Mi historial de aprobaciones</h2>
+            <button class="btn-sm" onclick="exportarExcelJefe()" style="white-space:nowrap;">⬇ Excel</button>
+          </div>
+          <p style="font-size:12px;color:#64748b;margin-bottom:14px;">Ultimas 2 solicitudes gestionadas</p>
           <div id="historial-lista"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Cargando...</p></div>
         </div>
       </div>
 
       <!-- Mis solicitudes -->
       <div class="card">
-        <h2 style="margin-bottom:12px;">Mis solicitudes</h2>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h2>Mis solicitudes</h2>
+          <button class="btn-sm" onclick="exportarExcelTrabajador()" style="white-space:nowrap;">⬇ Excel</button>
+        </div>
         <div id="mis-vacs"><p style="text-align:center;color:#94a3b8;font-size:13px;padding:20px;">Cargando...</p></div>
       </div>
     </div>
@@ -546,7 +552,6 @@ function rechazar(id){
 function cargarHistorialJefe(){
   fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
     var todas=data.vacaciones||[];
-    // Solo las que aprobó o rechazó este jefe
     var historial=todas.filter(function(v){
       return (v.estado==='aprobado'||v.estado==='rechazado') && v.jefeWid===CW.id;
     });
@@ -555,12 +560,14 @@ function cargarHistorialJefe(){
       var fb=b.fechaAprobacion||b.fechaSolicitud||'';
       return fb.localeCompare(fa);
     });
+    // Solo las últimas 2
+    var ultimas=historial.slice(0,2);
     var container=document.getElementById('historial-lista');
-    if(!historial.length){
+    if(!ultimas.length){
       container.innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Aun no has aprobado ni rechazado solicitudes.</p>';
       return;
     }
-    container.innerHTML=historial.map(function(v){
+    container.innerHTML=ultimas.map(function(v){
       var esAprobado=v.estado==='aprobado';
       var badgeClass=esAprobado?'bg':'brej';
       var badgeTxt=esAprobado?'Aprobado':'Rechazado';
@@ -575,9 +582,97 @@ function cargarHistorialJefe(){
         (v.motivoRechazo?'<div class="hc-motivo">Motivo: '+v.motivoRechazo+'</div>':'')+
         '</div>';
     }).join('');
+    if(historial.length>2){
+      container.innerHTML+='<p style="font-size:11px;color:#94a3b8;text-align:center;margin-top:8px;">Descarga el Excel para ver el historial completo.</p>';
+    }
   }).catch(function(){
     document.getElementById('historial-lista').innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Error al cargar historial.</p>';
   });
+}
+
+// EXCEL - Jefe: historial completo de aprobaciones
+function exportarExcelJefe(){
+  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
+    var todas=data.vacaciones||[];
+    var historial=todas.filter(function(v){
+      return (v.estado==='aprobado'||v.estado==='rechazado') && v.jefeWid===CW.id;
+    });
+    historial.sort(function(a,b){
+      var fa=a.fechaAprobacion||a.fechaSolicitud||'';
+      var fb=b.fechaAprobacion||b.fechaSolicitud||'';
+      return fb.localeCompare(fa);
+    });
+    var filas=[['Colaborador','Area','Cargo','Desde','Hasta','Dias','Retorno','Estado','Fecha Decision','Motivo Rechazo']];
+    historial.forEach(function(v){
+      filas.push([
+        v.nombres+' '+v.apellidos,
+        v.area||'',v.cargo||'',
+        fmtF(v.desde),fmtF(v.hasta),v.dias,fmtF(v.retorno),
+        v.estado==='aprobado'?'Aprobado':'Rechazado',
+        fmtF(v.fechaAprobacion||''),
+        v.motivoRechazo||''
+      ]);
+    });
+    descargarExcel([{nombre:'Historial Aprobaciones',filas:filas}],'historial_aprobaciones_'+CW.ap+'.xlsx');
+  });
+}
+
+// EXCEL - Trabajador: vacaciones + marcaciones en hojas separadas
+function exportarExcelTrabajador(){
+  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(dv){
+    var vacs=(dv.vacaciones||[]).filter(function(v){return v.wid===CW.id;});
+    vacs.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
+    var filasVac=[['Desde','Hasta','Dias','Retorno','Estado','Gestionado Por','Fecha Solicitud','Motivo Rechazo']];
+    vacs.forEach(function(v){
+      filasVac.push([
+        fmtF(v.desde),fmtF(v.hasta),v.dias,fmtF(v.retorno),
+        v.estado==='aprobado'?'Aprobado':v.estado==='rechazado'?'Rechazado':'Pendiente',
+        v.jefeNombre||'',fmtF(v.fechaSolicitud),v.motivoRechazo||''
+      ]);
+    });
+    fetch('/api/registros').then(function(r){return r.json();}).then(function(dm){
+      var regs=(dm.regs||[]).filter(function(r){return r.wid===CW.id;});
+      var fechas=[];regs.forEach(function(r){if(fechas.indexOf(r.f)<0)fechas.push(r.f);});
+      fechas.sort().reverse();
+      var filasMar=[['Fecha','Entrada','Salida','Horas']];
+      fechas.forEach(function(f){
+        var e=regs.find(function(r){return r.f===f&&r.t==='entrada';});
+        var s=regs.find(function(r){return r.f===f&&r.t==='salida';});
+        filasMar.push([fmtF(f),e?e.h:'--',s?s.h:'--',fmtHT(e&&e.h,s&&s.h)]);
+      });
+      descargarExcel([
+        {nombre:'Vacaciones',filas:filasVac},
+        {nombre:'Marcaciones',filas:filasMar}
+      ],'mis_registros_'+CW.ap+'.xlsx');
+    });
+  });
+}
+
+// Generador Excel sin librería externa (CSV multi-hoja via XML SpreadsheetML)
+function descargarExcel(hojas, nombreArchivo){
+  var xml='<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>';
+  xml+='<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ';
+  xml+='xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
+  xml+='<Styles><Style ss:ID="h"><Font ss:Bold="1"/><Interior ss:Color="#1a1a2e" ss:Pattern="Solid"/><Font ss:Color="#FFFFFF" ss:Bold="1"/></Style></Styles>';
+  hojas.forEach(function(hoja){
+    xml+='<Worksheet ss:Name="'+hoja.nombre+'">';
+    xml+='<Table>';
+    hoja.filas.forEach(function(fila,ri){
+      xml+='<Row>';
+      fila.forEach(function(cel){
+        var tipo=typeof cel==='number'?'Number':'String';
+        xml+='<Cell'+(ri===0?' ss:StyleID="h"':'')+'><Data ss:Type="'+tipo+'">'+(cel===null||cel===undefined?'':String(cel).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'))+'</Data></Cell>';
+      });
+      xml+='</Row>';
+    });
+    xml+='</Table></Worksheet>';
+  });
+  xml+='</Workbook>';
+  var blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=nombreArchivo;
+  document.body.appendChild(a);a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},500);
 }
 
 // PERFIL
