@@ -449,7 +449,8 @@ const server = http.createServer(async (req, res) => {
     req.on('end',async()=>{
       try{
         const{id,motivo,jefeNombre,jefeWid}=JSON.parse(body);
-        await db.collection('vacaciones').updateOne({id},{$set:{estado:'rechazado',motivoRechazo:motivo,jefeNombre,jefeWid}});
+        const hoy=new Date().toISOString().slice(0,10);
+        await db.collection('vacaciones').updateOne({id},{$set:{estado:'rechazado',motivoRechazo:motivo,jefeNombre,jefeWid,fechaAprobacion:hoy}});
         const sol=await db.collection('vacaciones').findOne({id});
         const wData=WORKERS_DATA.find(x=>x.id===sol.wid);
         const firmaDoc=await db.collection('firmas').findOne({wid:sol.wid});
