@@ -423,7 +423,8 @@ const server = http.createServer(async (req, res) => {
         if(emailFinal){
           const html=`<div style="font-family:Arial;padding:20px;max-width:500px">
             <h2 style="color:#15803d">Vacaciones aprobadas</h2>
-            <p>Hola <b>${sol.nombres}</b>, tus vacaciones han sido aprobadas.</p>
+            <p>Hola <b>${sol.nombres}</b>,</p>
+            <p>Tu solicitud de vacaciones ha sido aprobada. Por favor ingresa al sistema y descarga el PDF para enviarlo a <b>Gestión Humana</b>.</p>
             <table style="border-collapse:collapse;margin:16px 0;width:100%">
               <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Desde</td><td style="padding:6px;border:1px solid #e2e8f0">${sol.desde}</td></tr>
               <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Hasta</td><td style="padding:6px;border:1px solid #e2e8f0">${sol.hasta}</td></tr>
@@ -431,8 +432,9 @@ const server = http.createServer(async (req, res) => {
               <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Aprobado por</td><td style="padding:6px;border:1px solid #e2e8f0">${jefeNombre}</td></tr>
             </table>
             <a href="${APP_URL}" style="background:#00adef;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block">
-              Descargar documento firmado
+              Ingresar al sistema y descargar PDF
             </a>
+            <p style="margin-top:16px;color:#64748b;font-size:13px">El documento firmado debe ser enviado a Gestión Humana para su registro.</p>
           </div>`;
           try{await enviarCorreo(emailFinal,'Vacaciones aprobadas - Akamai',html);}
           catch(e){console.error('Email trabajador error:',e.message);}
