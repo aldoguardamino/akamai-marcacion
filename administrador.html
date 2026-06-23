@@ -443,10 +443,6 @@ function renderVacaciones(){
   document.getElementById('empty-vac').style.display = rows.length?'none':'block';
 }
 
-function exportarVacaciones(){
-  window.location.href = '/api/vacaciones/exportar';
-}
-
 function verPDF(id){window.open('/api/vacaciones/pdf/'+id,'_blank');}
 function fmtFechaDisp(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 
@@ -582,6 +578,27 @@ function eliminarDia(wid, fecha){
 }
 
 
+// Cargador SheetJS
+function cargarSheetJS(cb){
+  if(window.XLSX){cb();return;}
+  var s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=cb;document.head.appendChild(s);
+}
+function generarXLSX(hojas,nombre){
+  var wb=XLSX.utils.book_new();
+  hojas.forEach(function(h){
+    var ws=XLSX.utils.aoa_to_sheet(h.filas);
+    var cols=h.filas[0].map(function(_,i){
+      var max=h.filas.reduce(function(m,r){return Math.max(m,(r[i]?String(r[i]).length:0));},10);
+      return{wch:Math.min(max+2,40)};
+    });
+    ws['!cols']=cols;
+    XLSX.utils.book_append_sheet(wb,ws,h.nombre);
+  });
+  XLSX.writeFile(wb,nombre);
+}
+
 function exportar(modo){
   var btnId=modo==='hoy'?'btnExH':'btnExHist';
   var btn=document.getElementById(btnId);
@@ -594,23 +611,55 @@ function exportar(modo){
     if(srch&&w.nm.toLowerCase().indexOf(srch)<0&&w.ap.toLowerCase().indexOf(srch)<0&&w.id.indexOf(srch)<0)return false;
     return true;
   });
-  fetch('/api/exportar',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({workers:filtW,filtroFecha:fd,filtroGrupo:fg})
-  })
-  .then(function(r){return r.blob();})
-  .then(function(blob){
-    var fname='Asistencia_'+today().replace(/-/g,'')+'.csv';
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement('a');
-    a.href=url;a.download=fname;document.body.appendChild(a);a.click();
-    setTimeout(function(){URL.revokeObjectURL(url);a.remove();},3000);
-    toast('Excel descargado: '+fname);
-  })
-  .catch(function(e){toast('Error: '+e.message);})
-  .finally(function(){btn.disabled=false;btn.innerHTML='Exportar Excel';});
+  var filas=[['Apellidos','Nombre','DNI','Grupo','Cargo','Turno','Fecha','Entro','Salio','Horas Trabajadas','Estado']];
+  var td=today();
+  filtW.forEach(function(w){
+    var wr=allRegs.filter(function(r){return r.wid===w.id;});
+    var fechas=[];wr.forEach(function(r){if(fechas.indexOf(r.f)<0)fechas.push(r.f);});
+    fechas.sort().reverse();
+    if(fd)fechas=fechas.filter(function(f){return f===fd;});
+    if(modo==='hoy')fechas=fechas.filter(function(f){return f===td;});
+    fechas.forEach(function(f){
+      var e=wr.find(function(r){return r.f===f&&r.t==='entrada';});
+      var s=wr.find(function(r){return r.f===f&&r.t==='salida';});
+      var estado=e&&s?'Completo':e?'En turno':'Sin marcar';
+      filas.push([w.ap,w.nm,w.id,w.gr,w.ca||'',w.tu,fmtFechaDisp(f),e?e.h:'--',s?s.h:'--',fmtHT(e&&e.h,s&&s.h),estado]);
+    });
+  });
+  var etiqueta=modo==='hoy'?'Hoy':'Historial';
+  var fname='Asistencia_'+etiqueta+'_'+today().replace(/-/g,'')+'.xlsx';
+  cargarSheetJS(function(){
+    generarXLSX([{nombre:'Asistencia',filas:filas}],fname);
+    toast('Excel descargado: '+fname,'ok');
+    btn.disabled=false;btn.innerHTML='Exportar Excel'+(modo==='hoy'?' (hoy)':'');
+  });
 }
+
+function exportarVacaciones(){
+  var filtroEstado=document.getElementById('vac-filtro-estado').value;
+  var filtroNombre=document.getElementById('vac-filtro-nombre').value.toLowerCase();
+  var vacs=allVacaciones.filter(function(v){
+    if(filtroEstado&&v.estado!==filtroEstado)return false;
+    if(filtroNombre&&(v.nombres+' '+v.apellidos).toLowerCase().indexOf(filtroNombre)<0)return false;
+    return true;
+  });
+  vacs.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
+  var filas=[['Trabajador','DNI','Area','Cargo','Desde','Hasta','Dias','Retorno','Estado','Aprobado Por','Fecha Decision','Motivo Rechazo']];
+  vacs.forEach(function(v){
+    filas.push([
+      v.nombres+' '+v.apellidos,v.dni,v.area,v.cargo||'',
+      fmtFechaDisp(v.desde),fmtFechaDisp(v.hasta),v.dias,fmtFechaDisp(v.retorno),
+      v.estado==='aprobado'?'Aprobado':v.estado==='rechazado'?'Rechazado':'Pendiente',
+      v.jefeNombre||'',fmtFechaDisp(v.fechaAprobacion||''),v.motivoRechazo||''
+    ]);
+  });
+  var fname='Vacaciones_Akamai_'+today().replace(/-/g,'')+'.xlsx';
+  cargarSheetJS(function(){
+    generarXLSX([{nombre:'Vacaciones',filas:filas}],fname);
+    toast('Excel descargado: '+fname,'ok');
+  });
+}
+
 
 function toast(msg,tipo){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(tipo?' '+tipo:'');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3500);}
 </script>
