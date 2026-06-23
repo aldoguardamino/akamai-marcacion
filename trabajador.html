@@ -75,6 +75,11 @@ tbody tr:last-child td{border-bottom:none;}
 .pend-item b{display:block;color:#64748b;font-size:10px;margin-bottom:2px;}
 .divider{border:none;border-top:1px solid #f1f5f9;margin:14px 0;}
 .info-jefe{background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px 14px;font-size:12px;color:#0369a1;margin-bottom:12px;}
+.hist-card{background:#fff;border-radius:10px;border:1px solid #e2e8f0;padding:12px 14px;margin-bottom:8px;}
+.hist-card .hc-name{font-weight:700;font-size:13px;color:#1e293b;}
+.hist-card .hc-dates{font-size:12px;color:#475569;margin-top:3px;}
+.hist-card .hc-meta{font-size:11px;color:#94a3b8;margin-top:3px;}
+.hist-card .hc-motivo{font-size:11px;color:#dc2626;margin-top:3px;}
 </style>
 </head>
 <body>
@@ -161,6 +166,15 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="field"><label>Fecha de retorno</label><input type="date" id="vac-retorno" onchange="recalcDias()"></div>
           <button class="btn btn-p" id="btn-solicitar" onclick="solicitarVacaciones()">Enviar solicitud</button>
           <p style="font-size:11px;color:#94a3b8;margin-top:8px;text-align:center;">La solicitud llegara por email a tu jefe directo</p>
+        </div>
+      </div>
+
+      <!-- Historial de aprobaciones (solo jefes) -->
+      <div id="sec-historial" class="hidden">
+        <div class="card">
+          <h2 style="margin-bottom:4px;">Mi historial de aprobaciones</h2>
+          <p style="font-size:12px;color:#64748b;margin-bottom:14px;">Solicitudes que aprobaste o rechazaste</p>
+          <div id="historial-lista"><p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Cargando...</p></div>
         </div>
       </div>
 
@@ -285,6 +299,7 @@ function doLogin(){
   // Mostrar seccion de aprobar si es jefe
   if(ES_JEFE){
     document.getElementById('sec-aprobar').classList.remove('hidden');
+    document.getElementById('sec-historial').classList.remove('hidden');
   }
 
   // Info del jefe en solicitar
@@ -325,6 +340,7 @@ function logout(){
   document.getElementById('perfil-email').value='';
   resetFirmaPreview();
   document.getElementById('sec-aprobar').classList.add('hidden');
+  document.getElementById('sec-historial').classList.add('hidden');
   document.getElementById('panel-marcacion').classList.add('active');
   document.getElementById('panel-vacaciones').classList.remove('active');
   document.getElementById('panel-perfil').classList.remove('active');
@@ -336,7 +352,7 @@ function swPanel(p){
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
   document.getElementById('panel-'+p).classList.add('active');
-  if(p==='vacaciones'){cargarMisVacaciones();if(ES_JEFE)cargarPendientes();}
+  if(p==='vacaciones'){cargarMisVacaciones();if(ES_JEFE){cargarPendientes();cargarHistorialJefe();}}
 }
 
 // MARCACION
@@ -525,6 +541,43 @@ function rechazar(id){
     if(d.ok){toast('Solicitud rechazada','ok');cargarPendientes();}
     else{toast('Error: '+(d.error||'desconocido'),'err');}
   }).catch(function(){toast('Error de conexion','err');});
+}
+
+function cargarHistorialJefe(){
+  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
+    var todas=data.vacaciones||[];
+    // Solo las que aprobó o rechazó este jefe
+    var historial=todas.filter(function(v){
+      return (v.estado==='aprobado'||v.estado==='rechazado') && v.jefeWid===CW.id;
+    });
+    historial.sort(function(a,b){
+      var fa=a.fechaAprobacion||a.fechaSolicitud||'';
+      var fb=b.fechaAprobacion||b.fechaSolicitud||'';
+      return fb.localeCompare(fa);
+    });
+    var container=document.getElementById('historial-lista');
+    if(!historial.length){
+      container.innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Aun no has aprobado ni rechazado solicitudes.</p>';
+      return;
+    }
+    container.innerHTML=historial.map(function(v){
+      var esAprobado=v.estado==='aprobado';
+      var badgeClass=esAprobado?'bg':'brej';
+      var badgeTxt=esAprobado?'Aprobado':'Rechazado';
+      var fechaDecision=v.fechaAprobacion||'';
+      return '<div class="hist-card">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+        '<div class="hc-name">'+v.nombres+' '+v.apellidos+'</div>'+
+        '<span class="badge '+badgeClass+'">'+badgeTxt+'</span>'+
+        '</div>'+
+        '<div class="hc-dates">'+fmtF(v.desde)+' al '+fmtF(v.hasta)+' &bull; '+v.dias+' dias &bull; Retorno: '+fmtF(v.retorno)+'</div>'+
+        (fechaDecision?'<div class="hc-meta">Decision: '+fmtF(fechaDecision)+'</div>':'')+
+        (v.motivoRechazo?'<div class="hc-motivo">Motivo: '+v.motivoRechazo+'</div>':'')+
+        '</div>';
+    }).join('');
+  }).catch(function(){
+    document.getElementById('historial-lista').innerHTML='<p style="color:#94a3b8;font-size:13px;text-align:center;padding:16px;">Error al cargar historial.</p>';
+  });
 }
 
 // PERFIL
