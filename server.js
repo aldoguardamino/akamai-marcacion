@@ -94,8 +94,7 @@ function enviarCorreo(to, subject, htmlBody) {
     try {
       const https = require('https');
       const body = JSON.stringify({
-        from: 'Sistema Akamai <onboarding@resend.dev>',
-        reply_to: GMAIL_USER,
+        from: 'Sistema Akamai <no-reply@akamai.com.pe>',
         to: [to],
         subject: subject,
         html: htmlBody
@@ -488,9 +487,9 @@ const server = http.createServer(async (req, res) => {
   // Endpoint de prueba de email (solo para admin)
   if(method==='GET'&&url==='/api/test-email'){
     enviarCorreo(
-      GMAIL_USER,
+      'aguardamino@akamai.com.pe',
       'Test email - Sistema Akamai',
-      '<h2>Email de prueba</h2><p>El sistema de correo esta funcionando correctamente.</p>'
+      '<h2>Email de prueba</h2><p>El sistema de correo esta funcionando correctamente con dominio corporativo akamai.com.pe.</p>'
     )
     .then(()=>jsonResp(res,200,{ok:true,msg:'Email enviado a '+GMAIL_USER}))
     .catch(e=>jsonResp(res,500,{error:e.message}));
