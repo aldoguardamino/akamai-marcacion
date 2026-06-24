@@ -342,20 +342,31 @@ function logout(){
   document.getElementById('sel-w').value='';
   document.getElementById('inp-dni').value='';
   document.getElementById('login-err').textContent='';
-  document.getElementById('tab-btn-marcacion').style.display='';
   document.getElementById('perfil-email').value='';
   resetFirmaPreview();
   document.getElementById('sec-aprobar').classList.add('hidden');
   document.getElementById('sec-historial').classList.add('hidden');
+  // Resetear tabs al estado inicial
+  ['marcacion','vacaciones','perfil'].forEach(function(name){
+    var btn=document.getElementById('tab-btn-'+name);
+    if(btn){btn.classList.remove('active');btn.style.display='';}
+  });
+  document.getElementById('tab-btn-marcacion').classList.add('active');
   document.getElementById('panel-marcacion').classList.add('active');
   document.getElementById('panel-vacaciones').classList.remove('active');
   document.getElementById('panel-perfil').classList.remove('active');
 }
 
 function swPanel(p){
-  document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('active');});
+  // Resetear todas las tabs
+  ['marcacion','vacaciones','perfil'].forEach(function(name){
+    var btn=document.getElementById('tab-btn-'+name);
+    if(btn)btn.classList.remove('active');
+  });
+  // Activar la tab correcta
   var btn=document.getElementById('tab-btn-'+p);
   if(btn)btn.classList.add('active');
+  // Resetear todos los paneles
   document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
   document.getElementById('panel-'+p).classList.add('active');
   if(p==='vacaciones'){cargarMisVacaciones();if(ES_JEFE){cargarPendientes();cargarHistorialJefe();}}
