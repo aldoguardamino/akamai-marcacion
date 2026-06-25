@@ -80,6 +80,18 @@ tbody tr:last-child td{border-bottom:none;}
 .hist-card .hc-dates{font-size:12px;color:#475569;margin-top:3px;}
 .hist-card .hc-meta{font-size:11px;color:#94a3b8;margin-top:3px;}
 .hist-card .hc-motivo{font-size:11px;color:#dc2626;margin-top:3px;}
+.cal-year{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.cal-mes{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;}
+.cal-mes-hdr{background:#1a1a2e;color:#fff;padding:7px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#e2e8f0;}
+.cal-dia-hdr{background:#f8f9fa;padding:3px 2px;text-align:center;font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;}
+.cal-dia{background:#fff;min-height:34px;padding:2px;}
+.cal-dia.otro-mes{background:#fafafa;}
+.cal-dia .dia-num{font-size:9px;font-weight:600;color:#374151;}
+.cal-dia.otro-mes .dia-num{color:#cbd5e1;}
+.cal-evento{font-size:8px;padding:1px 3px;border-radius:2px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-evento.aprobado{background:#dcfce7;color:#166534;border-left:2px solid #22c55e;}
+.cal-evento.pendiente{background:#fef9c3;color:#854d0e;border-left:2px solid #eab308;}
 </style>
 </head>
 <body>
@@ -155,6 +167,25 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
+      <!-- Saldo de días -->
+      <div class="card" id="card-saldo" style="margin-bottom:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div style="font-size:11px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;">Saldo de vacaciones</div>
+            <div style="font-size:24px;font-weight:800;color:#1e293b;" id="saldo-disponible">—</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px;" id="saldo-detalle">días disponibles</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:#94a3b8;">Usados</div>
+            <div style="font-size:18px;font-weight:700;color:#64748b;" id="saldo-usados">—</div>
+            <div style="font-size:11px;color:#94a3b8;">de <span id="saldo-total">—</span> días</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;background:#e2e8f0;border-radius:4px;height:6px;overflow:hidden;">
+          <div id="saldo-barra" style="height:100%;border-radius:4px;background:#00adef;width:0%;transition:width .6s;"></div>
+        </div>
+      </div>
+
       <!-- Solicitar vacaciones (todos excepto Noel en marcacion) -->
       <div id="sec-solicitar">
         <div class="card">
@@ -166,6 +197,24 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="field"><label>Fecha de retorno</label><input type="date" id="vac-retorno" onchange="recalcDias()"></div>
           <button class="btn btn-p" id="btn-solicitar" onclick="solicitarVacaciones()">Enviar solicitud</button>
           <p style="font-size:11px;color:#94a3b8;margin-top:8px;text-align:center;">La solicitud llegara por email a tu jefe directo</p>
+        </div>
+      </div>
+
+      <!-- Calendario de equipo (solo jefes) -->
+      <div id="sec-calendario" class="hidden">
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <h2>Calendario de vacaciones <span id="jefe-cal-año" style="color:#00adef"></span></h2>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-sm" onclick="jefCalAño(-1)">◀</button>
+              <button class="btn-sm" onclick="jefCalAño(1)">▶</button>
+            </div>
+          </div>
+          <div style="margin-bottom:10px;display:flex;gap:12px;font-size:11px;flex-wrap:wrap;">
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#dcfce7;border:1px solid #86efac;margin-right:4px;"></span>Aprobado</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fef9c3;border:1px solid #fde047;margin-right:4px;"></span>Pendiente</span>
+          </div>
+          <div id="jefe-cal-container" style="overflow-x:auto;"></div>
         </div>
       </div>
 
@@ -306,6 +355,7 @@ function doLogin(){
   if(ES_JEFE){
     document.getElementById('sec-aprobar').classList.remove('hidden');
     document.getElementById('sec-historial').classList.remove('hidden');
+    document.getElementById('sec-calendario').classList.remove('hidden');
   }
 
   // Info del jefe en solicitar
@@ -346,6 +396,7 @@ function logout(){
   resetFirmaPreview();
   document.getElementById('sec-aprobar').classList.add('hidden');
   document.getElementById('sec-historial').classList.add('hidden');
+  document.getElementById('sec-calendario').classList.add('hidden');
   // Resetear tabs al estado inicial
   ['marcacion','vacaciones','perfil'].forEach(function(name){
     var btn=document.getElementById('tab-btn-'+name);
@@ -369,7 +420,7 @@ function swPanel(p){
   // Resetear todos los paneles
   document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
   document.getElementById('panel-'+p).classList.add('active');
-  if(p==='vacaciones'){cargarMisVacaciones();if(ES_JEFE){cargarPendientes();cargarHistorialJefe();}}
+  if(p==='vacaciones'){cargarMisVacaciones();cargarSaldo();if(ES_JEFE){cargarPendientes();cargarHistorialJefe();cargarCalendarioJefe();}}
 }
 
 // MARCACION
@@ -718,6 +769,76 @@ function _generarExcel(hojas,nombreArchivo){
     XLSX.utils.book_append_sheet(wb,ws,hoja.nombre);
   });
   XLSX.writeFile(wb,nombreArchivo);
+}
+
+function cargarSaldo(){
+  fetch('/api/vacaciones/saldo/'+CW.id).then(function(r){return r.json();}).then(function(d){
+    if(!d.ok)return;
+    document.getElementById('saldo-disponible').textContent=d.diasDisponibles;
+    document.getElementById('saldo-usados').textContent=d.diasUsados;
+    document.getElementById('saldo-total').textContent=d.diasTotal;
+    document.getElementById('saldo-detalle').textContent='días disponibles de '+d.diasTotal+' asignados';
+    var pct=d.diasTotal>0?Math.round((d.diasUsados/d.diasTotal)*100):0;
+    var barra=document.getElementById('saldo-barra');
+    barra.style.width=pct+'%';
+    barra.style.background=pct>=90?'#ef4444':pct>=60?'#f59e0b':'#00adef';
+    // Color del número según disponibles
+    var color=d.diasDisponibles<=3?'#ef4444':d.diasDisponibles<=7?'#f59e0b':'#1e293b';
+    document.getElementById('saldo-disponible').style.color=color;
+  }).catch(function(){});
+}
+
+// CALENDARIO JEFE
+var JEFE_CAL_AÑO=new Date().getFullYear();
+var jefCalVacs=[];
+
+function jefCalAño(d){
+  JEFE_CAL_AÑO+=d;
+  document.getElementById('jefe-cal-año').textContent=JEFE_CAL_AÑO;
+  renderCalendarioJefe();
+}
+
+function cargarCalendarioJefe(){
+  document.getElementById('jefe-cal-año').textContent=JEFE_CAL_AÑO;
+  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(d){
+    jefCalVacs=(d.vacaciones||[]).filter(function(v){return v.estado==='aprobado'||v.estado==='pendiente';});
+    renderCalendarioJefe();
+  });
+}
+
+function renderCalendarioJefe(){
+  var container=document.getElementById('jefe-cal-container');
+  var html='<div class="cal-year">';
+  var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var diasH=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+  for(var m=0;m<12;m++){
+    html+='<div class="cal-mes"><div class="cal-mes-hdr">'+meses[m]+' '+JEFE_CAL_AÑO+'</div>';
+    html+='<div class="cal-grid">';
+    diasH.forEach(function(dh){html+='<div class="cal-dia-hdr">'+dh+'</div>';});
+    var primerDia=new Date(JEFE_CAL_AÑO,m,1).getDay();
+    var diasEnMes=new Date(JEFE_CAL_AÑO,m+1,0).getDate();
+    var diasAnterior=new Date(JEFE_CAL_AÑO,m,0).getDate();
+    for(var i=primerDia-1;i>=0;i--){
+      html+='<div class="cal-dia otro-mes"><div class="dia-num">'+(diasAnterior-i)+'</div></div>';
+    }
+    for(var day=1;day<=diasEnMes;day++){
+      var fecha=JEFE_CAL_AÑO+'-'+(m<9?'0':'')+(m+1)+'-'+(day<10?'0':'')+day;
+      var eventos=jefCalVacs.filter(function(v){return fecha>=v.desde&&fecha<=v.hasta;});
+      html+='<div class="cal-dia"><div class="dia-num">'+day+'</div>';
+      eventos.forEach(function(v){
+        var cls=v.estado==='aprobado'?'aprobado':'pendiente';
+        var nombre=(v.nombres||'').split(' ')[0];
+        html+='<div class="cal-evento '+cls+'" title="'+v.nombres+' '+v.apellidos+'">'+nombre+'</div>';
+      });
+      html+='</div>';
+    }
+    var totalCeldas=primerDia+diasEnMes;
+    var restantes=totalCeldas%7===0?0:7-(totalCeldas%7);
+    for(var r=1;r<=restantes;r++){html+='<div class="cal-dia otro-mes"><div class="dia-num">'+r+'</div></div>';}
+    html+='</div></div>';
+  }
+  html+='</div>';
+  container.innerHTML=html;
 }
 
 // PERFIL
