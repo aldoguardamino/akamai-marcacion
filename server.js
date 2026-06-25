@@ -258,8 +258,24 @@ function generarCSVVacaciones(vacs) {
   return '\uFEFF'+rows.join('\r\n');
 }
 
-process.on('uncaughtException',e=>console.error('uncaughtException:',e.message));
-process.on('unhandledRejection',e=>console.error('unhandledRejection:',e));
+async function reconectarDB(intentos){
+  intentos=intentos||0;
+  try{
+    const client=new MongoClient(MONGODB_URI);
+    await client.connect();
+    db=client.db('akamai');
+    console.log('MongoDB conectado OK');
+    setInterval(enviarRecordatorios,60*60*1000);
+  }catch(e){
+    console.error('Error MongoDB (intento '+(intentos+1)+'):',e.message);
+    if(intentos<5){
+      setTimeout(()=>reconectarDB(intentos+1),(intentos+1)*3000);
+    }else{
+      console.error('No se pudo conectar a MongoDB. Terminando proceso.');
+      process.exit(1);
+    }
+  }
+}
 
 const server = http.createServer(async (req, res) => {
   try{
@@ -366,6 +382,7 @@ const server = http.createServer(async (req, res) => {
 
   // Vacaciones
   if(method==='GET'&&url==='/api/vacaciones'){
+    if(!db)return jsonResp(res,503,{error:'DB no disponible'});
     try{
       const vacs=await db.collection('vacaciones').find({}).toArray();
       const clean=vacs.map(v=>{const{_id,...r}=v;return r;});
@@ -545,6 +562,5 @@ const server = http.createServer(async (req, res) => {
   }catch(e){console.error('Handler error:',e.message);if(!res.headersSent){res.writeHead(500);res.end('Server error');}}
 });
 
-conectarDB().then(()=>{
-  server.listen(PORT,'0.0.0.0',()=>{console.log('Servidor OK puerto '+PORT);});
-});
+reconectarDB();
+server.listen(PORT,'0.0.0.0',()=>{console.log('Servidor OK puerto '+PORT);});
