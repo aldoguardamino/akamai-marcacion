@@ -80,18 +80,18 @@ tbody tr:last-child td{border-bottom:none;}
 .hist-card .hc-dates{font-size:12px;color:#475569;margin-top:3px;}
 .hist-card .hc-meta{font-size:11px;color:#94a3b8;margin-top:3px;}
 .hist-card .hc-motivo{font-size:11px;color:#dc2626;margin-top:3px;}
-.cal-year{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
-@media(max-width:700px){.cal-year{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:400px){.cal-year{grid-template-columns:1fr;}}
-.cal-mes{background:#fff;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;}
-.cal-mes-hdr{background:#1a1a2e;color:#fff;padding:5px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+.cal-year{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:640px){.cal-year{grid-template-columns:repeat(2,1fr);gap:10px;}}
+.cal-mes{background:#fff;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.cal-mes-hdr{background:#1a1a2e;color:#fff;padding:10px 14px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#e2e8f0;}
-.cal-dia-hdr{background:#f8f9fa;padding:2px 1px;text-align:center;font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;}
-.cal-dia{background:#fff;min-height:28px;padding:1px;}
-.cal-dia.otro-mes{background:#fafafa;}
-.cal-dia .dia-num{font-size:8px;font-weight:600;color:#374151;}
+.cal-dia-hdr{background:#f1f5f9;padding:4px 2px;text-align:center;font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;}
+.cal-dia{background:#fff;min-height:42px;padding:3px 2px;}
+.cal-dia.otro-mes{background:#f9fafb;}
+.cal-dia .dia-num{font-size:10px;font-weight:600;color:#374151;margin-bottom:2px;}
 .cal-dia.otro-mes .dia-num{color:#cbd5e1;}
-.cal-evento{font-size:7px;padding:1px 2px;border-radius:2px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-dia.hoy .dia-num{background:#00adef;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.cal-evento{font-size:8px;padding:2px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
 .cal-evento.aprobado{background:#dcfce7;color:#166534;border-left:2px solid #22c55e;}
 .cal-evento.pendiente{background:#fef9c3;color:#854d0e;border-left:2px solid #eab308;}
 </style>
@@ -132,7 +132,8 @@ tbody tr:last-child td{border-bottom:none;}
 
     <div class="tabs" id="tabs-row">
       <button class="tab active" id="tab-btn-marcacion" onclick="swPanel('marcacion')">Marcacion</button>
-      <button class="tab" id="tab-btn-vacaciones" onclick="swPanel('vacaciones')">Vacaciones</button>
+      <button class="tab" id="tab-btn-vacaciones" onclick="swPanel('vacaciones')">Solicitud de Vacaciones</button>
+      <button class="tab" id="tab-btn-calendario" onclick="swPanel('calendario')">Calendario</button>
       <button class="tab" id="tab-btn-perfil" onclick="swPanel('perfil')">Mi perfil</button>
     </div>
 
@@ -202,24 +203,6 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
 
-      <!-- Calendario de equipo (solo jefes) -->
-      <div id="sec-calendario" class="hidden">
-        <div class="card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-            <h2>Calendario de vacaciones <span id="jefe-cal-año" style="color:#00adef"></span></h2>
-            <div style="display:flex;gap:6px;">
-              <button class="btn-sm" onclick="jefCalAño(-1)">◀</button>
-              <button class="btn-sm" onclick="jefCalAño(1)">▶</button>
-            </div>
-          </div>
-          <div style="margin-bottom:10px;display:flex;gap:12px;font-size:11px;flex-wrap:wrap;">
-            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#dcfce7;border:1px solid #86efac;margin-right:4px;"></span>Aprobado</span>
-            <span><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#fef9c3;border:1px solid #fde047;margin-right:4px;"></span>Pendiente</span>
-          </div>
-          <div id="jefe-cal-container" style="overflow-x:auto;"></div>
-        </div>
-      </div>
-
       <!-- Historial de aprobaciones (solo jefes) -->
       <div id="sec-historial" class="hidden">
         <div class="card">
@@ -239,6 +222,27 @@ tbody tr:last-child td{border-bottom:none;}
           <button class="btn-sm" onclick="exportarExcelTrabajador()" style="white-space:nowrap;">⬇ Excel</button>
         </div>
         <div id="mis-vacs"><p style="text-align:center;color:#94a3b8;font-size:13px;padding:20px;">Cargando...</p></div>
+      </div>
+    </div>
+
+    <!-- CALENDARIO DE VACACIONES -->
+    <div class="panel" id="panel-calendario">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <h2 style="margin-bottom:2px;">Calendario de Vacaciones <span id="cal-año-disp" style="color:#00adef;"></span></h2>
+            <p style="font-size:11px;color:#94a3b8;">Planificación anual del equipo</p>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn-sm" onclick="calNav(-1)">◀ Anterior</button>
+            <button class="btn-sm" onclick="calNav(1)">Siguiente ▶</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;font-size:11px;">
+          <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#dcfce7;border:1px solid #86efac;"></span>Aprobado</span>
+          <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fef9c3;border:1px solid #fde047;"></span>Pendiente</span>
+        </div>
+        <div id="cal-grid-container"></div>
       </div>
     </div>
 
@@ -357,7 +361,6 @@ function doLogin(){
   if(ES_JEFE){
     document.getElementById('sec-aprobar').classList.remove('hidden');
     document.getElementById('sec-historial').classList.remove('hidden');
-    document.getElementById('sec-calendario').classList.remove('hidden');
   }
 
   // Info del jefe en solicitar
@@ -398,9 +401,8 @@ function logout(){
   resetFirmaPreview();
   document.getElementById('sec-aprobar').classList.add('hidden');
   document.getElementById('sec-historial').classList.add('hidden');
-  document.getElementById('sec-calendario').classList.add('hidden');
   // Resetear tabs al estado inicial
-  ['marcacion','vacaciones','perfil'].forEach(function(name){
+  ['marcacion','vacaciones','calendario','perfil'].forEach(function(name){
     var btn=document.getElementById('tab-btn-'+name);
     if(btn){btn.classList.remove('active');btn.style.display='';}
   });
@@ -411,18 +413,16 @@ function logout(){
 }
 
 function swPanel(p){
-  // Resetear todas las tabs
-  ['marcacion','vacaciones','perfil'].forEach(function(name){
+  ['marcacion','vacaciones','calendario','perfil'].forEach(function(name){
     var btn=document.getElementById('tab-btn-'+name);
     if(btn)btn.classList.remove('active');
   });
-  // Activar la tab correcta
   var btn=document.getElementById('tab-btn-'+p);
   if(btn)btn.classList.add('active');
-  // Resetear todos los paneles
   document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
   document.getElementById('panel-'+p).classList.add('active');
-  if(p==='vacaciones'){cargarMisVacaciones();cargarSaldo();if(ES_JEFE){cargarPendientes();cargarHistorialJefe();cargarCalendarioJefe();}}
+  if(p==='vacaciones'){cargarMisVacaciones();cargarSaldo();if(ES_JEFE){cargarPendientes();cargarHistorialJefe();}}
+  if(p==='calendario'){cargarCalendario();}
 }
 
 // MARCACION
@@ -790,47 +790,49 @@ function cargarSaldo(){
   }).catch(function(){});
 }
 
-// CALENDARIO JEFE
-var JEFE_CAL_AÑO=new Date().getFullYear();
-var jefCalVacs=[];
+// CALENDARIO DE VACACIONES
+var CAL_AÑO=new Date().getFullYear();
+var calVacs=[];
 
-function jefCalAño(d){
-  JEFE_CAL_AÑO+=d;
-  document.getElementById('jefe-cal-año').textContent=JEFE_CAL_AÑO;
-  renderCalendarioJefe();
+function calNav(d){
+  CAL_AÑO+=d;
+  document.getElementById('cal-año-disp').textContent=CAL_AÑO;
+  renderCalendario();
 }
 
-function cargarCalendarioJefe(){
-  document.getElementById('jefe-cal-año').textContent=JEFE_CAL_AÑO;
+function cargarCalendario(){
+  document.getElementById('cal-año-disp').textContent=CAL_AÑO;
   fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(d){
-    jefCalVacs=(d.vacaciones||[]).filter(function(v){return v.estado==='aprobado'||v.estado==='pendiente';});
-    renderCalendarioJefe();
+    calVacs=(d.vacaciones||[]).filter(function(v){return v.estado==='aprobado'||v.estado==='pendiente';});
+    renderCalendario();
   });
 }
 
-function renderCalendarioJefe(){
-  var container=document.getElementById('jefe-cal-container');
-  var html='<div class="cal-year">';
+function renderCalendario(){
+  var container=document.getElementById('cal-grid-container');
+  var hoy=new Date().toISOString().slice(0,10);
   var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var diasH=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+  var html='<div class="cal-year">';
   for(var m=0;m<12;m++){
-    html+='<div class="cal-mes"><div class="cal-mes-hdr">'+meses[m]+' '+JEFE_CAL_AÑO+'</div>';
+    html+='<div class="cal-mes"><div class="cal-mes-hdr">'+meses[m]+' '+CAL_AÑO+'</div>';
     html+='<div class="cal-grid">';
     diasH.forEach(function(dh){html+='<div class="cal-dia-hdr">'+dh+'</div>';});
-    var primerDia=new Date(JEFE_CAL_AÑO,m,1).getDay();
-    var diasEnMes=new Date(JEFE_CAL_AÑO,m+1,0).getDate();
-    var diasAnterior=new Date(JEFE_CAL_AÑO,m,0).getDate();
+    var primerDia=new Date(CAL_AÑO,m,1).getDay();
+    var diasEnMes=new Date(CAL_AÑO,m+1,0).getDate();
+    var diasAnterior=new Date(CAL_AÑO,m,0).getDate();
     for(var i=primerDia-1;i>=0;i--){
       html+='<div class="cal-dia otro-mes"><div class="dia-num">'+(diasAnterior-i)+'</div></div>';
     }
     for(var day=1;day<=diasEnMes;day++){
-      var fecha=JEFE_CAL_AÑO+'-'+(m<9?'0':'')+(m+1)+'-'+(day<10?'0':'')+day;
-      var eventos=jefCalVacs.filter(function(v){return fecha>=v.desde&&fecha<=v.hasta;});
-      html+='<div class="cal-dia"><div class="dia-num">'+day+'</div>';
+      var fecha=CAL_AÑO+'-'+(m<9?'0':'')+(m+1)+'-'+(day<10?'0':'')+day;
+      var esHoy=fecha===hoy;
+      var eventos=calVacs.filter(function(v){return fecha>=v.desde&&fecha<=v.hasta;});
+      html+='<div class="cal-dia'+(esHoy?' hoy':'')+'"><div class="dia-num">'+day+'</div>';
       eventos.forEach(function(v){
         var cls=v.estado==='aprobado'?'aprobado':'pendiente';
         var nombre=(v.nombres||'').split(' ')[0];
-        html+='<div class="cal-evento '+cls+'" title="'+v.nombres+' '+v.apellidos+'">'+nombre+'</div>';
+        html+='<div class="cal-evento '+cls+'" title="'+v.nombres+' '+v.apellidos+': '+v.desde+' al '+v.hasta+'">'+nombre+'</div>';
       });
       html+='</div>';
     }
