@@ -505,16 +505,15 @@ const server = http.createServer(async (req, res) => {
     try{
       const saldoDoc=await db.collection('saldos_vac').findOne({wid});
       const diasTotal=saldoDoc?saldoDoc.diasTotal:30;
-      // Sumar dias usados (vacaciones aprobadas)
       const vacs=await db.collection('vacaciones').find({wid,estado:'aprobado'}).toArray();
-      const diasUsados=vacs.reduce(function(s,v){return s+(parseInt(v.dias)||0);},0);
+      const diasUsados=vacs.reduce((s,v)=>s+(parseInt(v.dias)||0),0);
       return jsonResp(res,200,{ok:true,diasTotal,diasUsados,diasDisponibles:diasTotal-diasUsados});
     }catch(e){return jsonResp(res,500,{error:e.message});}
   }
 
   // POST configurar saldo de un trabajador (solo admin)
   if(method==='POST'&&url==='/api/vacaciones/saldo'){
-    readBody(req).then(async function(body){
+    let body='';req.on('data',d=>body+=d);req.on('end',async()=>{
       try{
         const{wid,diasTotal}=JSON.parse(body);
         await db.collection('saldos_vac').updateOne({wid},{$set:{wid,diasTotal:parseInt(diasTotal)}},{upsert:true});
@@ -529,10 +528,10 @@ const server = http.createServer(async (req, res) => {
       const saldos=await db.collection('saldos_vac').find({}).toArray();
       const vacs=await db.collection('vacaciones').find({estado:'aprobado'}).toArray();
       const result=WORKERS_DATA.map(function(w){
-        const s=saldos.find(function(x){return x.wid===w.id;});
+        const s=saldos.find(x=>x.wid===w.id);
         const diasTotal=s?s.diasTotal:30;
-        const diasUsados=vacs.filter(function(v){return v.wid===w.id;}).reduce(function(sum,v){return sum+(parseInt(v.dias)||0);},0);
-        return{wid:w.id,nombre:w.nm+' '+w.ap,diasTotal,diasUsados,diasDisponibles:diasTotal-diasUsados};
+        const diasUsados=vacs.filter(v=>v.wid===w.id).reduce((sum,v)=>sum+(parseInt(v.dias)||0),0);
+        return{wid:w.id,nombre:w.nm+' '+w.ap,cargo:w.ca,diasTotal,diasUsados,diasDisponibles:diasTotal-diasUsados};
       });
       return jsonResp(res,200,{ok:true,saldos:result});
     }catch(e){return jsonResp(res,500,{error:e.message});}
