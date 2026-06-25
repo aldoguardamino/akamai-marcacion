@@ -817,7 +817,14 @@ function calNav(d){
 function cargarCalendario(){
   document.getElementById('cal-año-disp').textContent=CAL_AÑO;
   fetchConRetry('/api/vacaciones',3,4000).then(function(d){
-    calVacs=(d.vacaciones||[]).filter(function(v){return v.estado==='aprobado'||v.estado==='pendiente';});
+    calVacs=(d.vacaciones||[]).filter(function(v){
+      if(!ES_JEFE) return v.wid===CW.id&&(v.estado==='aprobado'||v.estado==='pendiente');
+      // Jefes ven su equipo; Noel ve todos
+      if(CW.id==='43903530') return v.estado==='aprobado'||v.estado==='pendiente';
+      var subIds=WORKERS.filter(function(w){return w.jefeWid===CW.id;}).map(function(w){return w.id;});
+      subIds.push(CW.id);
+      return (v.estado==='aprobado'||v.estado==='pendiente')&&subIds.indexOf(v.wid)>=0;
+    });
     renderCalendario();
   });
 }
