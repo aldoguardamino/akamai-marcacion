@@ -16,6 +16,7 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;}
 .clock-date{font-size:12px;color:#64748b;}
 .pill{display:flex;align-items:center;gap:8px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:20px;padding:5px 14px;font-size:12px;color:#0369a1;font-weight:600;margin-left:auto;flex-shrink:0;}
 .main{max-width:520px;margin:24px auto;padding:0 16px 40px;}
+.main.cal-mode{max-width:100%;padding:0 20px 40px;}
 .tabs{display:flex;background:#f8f9fa;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:16px;overflow:hidden;}
 .tab{flex:1;padding:10px;text-align:center;font-size:12px;font-weight:600;color:#64748b;cursor:pointer;border:none;background:none;}
 .tab.active{background:#1a1a2e;color:#fff;}
@@ -422,6 +423,9 @@ function swPanel(p){
   if(btn)btn.classList.add('active');
   document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
   document.getElementById('panel-'+p).classList.add('active');
+  // Expandir al ancho completo solo en calendario
+  var main=document.querySelector('.main');
+  if(main)main.classList.toggle('cal-mode',p==='calendario');
   if(p==='vacaciones'){cargarMisVacaciones();cargarSaldo();if(ES_JEFE){cargarPendientes();cargarHistorialJefe();}}
   if(p==='calendario'){cargarCalendario();}
 }
