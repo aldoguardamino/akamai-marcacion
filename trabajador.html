@@ -426,8 +426,17 @@ function swPanel(p){
 }
 
 // MARCACION
+function fetchConRetry(url,intentos,delay){
+  intentos=intentos||3;delay=delay||4000;
+  return fetch(url).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+  .catch(function(e){
+    if(intentos<=1)throw e;
+    return new Promise(function(res){setTimeout(res,delay);}).then(function(){return fetchConRetry(url,intentos-1,delay);});
+  });
+}
+
 function cargarRegistros(){
-  fetch('/api/registros').then(function(r){return r.json();}).then(function(data){
+  fetchConRetry('/api/registros',3,4000).then(function(data){
     var regs=(data.regs||[]).filter(function(r){return r.wid===CW.id;});
     renderDash(regs);
   }).catch(function(){toast('Error al conectar','err');});
@@ -535,7 +544,7 @@ function solicitarVacaciones(){
 }
 
 function cargarMisVacaciones(){
-  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
+  fetchConRetry('/api/vacaciones',3,4000).then(function(data){
     var vacs=(data.vacaciones||[]).filter(function(v){return v.wid===CW.id;});
     vacs.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
 
@@ -596,7 +605,7 @@ function descargarPDF(id){
 
 // VACACIONES - Aprobar (jefes)
 function cargarPendientes(){
-  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
+  fetchConRetry('/api/vacaciones',3,4000).then(function(data){
     var todas=data.vacaciones||[];
     // Filtrar solo las solicitudes de subordinados directos
     var subordinados=WORKERS.filter(function(w){return w.jefeWid===CW.id;}).map(function(w){return w.id;});
@@ -647,7 +656,7 @@ function rechazar(id){
 }
 
 function cargarHistorialJefe(){
-  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(data){
+  fetchConRetry('/api/vacaciones',3,4000).then(function(data){
     var todas=data.vacaciones||[];
     var historial=todas.filter(function(v){
       return (v.estado==='aprobado'||v.estado==='rechazado') && v.jefeWid===CW.id;
@@ -802,7 +811,7 @@ function calNav(d){
 
 function cargarCalendario(){
   document.getElementById('cal-año-disp').textContent=CAL_AÑO;
-  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(d){
+  fetchConRetry('/api/vacaciones',3,4000).then(function(d){
     calVacs=(d.vacaciones||[]).filter(function(v){return v.estado==='aprobado'||v.estado==='pendiente';});
     renderCalendario();
   });
