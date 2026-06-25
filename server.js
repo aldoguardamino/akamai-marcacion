@@ -258,7 +258,11 @@ function generarCSVVacaciones(vacs) {
   return '\uFEFF'+rows.join('\r\n');
 }
 
+process.on('uncaughtException',e=>console.error('uncaughtException:',e.message));
+process.on('unhandledRejection',e=>console.error('unhandledRejection:',e));
+
 const server = http.createServer(async (req, res) => {
+  try{
   const url    = req.url.split('?')[0];
   const method = req.method;
 
@@ -538,6 +542,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   res.writeHead(404);res.end('Not found');
+  }catch(e){console.error('Handler error:',e.message);if(!res.headersSent){res.writeHead(500);res.end('Server error');}}
 });
 
 conectarDB().then(()=>{
