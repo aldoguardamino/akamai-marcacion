@@ -412,6 +412,9 @@ function logout(){
   document.getElementById('panel-marcacion').classList.add('active');
   document.getElementById('panel-vacaciones').classList.remove('active');
   document.getElementById('panel-perfil').classList.remove('active');
+  // Quitar modo calendario expandido
+  var main=document.querySelector('.main');
+  if(main)main.classList.remove('cal-mode');
 }
 
 function swPanel(p){
