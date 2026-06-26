@@ -376,6 +376,8 @@ function doLogin(){
   }
 
   cargarPerfil();
+  // Verificar firma y mostrar banner si no está cargada
+  verificarFirmaAlIngreso();
 }
 
 function resetFirmaPreview(){
@@ -672,6 +674,12 @@ function cargarPendientes(){
 
 function aprobar(id){
   var esNoel=CW.id==='43903530';
+  // Bloquear si no tiene firma cargada
+  if(!firmaB64){
+    toast('Debes cargar tu firma digital en Mi perfil para poder aprobar','err');
+    swPanel('perfil');
+    return;
+  }
   var msg=esNoel?'Confirmas la aprobación final (Gerente General)?':'Confirmas la aprobacion de estas vacaciones?';
   if(!confirm(msg))return;
   var jefeNombre=CW.nm+' '+CW.ap;
@@ -932,8 +940,62 @@ function guardarPerfil(){
   if(!firmaB64){toast('Sube tu firma digital primero','err');return;}
   fetch('/api/firma/guardar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({wid:CW.id,email:email,firmaBase64:firmaB64})})
   .then(function(r){return r.json();})
-  .then(function(d){if(d.ok)toast('Perfil guardado correctamente','ok');else toast('Error al guardar','err');})
+  .then(function(d){
+    if(d.ok){
+      toast('Perfil guardado correctamente','ok');
+      // Quitar banner y volver a verificar
+      var banner=document.getElementById('banner-firma');
+      if(banner)banner.remove();
+      verificarFirmaAlIngreso();
+    }else{toast('Error al guardar','err');}
+  })
   .catch(function(){toast('Error de conexion','err');});
+}
+
+function verificarFirmaAlIngreso(){
+  // Quitar banner anterior si existe
+  var bannerAnterior=document.getElementById('banner-firma');
+  if(bannerAnterior)bannerAnterior.remove();
+
+  fetch('/api/firma/'+CW.id).then(function(r){return r.json();}).then(function(d){
+    firmaB64=d.firma||null;
+    var tieneFirma=!!(d.firma);
+    var tieneEmail=!!(d.email);
+    if(!tieneFirma||!tieneEmail){
+      // Crear banner de advertencia fijo
+      var banner=document.createElement('div');
+      banner.id='banner-firma';
+      banner.style.cssText='position:fixed;top:56px;left:0;right:0;z-index:200;background:#dc2626;color:#fff;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.2);';
+      var msg=!tieneFirma&&!tieneEmail
+        ? '⚠️ Debes cargar tu firma digital y tu email en Mi perfil para solicitar o aprobar vacaciones.'
+        : !tieneFirma
+          ? '⚠️ Debes cargar tu firma digital en Mi perfil para solicitar o aprobar vacaciones.'
+          : '⚠️ Debes registrar tu email corporativo en Mi perfil para solicitar o aprobar vacaciones.';
+      var txt=document.createElement('span');
+      txt.textContent=msg;
+      var btn=document.createElement('button');
+      btn.textContent='Ir a Mi perfil →';
+      btn.style.cssText='background:#fff;color:#dc2626;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0;';
+      btn.onclick=function(){swPanel('perfil');};
+      banner.appendChild(txt);
+      banner.appendChild(btn);
+      // Insertar debajo del clock-bar
+      var clockBar=document.querySelector('.clock-bar');
+      if(clockBar&&clockBar.parentNode){
+        clockBar.parentNode.insertBefore(banner,clockBar.nextSibling);
+      } else {
+        document.body.insertBefore(banner,document.body.firstChild);
+      }
+      // Deshabilitar botón solicitar
+      var btnSol=document.getElementById('btn-solicitar');
+      if(btnSol){btnSol.disabled=true;btnSol.title='Carga tu firma digital en Mi perfil primero';}
+    } else {
+      // Tiene firma y email: habilitar botón solicitar
+      var btnSol=document.getElementById('btn-solicitar');
+      if(btnSol){btnSol.disabled=false;btnSol.title='';}
+      if(d.email)document.getElementById('perfil-email').value=d.email;
+    }
+  }).catch(function(){});
 }
 
 function toast(msg,tipo){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(tipo?' '+tipo:'');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3500);}
