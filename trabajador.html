@@ -287,7 +287,8 @@ function today(){var now=new Date();var peru=new Date(now.getTime()-(5*60*60*100
 function nowT(){var now=new Date();var peru=new Date(now.getTime()-(5*60*60*1000));return peru.toISOString().slice(11,16);}
 var DIAS=['Lun','Mar','Mie','Jue','Vie','Sab','Dom'];
 function fGeo(f){var p=f.split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);var i=dt.getDay()===0?6:dt.getDay()-1;return DIAS[i]+' '+p[2]+'-'+p[1]+'-'+p[0];}
-function fmtF(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function fmtF(f){if(!f)return'';var p=f.slice(0,10).split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+function fmtDT(f){if(!f)return'';var d=new Date(f);var dd=String(d.getDate()).padStart(2,'0');var mm=String(d.getMonth()+1).padStart(2,'0');var yy=d.getFullYear();var hh=String(d.getHours()).padStart(2,'0');var mi=String(d.getMinutes()).padStart(2,'0');return dd+'/'+mm+'/'+yy+' '+hh+':'+mi;}
 function t2d(t){if(!t)return null;var p=t.split(':');return(+p[0]*60+ +p[1])/1440;}
 function fmtHT(eh,sh){if(!eh||!sh)return'--';var d=t2d(sh)-t2d(eh);if(d<0)d+=1;var m=Math.round(d*1440);return Math.floor(m/60)+'h '+m%60+'m';}
 
@@ -348,7 +349,7 @@ function doLogin(){
   document.getElementById('upill-nm').textContent=w.nm;
   var av=document.getElementById('av');av.textContent=ini(w.nm);av.style.background=gc(w.ap);
   document.getElementById('d-name').textContent=w.nm+' '+w.ap;
-  document.getElementById('d-gr').textContent=w.gr+(w.ca?' - '+w.ca:'');
+  document.getElementById('d-gr').textContent=w.id==='43903530'?w.ca:(w.gr+(w.ca?' - '+w.ca:''));
   document.getElementById('d-turno').textContent=w.tu?'Turno: '+w.tu:'';
 
   // Si es solo jefe (Noel), ocultar tab marcacion
@@ -580,7 +581,7 @@ function cargarMisVacaciones(){
           '<span class="badge bpend">⏳ Pendiente jefe</span>'+
           '<div style="font-weight:700;font-size:13px;margin-top:6px;">'+fmtF(v.desde)+' al '+fmtF(v.hasta)+'</div>'+
           '<div style="font-size:12px;color:#475569;margin-top:3px;">'+v.dias+' dias - Retorno: '+fmtF(v.retorno)+'</div>'+
-          '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Solicitado: '+fmtF(v.fechaSolicitud)+'</div>'+
+          '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Solicitado: '+fmtDT(v.fechaSolicitud)+'</div>'+
           (v.jefeNombre?'<div style="font-size:11px;color:#64748b;margin-top:2px;">Enviado a: '+v.jefeNombre+'</div>':'')+
           '</div>';
       }).join('');
@@ -596,7 +597,7 @@ function cargarMisVacaciones(){
           '</div>'+
           '<div style="font-weight:700;font-size:13px;margin-top:4px;">'+fmtF(v.desde)+' al '+fmtF(v.hasta)+'</div>'+
           '<div style="font-size:12px;color:#475569;margin-top:3px;">'+v.dias+' dias - Retorno: '+fmtF(v.retorno)+'</div>'+
-          '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Solicitado: '+fmtF(v.fechaSolicitud)+'</div>'+
+          '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Solicitado: '+fmtDT(v.fechaSolicitud)+'</div>'+
           '</div>';
       }).join('');
     }
@@ -613,8 +614,9 @@ function cargarMisVacaciones(){
           '<span class="badge '+estadoClass+'">'+estadoTxt+'</span>'+
           '<div style="font-weight:700;font-size:13px;margin-top:6px;">'+fmtF(v.desde)+' al '+fmtF(v.hasta)+'</div>'+
           '<div style="font-size:12px;color:#475569;margin-top:3px;">'+v.dias+' dias - Retorno: '+fmtF(v.retorno)+'</div>'+
-          '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Solicitado: '+fmtF(v.fechaSolicitud)+'</div>'+
+          '<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Solicitado: '+fmtDT(v.fechaSolicitud)+'</div>'+
           (v.jefeNombre?'<div style="font-size:11px;color:#64748b;margin-top:2px;">Gestionado por: '+v.jefeNombre+'</div>':'')+
+          (v.fechaAprobacion?'<div style="font-size:11px;color:#94a3b8;margin-top:2px;">Aprobado: '+fmtDT(v.fechaAprobacion)+'</div>':'')+
           (v.motivoRechazo?'<div style="font-size:11px;color:#dc2626;margin-top:2px;">Motivo: '+v.motivoRechazo+'</div>':'')+
           btnPDF+'</div>';
       }).join('');
@@ -726,7 +728,7 @@ function cargarHistorialJefe(){
         '<span class="badge '+badgeClass+'">'+badgeTxt+'</span>'+
         '</div>'+
         '<div class="hc-dates">'+fmtF(v.desde)+' al '+fmtF(v.hasta)+' &bull; '+v.dias+' dias &bull; Retorno: '+fmtF(v.retorno)+'</div>'+
-        (fechaDecision?'<div class="hc-meta">Decision: '+fmtF(fechaDecision)+'</div>':'')+
+        (fechaDecision?'<div class="hc-meta">Decision: '+fmtDT(fechaDecision)+'</div>':'')+
         (v.motivoRechazo?'<div class="hc-motivo">Motivo: '+v.motivoRechazo+'</div>':'')+
         '</div>';
     }).join('');
