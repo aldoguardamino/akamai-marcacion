@@ -159,7 +159,7 @@ function enviarCorreo(to, subject, htmlBody) {
   });
 }
 
-function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64) {
+function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64, firmaNoel) {
   const fmtF = (f) => { if(!f) return ''; const [y,m,d]=f.split('-'); return `${d}/${m}/${y}`; };
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">
   <style>
@@ -217,16 +217,28 @@ function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64) {
     </div>
   </div>
   <div class="jefe-box" style="margin-top:30px">
-    <div style="font-weight:700;margin-bottom:16px">GERENTE O JEFE DE AREA</div>
+    <div style="font-weight:700;margin-bottom:16px">APROBACIONES</div>
     ${sol.estado==='aprobado' ? `
-    <div style="text-align:center">
-      <div class="aprobado-stamp">APROBADO</div>
-      ${firmaJefe ? `<img class="firma-img" src="${firmaJefe}" alt="firma jefe">` : ''}
-      <div class="firma-linea"></div>
-      <div class="firma-label">Firma de conformidad</div>
-      <div style="font-size:10px;margin-top:2px;">${sol.jefeNombre||''}</div>
+    <div style="display:flex;gap:20px;justify-content:space-around;text-align:center;flex-wrap:wrap;">
+      <div style="flex:1;min-width:180px;">
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Jefe de Área</div>
+        <div class="aprobado-stamp">APROBADO</div>
+        ${firmaJefe ? `<img class="firma-img" src="${firmaJefe}" alt="firma jefe">` : '<div style="height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;">Sin firma registrada</div>'}
+        <div class="firma-linea"></div>
+        <div class="firma-label">Firma de conformidad</div>
+        <div style="font-size:10px;margin-top:2px;">${sol.jefeNombre||''}</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px;">Fecha: ${fmtF(sol.fechaAprobacion||'')}</div>
+      </div>
+      <div style="flex:1;min-width:180px;">
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Gerente General</div>
+        <div class="aprobado-stamp">APROBADO</div>
+        ${firmaNoel ? `<img class="firma-img" src="${firmaNoel}" alt="firma gerente">` : '<div style="height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;">Sin firma registrada</div>'}
+        <div class="firma-linea"></div>
+        <div class="firma-label">Firma de conformidad</div>
+        <div style="font-size:10px;margin-top:2px;">NOEL ALONSO GRANADOS SAENZ</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px;">Fecha: ${fmtF(sol.fechaAprobacionNoel||sol.fechaAprobacion||'')}</div>
+      </div>
     </div>
-    <div style="margin-top:16px;font-size:11px;">Fecha: ${fmtF(sol.fechaAprobacion||'')}</div>
     ` : '<div style="height:80px"></div><div style="margin-top:8px">Fecha:_________________________</div>'}
   </div>
   <div class="nota-final">Nota: Este documento debera ser remitido antes del descanso vacacional</div>
@@ -464,8 +476,9 @@ const server = http.createServer(async (req, res) => {
           const solFinal=await db.collection('vacaciones').findOne({id});
           const firmaWorkerDoc=await db.collection('firmas').findOne({wid:solFinal.wid});
           const firmaJefeDoc=await db.collection('firmas').findOne({wid:solFinal.jefeWid});
+          const firmaNoelDoc=await db.collection('firmas').findOne({wid:'43903530'});
           const logoB64=fs.existsSync(path.join(__dirname,'logo.png'))?fs.readFileSync(path.join(__dirname,'logo.png')).toString('base64'):'';
-          const htmlPDF=generarHTMLVacaciones({...solFinal,estado:'aprobado'},firmaWorkerDoc?firmaWorkerDoc.firma:null,firmaJefeDoc?firmaJefeDoc.firma:null,logoB64);
+          const htmlPDF=generarHTMLVacaciones({...solFinal,estado:'aprobado'},firmaWorkerDoc?firmaWorkerDoc.firma:null,firmaJefeDoc?firmaJefeDoc.firma:null,logoB64,firmaNoelDoc?firmaNoelDoc.firma:null);
           await db.collection('vacaciones').updateOne({id},{$set:{htmlPDF}});
           const wData=WORKERS_DATA.find(x=>x.id===solFinal.wid);
           const firmaDoc=await db.collection('firmas').findOne({wid:solFinal.wid});
