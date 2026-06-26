@@ -422,7 +422,7 @@ const server = http.createServer(async (req, res) => {
         const sol=JSON.parse(body);
         sol.id='vac_'+Date.now();
         sol.estado='pendiente';
-        sol.fechaSolicitud=new Date().toISOString().slice(0,10);
+        sol.fechaSolicitud=new Date().toISOString();
         sol.timestampSolicitud=Date.now();
         await db.collection('vacaciones').insertOne(sol);
         const w=WORKERS_DATA.find(x=>x.id===sol.wid);
@@ -454,7 +454,7 @@ const server = http.createServer(async (req, res) => {
     req.on('end',async()=>{
       try{
         const{id,jefeNombre,jefeWid}=JSON.parse(body);
-        const hoy=new Date().toISOString().slice(0,10);
+        const hoy=new Date().toISOString();
         const sol=await db.collection('vacaciones').findOne({id});
         const esNoel=jefeWid==='43903530';
 
@@ -529,7 +529,7 @@ const server = http.createServer(async (req, res) => {
     req.on('end',async()=>{
       try{
         const{id,motivo,jefeNombre,jefeWid}=JSON.parse(body);
-        const hoy=new Date().toISOString().slice(0,10);
+        const hoy=new Date().toISOString();
         await db.collection('vacaciones').updateOne({id},{$set:{estado:'rechazado',motivoRechazo:motivo,jefeNombre,jefeWid,fechaAprobacion:hoy}});
         const sol=await db.collection('vacaciones').findOne({id});
         const wData=WORKERS_DATA.find(x=>x.id===sol.wid);
