@@ -355,7 +355,6 @@ function doLogin(){
   // Si es solo jefe (Noel), ocultar tab marcacion
   if(ES_SOLO_JEFE){
     document.getElementById('tab-btn-marcacion').style.display='none';
-    document.getElementById('panel-marcacion').innerHTML='';
     swPanel('vacaciones');
   } else {
     cargarRegistros();
