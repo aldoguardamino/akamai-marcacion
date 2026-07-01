@@ -241,7 +241,10 @@ tbody tr:hover td{background:#f8faff;}
     <div class="toolbar">
       <div class="filters">
         <input type="text" placeholder="Buscar nombre o ID..." id="srch-h" oninput="renderHist()">
-        <input type="date" id="fdate-h" onchange="renderHist()">
+        <span style="font-size:12px;color:#64748b;white-space:nowrap;">Desde:</span>
+        <input type="date" id="fdate-desde" onchange="renderHist()">
+        <span style="font-size:12px;color:#64748b;white-space:nowrap;">Hasta:</span>
+        <input type="date" id="fdate-hasta" onchange="renderHist()">
         <select id="fdept-h" onchange="renderHist()"></select>
       </div>
       <button class="btn btn-sm" onclick="loadAll()">⟳ Actualizar</button>
@@ -456,7 +459,8 @@ function renderHoy(){
 
 function renderHist(){
   var srch=document.getElementById('srch-h').value.toLowerCase();
-  var fd=document.getElementById('fdate-h').value;
+  var fDesde=document.getElementById('fdate-desde').value;
+  var fHasta=document.getElementById('fdate-hasta').value;
   var fg=document.getElementById('fdept-h').value;
   var rows=[],n=0;
   WORKERS.forEach(function(w){
@@ -465,7 +469,7 @@ function renderHist(){
     var wr=allRegs.filter(function(r){return r.wid===w.id;});
     var fechas=[];wr.forEach(function(r){if(fechas.indexOf(r.f)<0)fechas.push(r.f);});
     fechas.sort().reverse();
-    if(fd)fechas=fechas.filter(function(f){return f===fd;});
+    if(fDesde||fHasta)fechas=fechas.filter(function(f){if(fDesde&&f<fDesde)return false;if(fHasta&&f>fHasta)return false;return true;});
     fechas.forEach(function(f){
       var e=wr.find(function(r){return r.f===f&&r.t==='entrada';});
       var s=wr.find(function(r){return r.f===f&&r.t==='salida';});
@@ -727,7 +731,9 @@ function exportar(modo){
   var btnId=modo==='hoy'?'btnExH':'btnExHist';
   var btn=document.getElementById(btnId);
   btn.disabled=true;btn.innerHTML='<span class="spin"></span>Generando...';
-  var fd=modo==='hoy'?today():(document.getElementById('fdate-h').value||null);
+  var fd=modo==='hoy'?today():null;
+  var fDesde=modo==='hoy'?null:(document.getElementById('fdate-desde').value||null);
+  var fHasta=modo==='hoy'?null:(document.getElementById('fdate-hasta').value||null);
   var fg=modo==='hoy'?null:(document.getElementById('fdept-h').value||null);
   var srch=modo==='hoy'?'':(document.getElementById('srch-h').value.toLowerCase());
   var filtW=WORKERS.filter(function(w){
@@ -741,7 +747,9 @@ function exportar(modo){
     var wr=allRegs.filter(function(r){return r.wid===w.id;});
     var fechas=[];wr.forEach(function(r){if(fechas.indexOf(r.f)<0)fechas.push(r.f);});
     fechas.sort().reverse();
-    if(fd)fechas=fechas.filter(function(f){return f===fd;});
+    var fDesde=document.getElementById('fdate-desde')?document.getElementById('fdate-desde').value:null;
+    var fHasta=document.getElementById('fdate-hasta')?document.getElementById('fdate-hasta').value:null;
+    if(fDesde||fHasta)fechas=fechas.filter(function(f){if(fDesde&&f<fDesde)return false;if(fHasta&&f>fHasta)return false;return true;});
     if(modo==='hoy')fechas=fechas.filter(function(f){return f===td;});
     fechas.forEach(function(f){
       var e=wr.find(function(r){return r.f===f&&r.t==='entrada';});
