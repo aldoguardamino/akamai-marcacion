@@ -34,6 +34,20 @@ body{font-family:Arial,sans-serif;background:#f0f4f8;min-height:100vh;}
 .btn-edit{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}
 .btn-del{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;}
 .btn-danger{background:#ef4444;color:#fff;padding:6px 12px;font-size:12px;}
+/* Módulos principales */
+.modulos{display:grid;grid-template-columns:repeat(3,1fr);gap:0;background:#1a1a2e;padding:20px;gap:16px;}
+@media(max-width:600px){.modulos{grid-template-columns:1fr;}}
+.modulo{background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:14px;padding:20px 16px;text-align:center;cursor:pointer;transition:all .2s;}
+.modulo:hover{background:rgba(0,173,239,.15);border-color:#00adef;}
+.modulo.active{background:rgba(0,173,239,.2);border-color:#00adef;box-shadow:0 0 0 3px rgba(0,173,239,.2);}
+.modulo-pronto{opacity:.5;cursor:not-allowed;}
+.modulo-pronto:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);}
+.mod-icon{font-size:28px;margin-bottom:8px;}
+.mod-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;}
+.mod-sub{font-size:11px;color:#94a3b8;}
+.modulo.active .mod-sub{color:#7dd3fc;}
+/* Subtabs */
+.subtabs{display:flex;background:#f8f9fa;border-bottom:1px solid #e2e8f0;padding:0 20px;overflow-x:auto;}
 .tabs{display:flex;background:#f8f9fa;border-bottom:1px solid #e2e8f0;padding:0 20px;overflow-x:auto;}
 .tab{padding:10px 16px;font-size:13px;color:#64748b;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500;}
 .tab.active{color:#00adef;border-bottom-color:#00adef;font-weight:700;}
@@ -164,10 +178,35 @@ tbody tr:hover td{background:#f8faff;}
 
 <!-- DASHBOARD -->
 <div id="sec-dash" class="hidden">
-  <div class="tabs">
+
+  <!-- MÓDULOS PRINCIPALES -->
+  <div class="modulos" id="modulos-row">
+    <div class="modulo active" id="mod-marcacion" onclick="swModulo('marcacion')">
+      <div class="mod-icon">📋</div>
+      <div class="mod-title">Control de Marcación</div>
+      <div class="mod-sub">Asistencia diaria e historial</div>
+    </div>
+    <div class="modulo" id="mod-vacaciones" onclick="swModulo('vacaciones')">
+      <div class="mod-icon">🏖</div>
+      <div class="mod-title">Gestión de Vacaciones</div>
+      <div class="mod-sub">Solicitudes, calendario y saldos</div>
+    </div>
+    <div class="modulo modulo-pronto" id="mod-objetivos">
+      <div class="mod-icon">🎯</div>
+      <div class="mod-title">Objetivos y Metas</div>
+      <div class="mod-sub">Próximamente</div>
+    </div>
+  </div>
+
+  <!-- SUB-TABS MARCACIÓN -->
+  <div class="subtabs" id="subtabs-marcacion">
     <div class="tab active" onclick="swTab('hoy')">📅 Hoy</div>
     <div class="tab" onclick="swTab('historial')">🕐 Historial</div>
-    <div class="tab" onclick="swTab('vacaciones')">🏖 Vacaciones</div>
+  </div>
+
+  <!-- SUB-TABS VACACIONES -->
+  <div class="subtabs hidden" id="subtabs-vacaciones">
+    <div class="tab active" onclick="swTab('vacaciones')">🏖 Vacaciones</div>
     <div class="tab" onclick="swTab('calendario')">📆 Calendario</div>
     <div class="tab" onclick="swTab('saldos')">💼 Saldos</div>
   </div>
@@ -452,13 +491,38 @@ function updDept(){
   WORKERS.forEach(function(w){if(gs.indexOf(w.gr)<0)gs.push(w.gr);});gs.sort();
   s.innerHTML='<option value="">Todos los grupos</option>'+gs.map(function(g){return'<option value="'+g+'">'+g+'</option>';}).join('');
 }
+var MOD_ACTUAL='marcacion';
+
+function swModulo(mod){
+  if(mod==='objetivos') return; // Próximamente
+  MOD_ACTUAL=mod;
+  document.querySelectorAll('.modulo').forEach(function(m){m.classList.remove('active');});
+  document.getElementById('mod-'+mod).classList.add('active');
+  // Mostrar subtabs correctos
+  document.getElementById('subtabs-marcacion').classList.toggle('hidden', mod!=='marcacion');
+  document.getElementById('subtabs-vacaciones').classList.toggle('hidden', mod!=='vacaciones');
+  // Activar primera pestaña del módulo
+  if(mod==='marcacion') swTab('hoy');
+  if(mod==='vacaciones') swTab('vacaciones');
+}
+
 function swTab(t){
-  document.querySelectorAll('.tab').forEach(function(x,i){x.classList.toggle('active',['hoy','historial','vacaciones','calendario','saldos'][i]===t);});
+  // Actualizar tabs activos en el subtabs correcto
+  var subtabsId=MOD_ACTUAL==='vacaciones'?'subtabs-vacaciones':'subtabs-marcacion';
+  document.querySelectorAll('#'+subtabsId+' .tab').forEach(function(x){x.classList.remove('active');});
+  var tabsVac=['vacaciones','calendario','saldos'];
+  var tabsMar=['hoy','historial'];
+  var listaActual=MOD_ACTUAL==='vacaciones'?tabsVac:tabsMar;
+  var idx=listaActual.indexOf(t);
+  if(idx>=0){
+    var btns=document.querySelectorAll('#'+subtabsId+' .tab');
+    if(btns[idx]) btns[idx].classList.add('active');
+  }
   document.querySelectorAll('.panel').forEach(function(x){x.classList.remove('active');});
   document.getElementById('tab-'+t).classList.add('active');
-  if(t==='vacaciones')cargarVacaciones();
-  if(t==='calendario')cargarCalendario();
-  if(t==='saldos')cargarSaldos();
+  if(t==='vacaciones') cargarVacaciones();
+  if(t==='calendario') cargarCalendario();
+  if(t==='saldos') cargarSaldos();
 }
 
 var allVacaciones = [];
