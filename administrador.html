@@ -801,7 +801,7 @@ function exportarVacaciones(){
 
 function toast(msg,tipo){var t=document.getElementById('toast');t.textContent=msg;t.className='toast show'+(tipo?' '+tipo:'');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show');},3500);}
 
-// ── CALENDARIO ───────────────────────────────────────────────────
+// -- CALENDARIO --
 var CAL_AÑO=new Date().getFullYear();
 var calVacaciones=[];
 
@@ -852,7 +852,7 @@ function renderCalendario(){
   container.innerHTML=html;
 }
 
-// ── SALDOS ───────────────────────────────────────────────────────
+// -- SALDOS --
 function fetchConRetry(url,intentos,delay){
   intentos=intentos||3;delay=delay||4000;
   return fetch(url).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
@@ -861,7 +861,7 @@ function fetchConRetry(url,intentos,delay){
     return new Promise(function(res){setTimeout(res,delay);}).then(function(){return fetchConRetry(url,intentos-1,delay);});
   });
 }
-// ── SALDOS ──────────────────────────────────────────────────────
+// -- SALDOS --
 var SALDOS_BASE={
   '72783491':{dic25:6.58,  hist:0},
   '41318261':{dic25:22.5,  hist:11},
@@ -916,7 +916,7 @@ function renderSaldos(saldos){
     var cBarra=pct<=25?'#ef4444':pct<=50?'#f59e0b':'#10b981';
     var bord=alerta?'border:2px solid #ef4444;':'';
     return '<div class="saldo-card" style="'+bord+'">'+
-      (alerta?'<div style="background:#fef2f2;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;color:#dc2626;margin-bottom:8px;">⚠ Proyección alta · más de 25 días pendientes</div>':'')+
+      (alerta?'<div style="background:#fef2f2;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;color:#dc2626;margin-bottom:8px;">!! Proyeccion alta · más de 25 días pendientes</div>':'')+
       '<div class="saldo-card-top">'+
       '<div><div class="saldo-nombre">'+s.nombre+'</div>'+
       '<div style="font-size:10px;color:#94a3b8;margin-top:2px;">'+s.cargo+'</div></div>'+
