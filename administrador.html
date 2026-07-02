@@ -303,10 +303,13 @@ tbody tr:hover td{background:#f8faff;}
   <!-- SALDOS DE DÍAS -->
   <div class="panel" id="tab-saldos">
     <div class="toolbar">
-      <div style="font-size:13px;font-weight:600;color:#475569;">Saldos de Vacaciones por Trabajador</div>
+      <div style="font-size:13px;font-weight:600;color:#475569;">Saldos de Vacaciones 2026</div>
       <button class="btn btn-sm" style="margin-left:auto;" onclick="cargarSaldos()">⟳ Actualizar</button>
     </div>
-    <div id="saldos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:4px;"></div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:14px;">
+      Acumulación: 2.5 días/mes · Saldo = Dic 2025 + (2.5 × meses transcurridos) − días tomados en 2026
+    </div>
+    <div id="saldos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:4px;"></div>
   </div>
 
 <!-- MODAL historial<!-- MODAL historial trabajador -->
@@ -847,40 +850,105 @@ function renderCalendario(){
 }
 
 // ── SALDOS ───────────────────────────────────────────────────────
-function cargarSaldos(){
-  fetch('/api/vacaciones/saldos').then(function(r){return r.json();}).then(function(d){
-    renderSaldos(d.saldos||[]);
+function fetchConRetry(url,intentos,delay){
+  intentos=intentos||3;delay=delay||4000;
+  return fetch(url).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+  .catch(function(e){
+    if(intentos<=1)throw e;
+    return new Promise(function(res){setTimeout(res,delay);}).then(function(){return fetchConRetry(url,intentos-1,delay);});
   });
+}
+// Saldos base a Diciembre 2025 por trabajador (del Excel de control)
+var SALDOS_DIC25={
+  '72783491':6.58,   // Yanett Vasquez
+  '41318261':22.5,   // Aldo Guardamino
+  '48221357':2.83,   // Wendy Neyra
+  '43903530':38.5,   // Noel Granados
+  '70023791':27.0,   // Natalia Melendez
+  '72345678':24.5,   // Gustavo Sarco
+};
+// Trabajadores que ingresaron en 2026 o sin saldo histórico → saldo Dic25 = 0
+var MESES_NOMBRE=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function cargarSaldos(){
+  fetchConRetry('/api/vacaciones/saldos',3,4000).then(function(d){
+    renderSaldos(d.saldos||[]);
+  }).catch(function(){toast('Error al cargar saldos');});
 }
 
 function renderSaldos(saldos){
   var grid=document.getElementById('saldos-grid');
+  var hoy=new Date();
+  var mesActual=hoy.getMonth(); // 0-11
+  // Meses transcurridos en 2026 hasta el mes anterior completo
+  var mesesTranscurridos=mesActual; // si estamos en julio (6), han pasado 6 meses completos (ene-jun)
+  var mesTope=MESES_NOMBRE[mesActual>0?mesActual-1:0];
+  var mesesRestantes=12-mesesTranscurridos; // meses que faltan hasta dic 2026
+
   grid.innerHTML=saldos.map(function(s){
-    var pct=s.diasTotal>0?Math.round((s.diasUsados/s.diasTotal)*100):0;
-    var colorDisp=s.diasDisponibles<=3?'#ef4444':s.diasDisponibles<=7?'#f59e0b':'#10b981';
-    var colorBarra=pct>=90?'#ef4444':pct>=60?'#f59e0b':'#10b981';
+    var saldoDic25=SALDOS_DIC25[s.wid]||0;
+    var acumMeses=mesesTranscurridos*2.5;
+    var diasTomados2026=s.diasUsados||0;
+    var saldoActual=saldoDic25+acumMeses-diasTomados2026;
+    var proyDic26=saldoActual+(mesesRestantes*2.5);
+
+    var colorSaldo=saldoActual<=3?'#ef4444':saldoActual<=7?'#f59e0b':'#10b981';
+    var colorProy=proyDic26<=5?'#ef4444':proyDic26<=15?'#f59e0b':'#10b981';
+    var pctBarra=Math.min(100,Math.max(0,(saldoActual/30)*100));
+    var colorBarra=pctBarra<=25?'#ef4444':pctBarra<=50?'#f59e0b':'#10b981';
+
     return '<div class="saldo-card">'+
       '<div class="saldo-card-top">'+
-      '<div><div class="saldo-nombre">'+s.nombre+'</div><div class="saldo-cargo">'+s.diasUsados+' días usados</div></div>'+
-      '<div class="saldo-nums"><div class="saldo-disp" style="color:'+colorDisp+'">'+s.diasDisponibles+'</div><div class="saldo-sub">disponibles de '+s.diasTotal+'</div></div>'+
+      '<div><div class="saldo-nombre">'+s.nombre+'</div>'+
+      '<div class="saldo-cargo" style="font-size:10px;color:#94a3b8;margin-top:2px;">'+s.cargo+'</div></div>'+
+      '<div class="saldo-nums">'+
+      '<div class="saldo-disp" style="color:'+colorSaldo+'">'+saldoActual.toFixed(1)+'</div>'+
+      '<div class="saldo-sub">días al '+mesTope+' 2026</div>'+
+      '</div></div>'+
+      // Barra
+      '<div class="saldo-barra"><div class="saldo-fill" style="width:'+pctBarra+'%;background:'+colorBarra+'"></div></div>'+
+      // Detalle
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin:10px 0;text-align:center;">'+
+      '<div style="background:#f8faff;border-radius:8px;padding:8px;">'+
+        '<div style="font-size:16px;font-weight:700;color:#1e293b;">'+saldoDic25.toFixed(1)+'</div>'+
+        '<div style="font-size:9px;color:#94a3b8;margin-top:2px;">Saldo Dic 2025</div>'+
       '</div>'+
-      '<div class="saldo-barra"><div class="saldo-fill" style="width:'+pct+'%;background:'+colorBarra+'"></div></div>'+
+      '<div style="background:#f8faff;border-radius:8px;padding:8px;">'+
+        '<div style="font-size:16px;font-weight:700;color:#dc2626;">'+diasTomados2026.toFixed(1)+'</div>'+
+        '<div style="font-size:9px;color:#94a3b8;margin-top:2px;">Tomados 2026</div>'+
+      '</div>'+
+      '<div style="background:#f0fdf4;border-radius:8px;padding:8px;border:1px solid #86efac;">'+
+        '<div style="font-size:16px;font-weight:700;color:'+colorProy+';">'+proyDic26.toFixed(1)+'</div>'+
+        '<div style="font-size:9px;color:#94a3b8;margin-top:2px;">Proyección Dic 2026</div>'+
+      '</div></div>'+
+      // Acumulado
+      '<div style="font-size:10px;color:#64748b;margin-bottom:8px;">'+
+        '+ '+acumMeses.toFixed(1)+' días acumulados ('+mesesTranscurridos+' meses × 2.5)'+
+      '</div>'+
+      // Editar saldo Dic 25
+      '<div style="border-top:1px solid #f1f5f9;padding-top:8px;margin-top:4px;">'+
+      '<div style="font-size:10px;color:#94a3b8;margin-bottom:4px;">Ajustar saldo Dic 2025:</div>'+
       '<div class="saldo-edit">'+
-      '<span style="font-size:11px;color:#64748b;white-space:nowrap;">Total días:</span>'+
-      '<input type="number" id="sal-'+s.wid+'" value="'+s.diasTotal+'" min="0" max="365">'+
-      '<button onclick="guardarSaldo(\''+s.wid+'\')">Guardar</button>'+
-      '</div></div>';
+      '<input type="number" id="sal-'+s.wid+'" value="'+saldoDic25+'" step="0.5" min="0">'+
+      '<button onclick="guardarSaldoDic25(\''+s.wid+'\')">Guardar</button>'+
+      '</div></div>'+
+      '</div>';
   }).join('');
 }
 
-function guardarSaldo(wid){
-  var val=document.getElementById('sal-'+wid).value;
+function guardarSaldoDic25(wid){
+  var val=parseFloat(document.getElementById('sal-'+wid).value)||0;
+  // Guardar en la variable local y en el servidor
+  SALDOS_DIC25[wid]=val;
   fetch('/api/vacaciones/saldo',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({wid,diasTotal:parseInt(val)})
+    body:JSON.stringify({wid:wid,diasTotal:val})
   }).then(function(r){return r.json();}).then(function(d){
-    if(d.ok){toast('Saldo actualizado','ok');cargarSaldos();}
-  });
+    if(d.ok){toast('Saldo Dic 2025 actualizado','ok');cargarSaldos();}
+  }).catch(function(){toast('Error al guardar');});
 }
+
+function guardarSaldo(wid){guardarSaldoDic25(wid);}
+
 </script>
 </body>
 </html>
