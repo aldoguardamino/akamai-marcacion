@@ -594,7 +594,7 @@ function abrirWorkerFecha(wid, filtroFecha){
   document.getElementById('mw-av').textContent = ini(w.nm);
   document.getElementById('mw-av').style.background = gc(w.ap);
   document.getElementById('mw-name').textContent = w.nm + ' ' + w.ap;
-  document.getElementById('mw-sub').textContent = w.gr + ' · ' + (w.ca||'') + ' · DNI: ' + w.id;
+  document.getElementById('mw-sub').textContent = w.gr + ' - ' + (w.ca||'') + ' - DNI: ' + w.id;
 
   var wr = allRegs.filter(function(r){return r.wid===wid;});
   var fechas = [];
@@ -638,7 +638,7 @@ function abrirEditar(wid, fecha){
   var e  = wr.find(function(r){return r.f===fecha&&r.t==='entrada';});
   var s  = wr.find(function(r){return r.f===fecha&&r.t==='salida';});
   var w  = WORKERS.find(function(x){return x.id===wid;});
-  document.getElementById('edit-title').textContent = 'Editar marcación -- ' + (w?w.nm:'') + ' · ' + fGeo(fecha);
+  document.getElementById('edit-title').textContent = 'Editar marcación -- ' + (w?w.nm:'') + ' - ' + fGeo(fecha);
   document.getElementById('edit-fecha').value   = fecha;
   document.getElementById('edit-entrada').value = e ? e.h : '';
   document.getElementById('edit-salida').value  = s ? s.h : '';
@@ -916,7 +916,7 @@ function renderSaldos(saldos){
     var cBarra=pct<=25?'#ef4444':pct<=50?'#f59e0b':'#10b981';
     var bord=alerta?'border:2px solid #ef4444;':'';
     return '<div class="saldo-card" style="'+bord+'">'+
-      (alerta?'<div style="background:#fef2f2;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;color:#dc2626;margin-bottom:8px;">!! Proyeccion alta · más de 25 días pendientes</div>':'')+
+      (alerta?'<div style="background:#fef2f2;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:700;color:#dc2626;margin-bottom:8px;">!! Proyeccion alta - mas de 25 días pendientes</div>':'')+
       '<div class="saldo-card-top">'+
       '<div><div class="saldo-nombre">'+s.nombre+'</div>'+
       '<div style="font-size:10px;color:#94a3b8;margin-top:2px;">'+s.cargo+'</div></div>'+
@@ -935,7 +935,7 @@ function renderSaldos(saldos){
         '<div style="font-size:16px;font-weight:700;color:'+cProy+';">'+it.proy.toFixed(1)+'</div>'+
         '<div style="font-size:9px;color:#94a3b8;margin-top:2px;">Proy. Dic '+añoRef+'</div></div></div>'+
       '<div style="font-size:10px;color:#64748b;margin-bottom:8px;">'+
-        '+'+it.acum.toFixed(1)+' acumulados ('+mesesTrans+' x 2.5)'+(mesesRest>0?' · +'+(mesesRest*2.5).toFixed(1)+' proyectados':'')+
+        '+'+it.acum.toFixed(1)+' acumulados ('+mesesTrans+' x 2.5)'+(mesesRest>0?' + '+(mesesRest*2.5).toFixed(1)+' proyectados':'')+
       '</div>'+
       '<div style="border-top:1px solid #f1f5f9;padding-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+
       '<span style="font-size:10px;color:#94a3b8;white-space:nowrap;">Dic '+añoAnt+':</span>'+
