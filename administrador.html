@@ -871,11 +871,11 @@ var SALDOS_BASE={
   '72345678':{dic25:24.5,  hist:7},
 };
 var MESES_NOMBRE=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-var SAL_AÑO=2026;
+var SAL_ANIO=2026;
 
 function salCambiarAño(d){
-  SAL_AÑO+=d;
-  document.getElementById('sal-año-disp').textContent=SAL_AÑO;
+  SAL_ANIO+=d;
+  document.getElementById('sal-año-disp').textContent=SAL_ANIO;
   cargarSaldos();
 }
 
@@ -888,7 +888,7 @@ function cargarSaldos(){
 function renderSaldos(saldos){
   var grid=document.getElementById('saldos-grid');
   var hoy=new Date();
-  var añoRef=SAL_AÑO;
+  var añoRef=SAL_ANIO;
   var mesActual=hoy.getMonth();
   var mesesTrans=añoRef<hoy.getFullYear()?12:(añoRef>hoy.getFullYear()?0:mesActual);
   var mesTope=mesesTrans>0?MESES_NOMBRE[mesesTrans-1]+' '+añoRef:'Inicio '+añoRef;
@@ -935,7 +935,7 @@ function renderSaldos(saldos){
         '<div style="font-size:16px;font-weight:700;color:'+cProy+';">'+it.proy.toFixed(1)+'</div>'+
         '<div style="font-size:9px;color:#94a3b8;margin-top:2px;">Proy. Dic '+añoRef+'</div></div></div>'+
       '<div style="font-size:10px;color:#64748b;margin-bottom:8px;">'+
-        '+'+it.acum.toFixed(1)+' acumulados ('+mesesTrans+' × 2.5)'+(mesesRest>0?' · +'+( mesesRest*2.5).toFixed(1)+' proyectados':'')+
+        '+'+it.acum.toFixed(1)+' acumulados ('+mesesTrans+' x 2.5)'+(mesesRest>0?' · +'+(mesesRest*2.5).toFixed(1)+' proyectados':'')+
       '</div>'+
       '<div style="border-top:1px solid #f1f5f9;padding-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">'+
       '<span style="font-size:10px;color:#94a3b8;white-space:nowrap;">Dic '+añoAnt+':</span>'+
