@@ -128,8 +128,9 @@ tbody tr:hover td{background:#f8faff;}
 .cal-dia .dia-num{font-size:10px;font-weight:600;color:#374151;margin-bottom:2px;}
 .cal-dia.otro-mes .dia-num{color:#cbd5e1;}
 .cal-evento{font-size:8px;padding:1px 3px;border-radius:2px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:default;}
-.cal-evento.aprobado{background:#dcfce7;color:#166534;border-left:2px solid #22c55e;}
-.cal-evento.pendiente{background:#fef9c3;color:#854d0e;border-left:2px solid #eab308;}
+.cal-evento.aprobado{background:#86efac;color:#166534;border-left:2px solid #22c55e;}
+.cal-evento.pendiente{background:#fde68a;color:#854d0e;border-left:2px solid #eab308;}
+.cal-evento.historico{background:#d1d5db;color:#374151;border-left:2px solid #9ca3af;}
 /* Saldos */
 .saldo-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:16px;}
 .saldo-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
@@ -294,8 +295,9 @@ tbody tr:hover td{background:#f8faff;}
       </div>
     </div>
     <div style="margin-bottom:14px;display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:12px;">
-      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#dcfce7;border:1px solid #86efac;"></span>Aprobado</span>
-      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fef9c3;border:1px solid #fde047;"></span>Pendiente</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#d1d5db;border:1px solid #9ca3af;"></span>Real tomado</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#86efac;border:1px solid #22c55e;"></span>Aprobado</span>
+      <span style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fde68a;border:1px solid #eab308;"></span>Pendiente aprobacion</span>
     </div>
     <div id="cal-container" style="overflow-x:auto;"></div>
   </div>
@@ -818,13 +820,18 @@ function calCambiarAño(d){CAL_AÑO+=d;document.getElementById('cal-año').textC
 
 function cargarCalendario(){
   fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(d){
-    calVacaciones=(d.vacaciones||[]).filter(function(v){return v.estado==='aprobado'||v.estado==='pendiente';});
+    calVacaciones=(d.vacaciones||[]).filter(function(v){
+      return v.estado==='aprobado'||v.estado==='pendiente'||v.estado==='aprobado_jefe';
+    });
     renderCalendario();
   });
 }
 
 function renderCalendario(){
   var container=document.getElementById('cal-container');
+  var hoy=new Date();
+  var mesHoy=hoy.getMonth(); // 0-based
+  var anioHoy=hoy.getFullYear();
   var html='<div class="cal-year">';
   var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var dias=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
@@ -835,23 +842,31 @@ function renderCalendario(){
     var primerDia=new Date(CAL_AÑO,m,1).getDay();
     var diasEnMes=new Date(CAL_AÑO,m+1,0).getDate();
     var diasAnterior=new Date(CAL_AÑO,m,0).getDate();
-    // Días del mes anterior
+    var mesPasado=(CAL_AÑO<anioHoy)||(CAL_AÑO===anioHoy&&m<mesHoy);
     for(var i=primerDia-1;i>=0;i--){
       html+='<div class="cal-dia otro-mes"><div class="dia-num">'+(diasAnterior-i)+'</div></div>';
     }
-    // Días del mes
     for(var d=1;d<=diasEnMes;d++){
       var fecha=CAL_AÑO+'-'+(m<9?'0':'')+(m+1)+'-'+(d<10?'0':'')+d;
       var eventos=calVacaciones.filter(function(v){return fecha>=v.desde&&fecha<=v.hasta;});
       html+='<div class="cal-dia"><div class="dia-num">'+d+'</div>';
       eventos.forEach(function(v){
-        var cls=v.estado==='aprobado'?'aprobado':'pendiente';
+        var cls;
+        if(mesPasado){
+          // Mes ya terminó → gris (real tomado)
+          cls='historico';
+        } else if(v.estado==='aprobado'){
+          // Aprobado por GG → verde
+          cls='aprobado';
+        } else {
+          // Pendiente o aprobado_jefe → amarillo
+          cls='pendiente';
+        }
         var nombre=(v.nombres||'').split(' ')[0];
-        html+='<div class="cal-evento '+cls+'" title="'+v.nombres+' '+v.apellidos+'">'+nombre+'</div>';
+        html+='<div class="cal-evento '+cls+'" title="'+v.nombres+' '+v.apellidos+' ('+v.estado+')">'+nombre+'</div>';
       });
       html+='</div>';
     }
-    // Completar con días del mes siguiente
     var totalCeldas=primerDia+diasEnMes;
     var restantes=totalCeldas%7===0?0:7-(totalCeldas%7);
     for(var r=1;r<=restantes;r++){html+='<div class="cal-dia otro-mes"><div class="dia-num">'+r+'</div></div>';}
@@ -928,13 +943,13 @@ function renderSaldosTabla(vacs,saldos){
     var base=SALDOS_BASE[s.wid]||{dic25:0,hist:[0,0,0,0,0,0,0,0,0,0,0,0]};
     var hist=base.hist||[0,0,0,0,0,0,0,0,0,0,0,0];
 
-    // Vacaciones aprobadas en sistema por mes
+    // Vacaciones del sistema por mes (parseo local para evitar UTC offset)
     var aprobSist=[0,0,0,0,0,0,0,0,0,0,0,0];
     var pendSist=[0,0,0,0,0,0,0,0,0,0,0,0];
+    function parseFechaLocal(s){var p=s.slice(0,10).split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
     vacs.filter(function(v){return v.wid===s.wid;}).forEach(function(v){
-      var desde=new Date(v.desde);
-      var hasta=new Date(v.hasta);
-      // Distribuir dias por mes
+      var desde=parseFechaLocal(v.desde);
+      var hasta=parseFechaLocal(v.hasta);
       for(var d=new Date(desde);d<=hasta;d.setDate(d.getDate()+1)){
         if(d.getFullYear()===anio){
           var m=d.getMonth();
@@ -964,14 +979,20 @@ function renderSaldosTabla(vacs,saldos){
       var pendVal=pendSist[i]||0;
       var total=histVal+aprobVal;
       var bg='';var txt='';var style='';
+      // Mes "pasado" = el mes ya terminó (i < mesActual para el año actual)
+      var mesPasado=(anio<hoy.getFullYear())||(anio===hoy.getFullYear()&&i<mesActual);
 
-      if(i<=MES_REAL_HASTA){
-        // Meses pasados - real
+      if(mesPasado){
+        // Mes ya pasó: hist o aprobado → gris (real)
         if(histVal>0||aprobVal>0){
-          bg='#d1d5db';txt=(total>0?total.toFixed(0):'');style='background:#d1d5db;font-weight:600;';
+          var total2=histVal+aprobVal;
+          style='background:#d1d5db;font-weight:600;';txt=total2.toFixed(0);
+        } else if(pendVal>0){
+          // Pendiente en mes pasado → amarillo igual (no debería pasar pero por si acaso)
+          style='background:#fde68a;font-weight:600;color:#92400e;';txt=pendVal.toFixed(0);
         }
       } else {
-        // Meses futuros
+        // Mes actual o futuro
         if(aprobVal>0){
           bg='#86efac';txt=aprobVal.toFixed(0);style='background:#86efac;font-weight:600;color:#166534;';
         } else if(pendVal>0){
