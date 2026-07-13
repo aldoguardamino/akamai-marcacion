@@ -97,6 +97,16 @@ tbody tr:last-child td{border-bottom:none;}
 .cal-evento{font-size:8px;padding:2px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
 .cal-evento.aprobado{background:#dcfce7;color:#166534;border-left:2px solid #22c55e;}
 .cal-evento.pendiente{background:#fef9c3;color:#854d0e;border-left:2px solid #eab308;}
+.mini-cal{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:8px;}
+.mini-cal-hdr{background:#1a1a2e;color:#fff;padding:5px 8px;font-weight:700;text-align:center;font-size:11px;}
+.mini-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#e2e8f0;}
+.mini-cal-dh{background:#f1f5f9;padding:3px 2px;text-align:center;font-weight:700;color:#64748b;font-size:9px;}
+.mini-cal-d{background:#fff;padding:3px 2px;text-align:center;min-height:22px;font-size:10px;}
+.mini-cal-d.feriado{color:#dc2626;font-weight:700;}
+.mini-cal-d.en-rango{background:#dbeafe;}
+.mini-cal-d.inicio,.mini-cal-d.fin{background:#1e40af;color:#fff;border-radius:2px;}
+.mini-cal-d.feriado.en-rango{background:#fee2e2;color:#dc2626;font-weight:700;}
+.mini-cal-d.otro{color:#cbd5e1;}
 </style>
 </head>
 <body>
@@ -197,9 +207,11 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="card">
           <h2 style="margin-bottom:14px;">Solicitar vacaciones</h2>
           <div class="info-jefe" id="info-jefe"></div>
-          <div class="field"><label>Fecha de inicio</label><input type="date" id="vac-desde" onchange="calcDias()"></div>
-          <div class="field"><label>Fecha de fin</label><input type="date" id="vac-hasta" onchange="calcDias()"></div>
+          <div class="field"><label>Fecha de inicio</label><input type="date" id="vac-desde" onchange="calcDias();renderMiniCal()"></div>
+          <div class="field"><label>Fecha de fin</label><input type="date" id="vac-hasta" onchange="calcDias();renderMiniCal()"></div>
           <div id="aviso-feriado" style="display:none;background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:6px;"></div>
+          <div id="mini-cal-container"></div>
+          <p style="font-size:10px;color:#94a3b8;margin-bottom:6px;">&#128680; <b>Importante:</b> Para el registro de la fecha de fin se deben incluir los dias festivos y fines de semana. Los dias en <span style="color:#dc2626;font-weight:700;">rojo</span> son feriados nacionales.</p>
           <div class="field"><label>N&deg; de dias</label><input type="text" id="vac-dias" readonly style="background:#f8f9fa;color:#64748b;"></div>
           <div class="field"><label>Fecha de retorno</label><input type="date" id="vac-retorno" onchange="recalcDias()"></div>
           <button class="btn btn-p" id="btn-solicitar" onclick="solicitarVacaciones()">Enviar solicitud</button>
@@ -520,14 +532,29 @@ function mostrarAvisoSaldo(dias){
   }
 }
 
-// Feriados nacionales Peru 2026
-var FERIADOS_PE=[
-  '2026-01-01','2026-04-02','2026-04-03','2026-05-01',
-  '2026-06-07','2026-06-29','2026-07-27','2026-07-28','2026-07-29',
-  '2026-08-30','2026-10-08','2026-11-01','2026-12-08','2026-12-25'
-];
+// Feriados nacionales Peru 2026 - Fuente: gob.pe/feriados
+var FERIADOS_PE={
+  '2026-01-01':'Año Nuevo',
+  '2026-04-02':'Jueves Santo',
+  '2026-04-03':'Viernes Santo',
+  '2026-05-01':'Dia del Trabajo',
+  '2026-06-07':'Batalla de Arica y Dia de la Bandera',
+  '2026-06-29':'San Pedro y San Pablo',
+  '2026-07-23':'Dia de la Fuerza Aerea del Peru',
+  '2026-07-27':'Fiestas Patrias',
+  '2026-07-28':'Fiestas Patrias',
+  '2026-07-29':'Fiestas Patrias',
+  '2026-08-06':'Batalla de Junin',
+  '2026-08-30':'Santa Rosa de Lima',
+  '2026-10-08':'Combate de Angamos',
+  '2026-11-01':'Dia de Todos los Santos',
+  '2026-12-08':'Inmaculada Concepcion',
+  '2026-12-09':'Batalla de Ayacucho',
+  '2026-12-25':'Navidad'
+};
 
-function esFeriado(fecha){return FERIADOS_PE.indexOf(fecha)>=0;}
+function esFeriado(fecha){return FERIADOS_PE.hasOwnProperty(fecha);}
+function nombreFeriado(fecha){return FERIADOS_PE[fecha]||"";}
 function fmtFecha(f){var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 
 function calcDias(){
@@ -554,13 +581,14 @@ function calcDias(){
   var feriadosEnRango=[];
   for(var d=new Date(d1);d<=d2;d.setDate(d.getDate()+1)){
     var fStr=d.toISOString().slice(0,10);
-    if(esFeriado(fStr)) feriadosEnRango.push(fmtFecha(fStr));
+    if(esFeriado(fStr)) feriadosEnRango.push(fmtFecha(fStr)+' ('+nombreFeriado(fStr)+')');
   }
   var avisoFeriado=document.getElementById('aviso-feriado');
   if(avisoFeriado){
     if(feriadosEnRango.length>0){
       avisoFeriado.style.display='block';
-      avisoFeriado.textContent='Los dias de vacaciones consideran dias calendarios e incluyen feriados nacionales: '+feriadosEnRango.join(', ');
+      avisoFeriado.innerHTML='<b>Feriados incluidos en tu rango:</b> '+feriadosEnRango.join(', ')+
+        '<br><span style="font-size:10px;margin-top:4px;display:block;">Los dias de vacaciones consideran dias calendarios e incluyen feriados nacionales.</span>';
     } else {
       avisoFeriado.style.display='none';
     }
@@ -921,20 +949,49 @@ function _generarExcel(hojas,nombreArchivo){
   XLSX.writeFile(wb,nombreArchivo);
 }
 
+// Saldos base a Dic 2025 (mismo que admin)
+var SALDOS_BASE_W={
+  '72783491':{dic25:6.58,   hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
+  '41318261':{dic25:22.5,   hist:[4,0,0,0,7,0,0,0,0,0,0,0]},
+  '48221357':{dic25:2.83,   hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
+  '43903530':{dic25:38.5,   hist:[0,0,2,8,0,0,0,0,0,0,0,0]},
+  '73173155':{dic25:27.0,   hist:[0,2,11,1,5,5,0,0,0,0,0,0]},
+  '41084859':{dic25:24.5,   hist:[0,0,7,0,0,0,0,0,0,0,0,0]},
+  '70447785':{dic25:29.0,   hist:[0,0,0,7,5,7,0,0,0,0,0,0]},
+  '72726407':{dic25:24.25,  hist:[3,0,0,7,7,7,0,0,0,0,0,0]},
+  '46261114':{dic25:15.0,   hist:[0,0,0,0,0,7,0,0,0,0,0,0]},
+  '76577354':{dic25:0,      hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
+  '71526127':{dic25:0,      hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
+  '74071705':{dic25:0,      hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
+};
+
 function cargarSaldo(){
-  fetch('/api/vacaciones/saldo/'+CW.id).then(function(r){return r.json();}).then(function(d){
-    if(!d.ok)return;
-    SALDO_DISPONIBLE=d.diasDisponibles; // guardar para validación al solicitar
-    document.getElementById('saldo-disponible').textContent=d.diasDisponibles;
-    document.getElementById('saldo-usados').textContent=d.diasUsados;
-    document.getElementById('saldo-total').textContent=d.diasTotal;
-    document.getElementById('saldo-detalle').textContent='días disponibles de '+d.diasTotal+' asignados';
-    var pct=d.diasTotal>0?Math.round((d.diasUsados/d.diasTotal)*100):0;
+  fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(d){
+    var vacs=(d.vacaciones||[]).filter(function(v){return v.wid===CW.id;});
+    var hoy=new Date();
+    var mesActual=hoy.getMonth();
+    var anio=hoy.getFullYear();
+    var mesesTranscurridos=mesActual;
+    var base=SALDOS_BASE_W[CW.id]||{dic25:0,hist:[0,0,0,0,0,0,0,0,0,0,0,0]};
+    var hist=base.hist||[];
+    var tomHist=hist.reduce(function(a,b){return a+b;},0);
+    var tomSist=vacs.filter(function(v){return v.estado==='aprobado';})
+                    .reduce(function(s,v){return s+(parseInt(v.dias)||0);},0);
+    var acum=mesesTranscurridos*2.5;
+    var saldoDisp=base.dic25+acum-tomHist-tomSist;
+    var tomTotal=tomHist+tomSist;
+    SALDO_DISPONIBLE=saldoDisp;
+
+    document.getElementById('saldo-disponible').textContent=saldoDisp.toFixed(1);
+    document.getElementById('saldo-usados').textContent=tomTotal.toFixed(1);
+    document.getElementById('saldo-total').textContent=(base.dic25+acum).toFixed(1);
+    document.getElementById('saldo-detalle').textContent='dias disponibles ('+tomHist.toFixed(0)+' hist + '+tomSist+' sistema usados)';
+    var total=base.dic25+acum;
+    var pct=total>0?Math.round((tomTotal/total)*100):0;
     var barra=document.getElementById('saldo-barra');
-    barra.style.width=pct+'%';
+    barra.style.width=Math.min(pct,100)+'%';
     barra.style.background=pct>=90?'#ef4444':pct>=60?'#f59e0b':'#00adef';
-    // Color del número según disponibles
-    var color=d.diasDisponibles<=3?'#ef4444':d.diasDisponibles<=7?'#f59e0b':'#1e293b';
+    var color=saldoDisp<=3?'#ef4444':saldoDisp<=7?'#f59e0b':'#1e293b';
     document.getElementById('saldo-disponible').style.color=color;
   }).catch(function(){});
 }
@@ -997,6 +1054,52 @@ function renderCalendario(){
     for(var r=1;r<=restantes;r++){html+='<div class="cal-dia otro-mes"><div class="dia-num">'+r+'</div></div>';}
     html+='</div></div>';
   }
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+function renderMiniCal(){
+  var desde=document.getElementById('vac-desde').value;
+  var hasta=document.getElementById('vac-hasta').value;
+  var container=document.getElementById('mini-cal-container');
+  if(!container||!desde)return;
+  var d1=new Date(desde+'T00:00:00');
+  var d2=hasta?new Date(hasta+'T00:00:00'):null;
+  // Mostrar el mes de inicio (y el siguiente si el rango cruza meses)
+  var meses=[];
+  meses.push({anio:d1.getFullYear(),mes:d1.getMonth()});
+  if(d2&&(d2.getMonth()!==d1.getMonth()||d2.getFullYear()!==d1.getFullYear())){
+    meses.push({anio:d2.getFullYear(),mes:d2.getMonth()});
+  }
+  var MESES_NOM=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  var DIAS_NOM=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+  var html='<div style="display:grid;grid-template-columns:repeat('+meses.length+',1fr);gap:8px;margin-bottom:4px;">';
+  meses.forEach(function(m){
+    html+='<div class="mini-cal">';
+    html+='<div class="mini-cal-hdr">'+MESES_NOM[m.mes]+' '+m.anio+'</div>';
+    html+='<div class="mini-cal-grid">';
+    DIAS_NOM.forEach(function(d){html+='<div class="mini-cal-dh">'+d+'</div>';});
+    var primerDia=new Date(m.anio,m.mes,1).getDay();
+    var diasEnMes=new Date(m.anio,m.mes+1,0).getDate();
+    var diasAnt=new Date(m.anio,m.mes,0).getDate();
+    for(var i=primerDia-1;i>=0;i--){
+      html+='<div class="mini-cal-d otro">'+(diasAnt-i)+'</div>';
+    }
+    for(var day=1;day<=diasEnMes;day++){
+      var fStr=m.anio+'-'+(m.mes<9?'0':'')+(m.mes+1)+'-'+(day<10?'0':'')+day;
+      var clases='mini-cal-d';
+      if(esFeriado(fStr)) clases+=' feriado';
+      if(fStr===desde) clases+=' inicio';
+      else if(hasta&&fStr===hasta) clases+=' fin';
+      else if(d2&&fStr>desde&&fStr<hasta) clases+=' en-rango';
+      var titulo=esFeriado(fStr)?nombreFeriado(fStr):'';
+      html+='<div class="'+clases+'"'+(titulo?' title="'+titulo+'"':'')+'>'+day+'</div>';
+    }
+    var total=primerDia+diasEnMes;
+    var rest=total%7===0?0:7-(total%7);
+    for(var r=1;r<=rest;r++) html+='<div class="mini-cal-d otro">'+r+'</div>';
+    html+='</div></div>';
+  });
   html+='</div>';
   container.innerHTML=html;
 }
