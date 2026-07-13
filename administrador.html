@@ -302,18 +302,29 @@ tbody tr:hover td{background:#f8faff;}
 
   <!-- SALDOS DE DÍAS -->
   <div class="panel" id="tab-saldos">
-    <div class="toolbar">
-      <div style="font-size:13px;font-weight:600;color:#475569;">Saldos de Vacaciones</div>
-      <div style="display:flex;align-items:center;gap:8px;margin-left:auto;">
-        <button class="btn btn-sm" onclick="salCambiarAño(-1)">◀</button>
-        <span id="sal-año-disp" style="font-size:14px;font-weight:700;color:#1e293b;min-width:40px;text-align:center;">2026</span>
-        <button class="btn btn-sm" onclick="salCambiarAño(1)">▶</button>
-        <button class="btn btn-sm" onclick="cargarSaldos()">⟳</button>
+    <div class="toolbar" style="flex-wrap:wrap;gap:8px;">
+      <div style="font-size:13px;font-weight:600;color:#475569;">Control de Vacaciones <span id="sal-año-disp">2026</span></div>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;">
+        <button class="btn btn-sm" onclick="salCambiarAño(-1)">&#9664; Ant.</button>
+        <button class="btn btn-sm" onclick="salCambiarAño(1)">Sig. &#9654;</button>
+        <button class="btn btn-sm" onclick="cargarSaldos()">Actualizar</button>
+        <button class="btn btn-sm" onclick="exportarSaldos()">Excel</button>
       </div>
     </div>
-    <div id="sal-info-periodo" style="font-size:11px;color:#64748b;margin-bottom:14px;">Acumulación: 2.5 días/mes</div>
-    <div id="saldos-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:4px;"></div>
+    <div style="display:flex;gap:14px;margin-bottom:10px;font-size:11px;align-items:center;flex-wrap:wrap;">
+      <span><span style="display:inline-block;width:12px;height:12px;background:#d1d5db;border-radius:2px;margin-right:3px;"></span>Real tomado</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:#fde68a;border-radius:2px;margin-right:3px;"></span>Solicitado</span>
+      <span><span style="display:inline-block;width:12px;height:12px;background:#86efac;border-radius:2px;margin-right:3px;"></span>Aprobado</span>
+      <span style="color:#dc2626;font-weight:600;">!! &gt;25 dias = alerta</span>
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="saldos-tabla" style="width:100%;border-collapse:collapse;font-size:11px;min-width:900px;">
+        <thead id="saldos-thead"></thead>
+        <tbody id="saldos-tbody"></tbody>
+      </table>
+    </div>
   </div>
+
 
 <!-- MODAL historial<!-- MODAL historial trabajador -->
 <div class="overlay" id="ov-worker">
