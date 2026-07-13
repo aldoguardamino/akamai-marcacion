@@ -199,6 +199,7 @@ tbody tr:last-child td{border-bottom:none;}
           <div class="info-jefe" id="info-jefe"></div>
           <div class="field"><label>Fecha de inicio</label><input type="date" id="vac-desde" onchange="calcDias()"></div>
           <div class="field"><label>Fecha de fin</label><input type="date" id="vac-hasta" onchange="calcDias()"></div>
+          <div id="aviso-feriado" style="display:none;background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:6px;"></div>
           <div class="field"><label>N&deg; de dias</label><input type="text" id="vac-dias" readonly style="background:#f8f9fa;color:#64748b;"></div>
           <div class="field"><label>Fecha de retorno</label><input type="date" id="vac-retorno" onchange="recalcDias()"></div>
           <button class="btn btn-p" id="btn-solicitar" onclick="solicitarVacaciones()">Enviar solicitud</button>
@@ -519,6 +520,16 @@ function mostrarAvisoSaldo(dias){
   }
 }
 
+// Feriados nacionales Peru 2026
+var FERIADOS_PE=[
+  '2026-01-01','2026-04-02','2026-04-03','2026-05-01',
+  '2026-06-07','2026-06-29','2026-07-27','2026-07-28','2026-07-29',
+  '2026-08-30','2026-10-08','2026-11-01','2026-12-08','2026-12-25'
+];
+
+function esFeriado(fecha){return FERIADOS_PE.indexOf(fecha)>=0;}
+function fmtFecha(f){var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+
 function calcDias(){
   var desde=document.getElementById('vac-desde').value;
   var hasta=document.getElementById('vac-hasta').value;
@@ -526,27 +537,65 @@ function calcDias(){
   var d1=new Date(desde+'T00:00:00');
   var d2=new Date(hasta+'T00:00:00');
   if(d2<d1){document.getElementById('vac-dias').value='--';return;}
-  // Fecha de retorno: siguiente dia habil despues de hasta
+
+  // Calcular retorno: siguiente día hábil después de hasta (saltando fines de semana y feriados)
   var ret=new Date(d2);
   ret.setDate(ret.getDate()+1);
-  while(ret.getDay()===0||ret.getDay()===6){
+  while(ret.getDay()===0||ret.getDay()===6||esFeriado(ret.toISOString().slice(0,10))){
     ret.setDate(ret.getDate()+1);
   }
   document.getElementById('vac-retorno').value=ret.toISOString().slice(0,10);
-  // Dias = retorno - inicio (dias calendario)
+
+  // Dias = retorno - inicio (días calendario)
   var dias=Math.round((ret-d1)/(1000*60*60*24));
   document.getElementById('vac-dias').value=dias>0?dias+' dias':'--';
+
+  // Detectar feriados en el rango
+  var feriadosEnRango=[];
+  for(var d=new Date(d1);d<=d2;d.setDate(d.getDate()+1)){
+    var fStr=d.toISOString().slice(0,10);
+    if(esFeriado(fStr)) feriadosEnRango.push(fmtFecha(fStr));
+  }
+  var avisoFeriado=document.getElementById('aviso-feriado');
+  if(avisoFeriado){
+    if(feriadosEnRango.length>0){
+      avisoFeriado.style.display='block';
+      avisoFeriado.textContent='Los dias de vacaciones consideran dias calendarios e incluyen feriados nacionales: '+feriadosEnRango.join(', ');
+    } else {
+      avisoFeriado.style.display='none';
+    }
+  }
+
   if(dias>0)mostrarAvisoSaldo(dias);
 }
 
 function recalcDias(){
   var desde=document.getElementById('vac-desde').value;
+  var hasta=document.getElementById('vac-hasta').value;
   var retorno=document.getElementById('vac-retorno').value;
   if(!desde||!retorno)return;
   var d1=new Date(desde+'T00:00:00');
   var ret=new Date(retorno+'T00:00:00');
   var dias=Math.round((ret-d1)/(1000*60*60*24));
   document.getElementById('vac-dias').value=dias>0?dias+' dias':'--';
+  // Detectar feriados en rango desde-hasta
+  if(hasta){
+    var d2=new Date(hasta+'T00:00:00');
+    var feriadosEnRango=[];
+    for(var d=new Date(d1);d<=d2;d.setDate(d.getDate()+1)){
+      var fStr=d.toISOString().slice(0,10);
+      if(esFeriado(fStr)) feriadosEnRango.push(fmtFecha(fStr));
+    }
+    var avisoFeriado=document.getElementById('aviso-feriado');
+    if(avisoFeriado){
+      if(feriadosEnRango.length>0){
+        avisoFeriado.style.display='block';
+        avisoFeriado.textContent='Los dias de vacaciones consideran dias calendarios e incluyen feriados nacionales: '+feriadosEnRango.join(', ');
+      } else {
+        avisoFeriado.style.display='none';
+      }
+    }
+  }
   if(dias>0)mostrarAvisoSaldo(dias);
 }
 
