@@ -304,9 +304,7 @@ tbody tr:hover td{background:#f8faff;}
   <div class="panel" id="tab-saldos">
     <div class="toolbar" style="flex-wrap:wrap;gap:8px;">
       <div style="font-size:13px;font-weight:600;color:#475569;">Control de Vacaciones <span id="sal-año-disp">2026</span></div>
-      <div style="display:flex;align-items:center;gap:6px;margin-left:auto;flex-wrap:wrap;">
-        <button class="btn btn-sm" onclick="salCambiarAño(-1)">&#9664; Ant.</button>
-        <button class="btn btn-sm" onclick="salCambiarAño(1)">Sig. &#9654;</button>
+      <div style="display:flex;align-items:center;gap:6px;margin-left:auto;">
         <button class="btn btn-sm" onclick="cargarSaldos()">Actualizar</button>
         <button class="btn btn-sm" onclick="exportarSaldos()">Excel</button>
       </div>
@@ -874,17 +872,18 @@ function fetchConRetry(url,intentos,delay){
 }
 // -- SALDOS --
 var SALDOS_BASE={
-  '72783491':{dic25:6.58,   hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  '41318261':{dic25:22.5,   hist:[4,0,0,0,7,0,0,0,0,0,0,0]},
-  '48221357':{dic25:2.83,   hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  '43903530':{dic25:38.5,   hist:[0,0,2,8,0,0,0,0,0,0,0,0]},
-  '70023791':{dic25:27.0,   hist:[0,2,11,1,5,5,0,0,0,0,0,0]},
-  '72345678':{dic25:24.5,   hist:[0,0,7,0,0,0,0,0,0,0,0,0]},
-  'edu_cordova':{dic25:29.0,hist:[0,0,0,7,5,7,0,0,0,0,0,0]},
-  'mariana':{dic25:24.25,   hist:[3,0,0,7,7,7,0,0,0,0,0,0]},
-  'dalma':{dic25:15.0,      hist:[0,0,0,0,0,7,0,0,0,0,0,0]},
-  'rosa_linda':{dic25:0,    hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
-  'andrea':{dic25:0,        hist:[0,0,0,0,0,0,0,0,0,0,0,0]},
+  '72783491':{dic25:6.58,   hist:[0,0,0,0,0,0,0,0,0,0,0,0]},  // Yanett Vasquez
+  '41318261':{dic25:22.5,   hist:[4,0,0,0,7,0,0,0,0,0,0,0]},  // Aldo Guardamino
+  '48221357':{dic25:2.83,   hist:[0,0,0,0,0,0,0,0,0,0,0,0]},  // Wendy Neyra
+  '43903530':{dic25:38.5,   hist:[0,0,2,8,0,0,0,0,0,0,0,0]},  // Noel Granados
+  '73173155':{dic25:27.0,   hist:[0,2,11,1,5,5,0,0,0,0,0,0]}, // Natalia Melendez
+  '41084859':{dic25:24.5,   hist:[0,0,7,0,0,0,0,0,0,0,0,0]},  // Gustavo Sarco
+  '70447785':{dic25:29.0,   hist:[0,0,0,7,5,7,0,0,0,0,0,0]},  // Rai Cordova
+  '72726407':{dic25:24.25,  hist:[3,0,0,7,7,7,0,0,0,0,0,0]},  // Mariana Saavedra
+  '46261114':{dic25:15.0,   hist:[0,0,0,0,0,7,0,0,0,0,0,0]},  // Dalma Espinoza
+  '76577354':{dic25:0,      hist:[0,0,0,0,0,0,0,0,0,0,0,0]},  // Rosa Linda Tafur
+  '71526127':{dic25:0,      hist:[0,0,0,0,0,0,0,0,0,0,0,0]},  // Andrea Cano
+  '74071705':{dic25:0,      hist:[0,0,0,0,0,0,0,0,0,0,0,0]},  // Lesly Perez
 };
 var MESES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
 var SAL_ANIO=2026;
