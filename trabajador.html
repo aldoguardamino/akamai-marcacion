@@ -95,18 +95,9 @@ tbody tr:last-child td{border-bottom:none;}
 .cal-dia.otro-mes .dia-num{color:#cbd5e1;}
 .cal-dia.hoy .dia-num{background:#00adef;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;}
 .cal-evento{font-size:8px;padding:2px 4px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;}
-.cal-evento.aprobado{background:#dcfce7;color:#166534;border-left:2px solid #22c55e;}
-.cal-evento.pendiente{background:#fef9c3;color:#854d0e;border-left:2px solid #eab308;}
-.mini-cal{border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:8px;}
-.mini-cal-hdr{background:#1a1a2e;color:#fff;padding:5px 8px;font-weight:700;text-align:center;font-size:11px;}
-.mini-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#e2e8f0;}
-.mini-cal-dh{background:#f1f5f9;padding:3px 2px;text-align:center;font-weight:700;color:#64748b;font-size:9px;}
-.mini-cal-d{background:#fff;padding:3px 2px;text-align:center;min-height:22px;font-size:10px;}
-.mini-cal-d.feriado{color:#dc2626;font-weight:700;}
-.mini-cal-d.en-rango{background:#dbeafe;}
-.mini-cal-d.inicio,.mini-cal-d.fin{background:#1e40af;color:#fff;border-radius:2px;}
-.mini-cal-d.feriado.en-rango{background:#fee2e2;color:#dc2626;font-weight:700;}
-.mini-cal-d.otro{color:#cbd5e1;}
+.cal-evento.aprobado{background:#86efac;color:#166534;border-left:2px solid #22c55e;}
+.cal-evento.pendiente{background:#fde68a;color:#854d0e;border-left:2px solid #eab308;}
+.cal-evento.historico{background:#d1d5db;color:#374151;border-left:2px solid #9ca3af;}
 </style>
 </head>
 <body>
@@ -207,11 +198,10 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="card">
           <h2 style="margin-bottom:14px;">Solicitar vacaciones</h2>
           <div class="info-jefe" id="info-jefe"></div>
-          <div class="field"><label>Fecha de inicio</label><input type="date" id="vac-desde" onchange="calcDias();renderMiniCal()"></div>
-          <div class="field"><label>Fecha de fin</label><input type="date" id="vac-hasta" onchange="calcDias();renderMiniCal()"></div>
-          <div id="aviso-feriado" style="display:none;background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:8px 12px;font-size:11px;color:#92400e;margin-bottom:6px;"></div>
-          <div id="mini-cal-container"></div>
-          <p style="font-size:10px;color:#94a3b8;margin-bottom:6px;">&#128680; <b>Importante:</b> Para el registro de la fecha de fin se deben incluir los dias festivos y fines de semana. Los dias en <span style="color:#dc2626;font-weight:700;">rojo</span> son feriados nacionales.</p>
+          <div class="field"><label>Fecha de inicio</label><input type="date" id="vac-desde" onchange="calcDias()"></div>
+          <div class="field"><label>Fecha de fin</label><input type="date" id="vac-hasta" onchange="calcDias()"></div>
+          <div id="aviso-feriado" style="display:none;background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:7px 12px;font-size:11px;color:#92400e;margin-bottom:4px;"></div>
+          <p style="font-size:10px;color:#94a3b8;margin-bottom:6px;">&#128680; <b>Importante:</b> Para el registro de la fecha de fin se deben incluir los dias festivos y fines de semana.</p>
           <div class="field"><label>N&deg; de dias</label><input type="text" id="vac-dias" readonly style="background:#f8f9fa;color:#64748b;"></div>
           <div class="field"><label>Fecha de retorno</label><input type="date" id="vac-retorno" onchange="recalcDias()"></div>
           <button class="btn btn-p" id="btn-solicitar" onclick="solicitarVacaciones()">Enviar solicitud</button>
@@ -257,6 +247,12 @@ tbody tr:last-child td{border-bottom:none;}
         <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap;font-size:11px;">
           <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#dcfce7;border:1px solid #86efac;"></span>Aprobado</span>
           <span style="display:flex;align-items:center;gap:5px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fef9c3;border:1px solid #fde047;"></span>Pendiente</span>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:12px;font-size:11px;flex-wrap:wrap;align-items:center;">
+          <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#d1d5db;border-radius:2px;"></span>Real tomado</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#86efac;border-radius:2px;"></span>Aprobado</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="display:inline-block;width:10px;height:10px;background:#fde68a;border-radius:2px;"></span>Pendiente</span>
+          <span style="color:#dc2626;font-weight:600;font-size:10px;">Numeros en rojo = feriado nacional</span>
         </div>
         <div id="cal-grid-container"></div>
       </div>
@@ -587,8 +583,7 @@ function calcDias(){
   if(avisoFeriado){
     if(feriadosEnRango.length>0){
       avisoFeriado.style.display='block';
-      avisoFeriado.innerHTML='<b>Feriados incluidos en tu rango:</b> '+feriadosEnRango.join(', ')+
-        '<br><span style="font-size:10px;margin-top:4px;display:block;">Los dias de vacaciones consideran dias calendarios e incluyen feriados nacionales.</span>';
+      avisoFeriado.textContent='Hay feriados en el rango de fecha elegido.';
     } else {
       avisoFeriado.style.display='none';
     }
@@ -1024,6 +1019,9 @@ function cargarCalendario(){
 function renderCalendario(){
   var container=document.getElementById('cal-grid-container');
   var hoy=new Date().toISOString().slice(0,10);
+  var hoyDate=new Date();
+  var mesHoy=hoyDate.getMonth();
+  var anioHoy=hoyDate.getFullYear();
   var meses=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   var diasH=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
   var html='<div class="cal-year">';
@@ -1034,16 +1032,23 @@ function renderCalendario(){
     var primerDia=new Date(CAL_AÑO,m,1).getDay();
     var diasEnMes=new Date(CAL_AÑO,m+1,0).getDate();
     var diasAnterior=new Date(CAL_AÑO,m,0).getDate();
+    var mesPasado=(CAL_AÑO<anioHoy)||(CAL_AÑO===anioHoy&&m<mesHoy);
     for(var i=primerDia-1;i>=0;i--){
       html+='<div class="cal-dia otro-mes"><div class="dia-num">'+(diasAnterior-i)+'</div></div>';
     }
     for(var day=1;day<=diasEnMes;day++){
       var fecha=CAL_AÑO+'-'+(m<9?'0':'')+(m+1)+'-'+(day<10?'0':'')+day;
       var esHoy=fecha===hoy;
+      var esFer=typeof FERIADOS_PE!=='undefined'&&FERIADOS_PE.hasOwnProperty(fecha);
       var eventos=calVacs.filter(function(v){return fecha>=v.desde&&fecha<=v.hasta;});
-      html+='<div class="cal-dia'+(esHoy?' hoy':'')+'"><div class="dia-num">'+day+'</div>';
+      // Color del número del día
+      var numStyle=esFer?'style="color:#dc2626;font-weight:700;" title="'+( FERIADOS_PE[fecha]||'Feriado')+'"':'';
+      html+='<div class="cal-dia'+(esHoy?' hoy':'')+'"><div class="dia-num" '+numStyle+'>'+day+'</div>';
       eventos.forEach(function(v){
-        var cls=v.estado==='aprobado'?'aprobado':'pendiente';
+        var cls;
+        if(mesPasado){cls='historico';}
+        else if(v.estado==='aprobado'){cls='aprobado';}
+        else{cls='pendiente';}
         var nombre=(v.nombres||'').split(' ')[0];
         html+='<div class="cal-evento '+cls+'" title="'+v.nombres+' '+v.apellidos+': '+v.desde+' al '+v.hasta+'">'+nombre+'</div>';
       });
