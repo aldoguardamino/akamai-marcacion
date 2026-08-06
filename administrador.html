@@ -278,7 +278,7 @@ tbody tr:hover td{background:#f8faff;}
       <input type="text" id="vac-filtro-nombre" placeholder="Buscar trabajador..." oninput="renderVacaciones()" style="font-size:13px;padding:7px 11px;border:1.5px solid #e2e8f0;border-radius:8px;flex:1;">
     </div>
     <div class="tw"><table>
-      <thead><tr><th>Trabajador</th><th>DNI</th><th>Area</th><th>Cargo</th><th>Desde</th><th>Hasta</th><th>Dias</th><th>Retorno</th><th>Estado</th><th>Aprobado por</th><th>Fecha Aprob.</th><th>PDF</th></tr></thead>
+      <thead><tr><th>Trabajador</th><th>DNI</th><th>Area</th><th>Cargo</th><th>Desde</th><th>Hasta</th><th>Dias</th><th>Retorno</th><th>Estado</th><th>Aprobado por</th><th>Fecha Aprob.</th><th>PDF</th><th></th></tr></thead>
       <tbody id="tbody-vac"></tbody>
     </table></div>
     <div class="empty" id="empty-vac" style="display:none">No hay registros de vacaciones.</div>
@@ -582,6 +582,7 @@ function renderVacaciones(){
       '<td style="font-size:11px">'+(v.jefeNombre||'--')+'</td>'+
       '<td class="mono">'+(v.fechaAprobacion?fmtFechaDisp(v.fechaAprobacion):'--')+'</td>'+
       '<td>'+btnPDF+'</td>'+
+      '<td><button class="btn-sm btn-del" onclick="eliminarVacacion(\''+v.id+'\')" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;">🗑</button></td>'+
       '</tr>');
   });
   document.getElementById('tbody-vac').innerHTML = rows.join('');
@@ -589,6 +590,20 @@ function renderVacaciones(){
 }
 
 function verPDF(id){window.open('/api/vacaciones/pdf/'+id,'_blank');}
+
+function eliminarVacacion(id){
+  if(!confirm('¿Eliminar esta solicitud de vacaciones? Se borrará del historial del trabajador y del sistema.')) return;
+  fetch('/api/vacaciones/eliminar',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({id:id})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.ok){
+      toast('Solicitud eliminada','ok');
+      cargarVacaciones();
+    } else {
+      toast('Error: '+(d.error||'desconocido'));
+    }
+  }).catch(function(){toast('Error de conexión');});
+}
 function fmtFechaDisp(f){if(!f)return'';var p=f.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
 
 
