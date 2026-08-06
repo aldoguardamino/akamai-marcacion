@@ -97,6 +97,7 @@ tbody tr:hover td{background:#f8faff;}
 .empty{text-align:center;padding:30px;color:#94a3b8;font-size:13px;}
 .bpend{background:#dbeafe;color:#1e40af;}
 .brej{background:#fee2e2;color:#b91c1c;}
+.bjefe{background:#fef9c3;color:#854d0e;}
 /* Modal */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:200;padding:16px;}
 .overlay.show{display:flex;}
@@ -566,8 +567,8 @@ function renderVacaciones(){
   vacs.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
   var rows = [];
   vacs.forEach(function(v){
-    var estadoClass = v.estado==='aprobado'?'bg':v.estado==='rechazado'?'brej':'bpend';
-    var estadoTxt = v.estado==='aprobado'?'Aprobado':v.estado==='rechazado'?'Rechazado':'Pendiente';
+    var estadoClass = v.estado==='aprobado'?'bg':v.estado==='rechazado'?'brej':v.estado==='aprobado_jefe'?'bjefe':'bpend';
+    var estadoTxt = v.estado==='aprobado'?'Aprobado':v.estado==='rechazado'?'Rechazado':v.estado==='aprobado_jefe'?'Pdte. Gerente':'Pendiente';
     var btnPDF = v.estado==='aprobado'?'<a href="/api/vacaciones/pdf/'+v.id+'" target="_blank" class="btn-sm">PDF</a>':'--';
     rows.push('<tr>'+
       '<td><b>'+v.nombres+' '+v.apellidos+'</b></td>'+
@@ -987,7 +988,7 @@ function renderSaldosTabla(vacs,saldos){
     tr+='<td style="padding:7px 10px;font-weight:600;position:sticky;left:0;background:'+(alerta?'#fff5f5':'#fff')+';z-index:1;">'+
         s.nombre+(alerta?' <span style="color:#dc2626;font-size:9px;font-weight:700;">!! &gt;25d</span>':'')+
         '<div style="font-size:9px;color:#94a3b8;">'+s.cargo+'</div></td>';
-    tr+='<td style="padding:7px 6px;text-align:center;font-weight:700;">'+base.dic25.toFixed(1)+'</td>';
+    tr+='<td style="padding:7px 6px;text-align:center;font-weight:700;">'+(base.dic25<0?'0.0':base.dic25.toFixed(1))+'</td>';
 
     MESES.forEach(function(m,i){
       var histVal=hist[i]||0;
