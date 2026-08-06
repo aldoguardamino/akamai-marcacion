@@ -19,17 +19,17 @@ const WORKERS_DATA = [
   {id:'72783491',ap:'VASQUEZ CHIPANA',nm:'YANETT NATIVIDAD',gr:'ADMINISTRACION Y FINANZAS',ca:'COORDINADORA DE FINANZAS Y TESORERIA',tu:'09:00 - 18:00',email:'yvasquez@akamai.com.pe',jefeEmail:'aguardamino@akamai.com.pe',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',jefeWid:'41318261'},
   {id:'46261114',ap:'ESPINOZA MONTESINOS',nm:'DALMA NEREA',gr:'COBRANZAS',ca:'ASISTENTE DE ADMINISTRACION DE VENTAS',tu:'09:00 - 18:00',email:'despinoza@akamai.com.pe',jefeEmail:'gsarco@akamai.com.pe',jefeNombre:'GUSTAVO ADOLFO SARCO CUELLAR',jefeWid:'41084859'},
   {id:'41084859',ap:'SARCO CUELLAR',nm:'GUSTAVO ADOLFO',gr:'COBRANZAS',ca:'JEFE DE ADMINISTRACION Y VENTAS',tu:'09:00 - 18:00',email:'gsarco@akamai.com.pe',jefeEmail:'ngranados@akamai.com.pe',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',jefeWid:'43903530'},
-  {id:'70447785',ap:'CORDOVA VIDAL',nm:'RAI EDU',gr:'PROYECTOS',ca:'COORDINADOR DE PROYECTOS',tu:'09:00 - 18:00',email:'ecordova@akamai.com.pe',jefeEmail:'nmelendez@akamai.com.pe',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',jefeWid:'73173155'},
+  {id:'70447785',ap:'CORDOVA VIDAL',nm:'RAI EDU',gr:'PROYECTOS',ca:'COORDINADOR DE PROYECTOS',tu:'09:00 - 18:00',email:'ecordova@akamai.com.pe',jefeEmail:'raltez@akamai.com.pe',jefeNombre:'RAUL ANDRE ALTEZ LANDEO',jefeWid:'46053495'},
   {id:'43903530',ap:'GRANADOS SAENZ',nm:'NOEL ALONSO',gr:'PROYECTOS',ca:'GERENTE GENERAL',tu:'09:00 - 18:00',email:'ngranados@akamai.com.pe',jefeEmail:'abautista@paladinrp.com',jefeNombre:'ANDRES BAUTISTA',jefeWid:''},
-  {id:'73173155',ap:'MELENDEZ SOTO',nm:'NATALIA VERONICA',gr:'PROYECTOS',ca:'JEFE DE PROYECTOS Y NUEVOS NEGOCIOS',tu:'09:00 - 18:00',email:'nmelendez@akamai.com.pe',jefeEmail:'ngranados@akamai.com.pe',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',jefeWid:'43903530'},
-  {id:'72726407',ap:'SAAVEDRA VIGO',nm:'MARIANA ROCIO',gr:'PROYECTOS',ca:'ARQUITECTA DE NUEVOS PROYECTOS',tu:'09:00 - 18:00',email:'msaavedra@akamai.com.pe',jefeEmail:'nmelendez@akamai.com.pe',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',jefeWid:'73173155'},
-  {id:'76577354',ap:'TAFUR QUISPE',nm:'ROSA LINDA',gr:'PROYECTOS',ca:'ASISTENTE DE PROYECTOS',tu:'09:00 - 18:00',email:'rtafur@akamai.com.pe',jefeEmail:'nmelendez@akamai.com.pe',jefeNombre:'NATALIA VERONICA MELENDEZ SOTO',jefeWid:'73173155'},
+  {id:'46053495',ap:'ALTEZ LANDEO',nm:'RAUL ANDRE',gr:'PROYECTOS',ca:'JEFE DE PROYECTOS Y NUEVOS NEGOCIOS',tu:'09:00 - 18:00',email:'raltez@akamai.com.pe',jefeEmail:'ngranados@akamai.com.pe',jefeNombre:'NOEL ALONSO GRANADOS SAENZ',jefeWid:'43903530'},
+  {id:'72726407',ap:'SAAVEDRA VIGO',nm:'MARIANA ROCIO',gr:'PROYECTOS',ca:'ARQUITECTA DE NUEVOS PROYECTOS',tu:'09:00 - 18:00',email:'msaavedra@akamai.com.pe',jefeEmail:'raltez@akamai.com.pe',jefeNombre:'RAUL ANDRE ALTEZ LANDEO',jefeWid:'46053495'},
+  {id:'76577354',ap:'TAFUR QUISPE',nm:'ROSA LINDA',gr:'PROYECTOS',ca:'ASISTENTE DE PROYECTOS',tu:'09:00 - 18:00',email:'rtafur@akamai.com.pe',jefeEmail:'raltez@akamai.com.pe',jefeNombre:'RAUL ANDRE ALTEZ LANDEO',jefeWid:'46053495'},
   {id:'74071705',ap:'PEREZ ZAMBRANO',nm:'LESLY MAGNOLIA',gr:'COBRANZAS',ca:'ASISTENTE DE ADMINISTRACION DE VENTAS',tu:'09:00 - 18:00',email:'lzambrano@akamai.com.pe',jefeEmail:'gsarco@akamai.com.pe',jefeNombre:'GUSTAVO ADOLFO SARCO CUELLAR',jefeWid:'41084859'},
   {id:'71526127',ap:'CANO SANCHEZ',nm:'ANDREA KATHERINE',gr:'ADMINISTRACION Y FINANZAS',ca:'ASISTENTE DE ADMINISTRACION Y FINANZAS',tu:'09:00 - 18:00',email:'acano@akamai.com.pe',jefeEmail:'aguardamino@akamai.com.pe',jefeNombre:'ALDO JESUS GUARDAMINO RIOS',jefeWid:'41318261'},
 ];
 
 // Jefes (pueden aprobar vacaciones)
-const JEFES_WID = ['41318261','41084859','73173155','43903530'];
+const JEFES_WID = ['41318261','41084859','46053495','43903530'];
 
 async function conectarDB() {
   try {
@@ -119,7 +119,7 @@ function enviarCorreo(to, subject, htmlBody) {
     try {
       const https = require('https');
       const body = JSON.stringify({
-        from: 'Sistema Akamai <no-reply@akamai.com.pe>',
+        from: 'Sistema de Vacaciones Akamai <no-reply@akamai.com.pe>',
         to: [to],
         subject: subject,
         html: htmlBody
@@ -333,7 +333,7 @@ const server = http.createServer(async (req, res) => {
 
   // API workers data (para el portal trabajador)
   if(method==='GET'&&url==='/api/workers'){
-    const clean=WORKERS_DATA.map(w=>({id:w.id,ap:w.ap,nm:w.nm,gr:w.gr,ca:w.ca,tu:w.tu,jefeWid:w.jefeWid,jefeNombre:w.jefeNombre,esJefe:['41318261','41084859','73173155','43903530'].includes(w.id)}));
+    const clean=WORKERS_DATA.map(w=>({id:w.id,ap:w.ap,nm:w.nm,gr:w.gr,ca:w.ca,tu:w.tu,jefeWid:w.jefeWid,jefeNombre:w.jefeNombre,esJefe:['41318261','41084859','46053495','43903530'].includes(w.id)}));
     return jsonResp(res,200,{workers:clean});
   }
 
@@ -584,7 +584,7 @@ const server = http.createServer(async (req, res) => {
   if(method==='GET'&&url==='/api/test-email'){
     enviarCorreo(
       'aguardamino@akamai.com.pe',
-      'Test email - Sistema Akamai',
+      'Test email - Sistema de Vacaciones Akamai',
       '<h2>Email de prueba</h2><p>El sistema de correo esta funcionando correctamente con dominio corporativo akamai.com.pe.</p>'
     )
     .then(()=>jsonResp(res,200,{ok:true,msg:'Email enviado a '+GMAIL_USER}))
