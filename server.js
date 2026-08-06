@@ -630,6 +630,17 @@ const server = http.createServer(async (req, res) => {
     }catch(e){return jsonResp(res,500,{error:e.message});}
   }
 
+  // Eliminar solicitud de vacaciones (solo admin)
+  if(method==='POST'&&url==='/api/vacaciones/eliminar'){
+    let body='';req.on('data',d=>body+=d);req.on('end',async()=>{
+      try{
+        const{id}=JSON.parse(body);
+        await db.collection('vacaciones').deleteOne({id});
+        return jsonResp(res,200,{ok:true});
+      }catch(e){return jsonResp(res,400,{error:e.message});}
+    });return;
+  }
+
   res.writeHead(404);res.end('Not found');
   }catch(e){console.error('Handler error:',e.message);if(!res.headersSent){res.writeHead(500);res.end('Server error');}}
 });
