@@ -118,27 +118,29 @@ function enviarCorreo(to, subject, htmlBody) {
   return new Promise((resolve, reject) => {
     try {
       const https = require('https');
-      const body = JSON.stringify({
+      const bodyStr = JSON.stringify({
         from: 'Sistema de Vacaciones Akamai <no-reply@akamai.com.pe>',
         to: [to],
         subject: subject,
         html: htmlBody
       });
+      const bodyBuf = Buffer.from(bodyStr, 'utf-8');
+      console.log('Enviando correo a:', to, '| Asunto:', subject);
       const options = {
         hostname: 'api.resend.com',
         path: '/emails',
         method: 'POST',
         headers: {
           'Authorization': 'Bearer ' + RESEND_KEY,
-          'Content-Type': 'application/json',
-          'Content-Length': Buffer.byteLength(body)
+          'Content-Type': 'application/json; charset=utf-8',
+          'Content-Length': bodyBuf.length
         }
       };
       const req = https.request(options, (res) => {
         let data = '';
         res.on('data', chunk => data += chunk);
         res.on('end', () => {
-          console.log('Resend response:', res.statusCode, data.slice(0,100));
+          console.log('Resend response:', res.statusCode, data.slice(0,200));
           if (res.statusCode >= 200 && res.statusCode < 300) {
             resolve(true);
           } else {
@@ -150,7 +152,7 @@ function enviarCorreo(to, subject, htmlBody) {
         console.error('Resend request error:', e.message);
         reject(e);
       });
-      req.write(body);
+      req.write(bodyBuf);
       req.end();
     } catch(e) {
       console.error('enviarCorreo error:', e.message);
