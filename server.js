@@ -161,6 +161,81 @@ function enviarCorreo(to, subject, htmlBody) {
   });
 }
 
+function generarHTMLVacacionesNoel(sol, firmaWorker, firmaJefe, logoB64, firmaRRHH) {
+  const fmtF = (f) => { if(!f) return ''; const p=f.slice(0,10).split('-'); return `${p[2]}/${p[1]}/${p[0]}`; };
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:Arial,sans-serif;font-size:11px;color:#000;background:#fff;padding:40px;max-width:700px;margin:0 auto;}
+  .header{display:flex;align-items:center;margin-bottom:20px;}
+  .logo{width:80px;margin-right:30px;}
+  .title{font-size:22px;font-weight:700;text-decoration:underline;flex:1;text-align:center;}
+  .info-table{width:100%;margin-bottom:20px;border-collapse:collapse;}
+  .info-table td{padding:4px 8px;border-bottom:1px solid #000;}
+  .info-table .label{font-weight:700;width:180px;}
+  .vac-table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+  .vac-table th,.vac-table td{border:1px solid #000;padding:6px 10px;text-align:center;font-weight:700;}
+  .vac-table th{background:#f0f0f0;}
+  .nota{font-size:10px;font-style:italic;margin-bottom:20px;}
+  .firma-section{display:flex;justify-content:space-between;margin-top:20px;gap:40px;}
+  .firma-box{flex:1;text-align:center;}
+  .firma-img{height:80px;max-width:180px;object-fit:contain;display:block;margin:0 auto 4px;}
+  .firma-linea{border-top:1px solid #000;margin:6px 0 4px;}
+  .firma-label{font-weight:700;font-size:10px;}
+  .jefe-box{border:1px solid #000;padding:16px;margin-top:30px;}
+  .nota-final{border:1px solid #000;padding:8px;margin-top:12px;font-size:10px;font-style:italic;}
+  .stamp-recibido{color:#1e40af;font-size:13px;font-weight:700;border:2px solid #1e40af;display:inline-block;padding:2px 10px;border-radius:4px;margin-bottom:8px;}
+  </style></head><body>
+  <div class="header">
+    <img class="logo" src="data:image/png;base64,${logoB64}" alt="Akamai">
+    <div class="title">FORMATO DE VACACIONES</div>
+  </div>
+  <table class="info-table">
+    <tr><td class="label">APELLIDOS Y NOMBRES:</td><td>${sol.apellidos} ${sol.nombres}</td></tr>
+    <tr><td class="label">CARGO:</td><td>${sol.cargo}</td></tr>
+    <tr><td class="label">AREA:</td><td>${sol.area}</td></tr>
+    <tr><td class="label">DNI:</td><td>${sol.dni}</td></tr>
+  </table>
+  <table class="vac-table">
+    <tr><th colspan="3">DESCANSO VACACIONAL</th></tr>
+    <tr><th>N&deg; DE DIAS</th><th>Desde</th><th>Hasta</th></tr>
+    <tr><td>${sol.dias}</td><td>${fmtF(sol.desde)}</td><td>${fmtF(sol.hasta)}</td></tr>
+  </table>
+  <p class="nota">Firmo el presente registro de adelanto de vacaciones como constancia del goce de descanso vacacional, dejando aclarado que mi pago correspondiente esta consignado en mi boleta de pago</p>
+  <div style="margin-bottom:24px">
+    <table style="border-collapse:collapse">
+      <tr>
+        <td style="border:1px solid #000;padding:6px 12px;font-weight:700">FECHA RETORNO</td>
+        <td style="border:1px solid #000;padding:6px 20px;font-weight:700">${fmtF(sol.retorno)}</td>
+      </tr>
+    </table>
+  </div>
+  <div class="firma-section">
+    <div class="firma-box">
+      ${firmaWorker ? `<img class="firma-img" src="${firmaWorker}" alt="firma">` : '<div style="height:80px"></div>'}
+      <div class="firma-linea"></div>
+      <div class="firma-label">Firma del trabajador</div>
+      <div style="font-size:10px;margin-top:2px;">${sol.nombres} ${sol.apellidos}</div>
+    </div>
+  </div>
+  <div class="jefe-box" style="margin-top:30px">
+    <div style="font-weight:700;margin-bottom:16px">APROBACIONES</div>
+    <div style="display:flex;justify-content:center;text-align:center;">
+      <div style="min-width:200px;">
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Recursos Humanos</div>
+        <div class="stamp-recibido">RECIBIDO</div>
+        ${firmaRRHH ? `<img class="firma-img" src="${firmaRRHH}" alt="firma rrhh">` : '<div style="height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;">Sin firma registrada</div>'}
+        <div class="firma-linea"></div>
+        <div class="firma-label">Firma de conformidad</div>
+        <div style="font-size:10px;margin-top:2px;font-weight:700;">ALDO JESUS GUARDAMINO RIOS</div>
+        <div style="font-size:10px;color:#374151;margin-top:2px;">Jefe de Administración y Finanzas</div>
+      </div>
+    </div>
+  </div>
+  <div class="nota-final">Nota: Este documento debera ser remitido antes del descanso vacacional via mail a Recursos Humanos</div>
+  </body></html>`;
+}
+
 function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64, firmaRRHH, cargoJefe) {
   const fmtF = (f) => { if(!f) return ''; const p=f.slice(0,10).split('-'); return `${p[2]}/${p[1]}/${p[0]}`; };
   // Determinar cargo del aprobador
@@ -618,6 +693,30 @@ const server = http.createServer(async (req, res) => {
         const{id}=JSON.parse(body);
         await db.collection('vacaciones').deleteOne({id});
         return jsonResp(res,200,{ok:true});
+      }catch(e){return jsonResp(res,400,{error:e.message});}
+    });return;
+  }
+
+  // Formato directo para Gerente General (sin aprobación)
+  if(method==='POST'&&url==='/api/vacaciones/formato-directo'){
+    let body='';req.on('data',d=>body+=d);req.on('end',async()=>{
+      try{
+        const sol=JSON.parse(body);
+        sol.id='vac_'+Date.now();
+        sol.estado='aprobado';
+        sol.jefeNombre='NOEL ALONSO GRANADOS SAENZ';
+        sol.jefeWid='43903530';
+        sol.fechaSolicitud=new Date().toISOString();
+        sol.fechaAprobacion=new Date().toISOString();
+        await db.collection('vacaciones').insertOne(sol);
+        // Generar PDF con solo firma RRHH
+        const firmaWorkerDoc=await db.collection('firmas').findOne({wid:sol.wid});
+        const firmaJefeDoc=await db.collection('firmas').findOne({wid:'43903530'});
+        const firmaRRHHDoc=await db.collection('firmas').findOne({wid:'41318261'});
+        const logoB64=fs.existsSync(path.join(__dirname,'logo.png'))?fs.readFileSync(path.join(__dirname,'logo.png')).toString('base64'):'';
+        const htmlPDF=generarHTMLVacacionesNoel({...sol},firmaWorkerDoc?firmaWorkerDoc.firma:null,firmaJefeDoc?firmaJefeDoc.firma:null,logoB64,firmaRRHHDoc?firmaRRHHDoc.firma:null);
+        await db.collection('vacaciones').updateOne({id:sol.id},{$set:{htmlPDF}});
+        return jsonResp(res,200,{ok:true,id:sol.id});
       }catch(e){return jsonResp(res,400,{error:e.message});}
     });return;
   }
