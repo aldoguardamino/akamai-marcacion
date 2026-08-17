@@ -63,7 +63,7 @@ async function enviarRecordatorios() {
     const ahora = Date.now();
     const limite = 48 * 60 * 60 * 1000;
 
-    // Recordatorio paso 1: pendientes de jefe directo
+    // Solo recordatorio paso 1: pendientes de jefe directo
     const vacs1 = await db.collection('vacaciones').find({estado:'pendiente'}).toArray();
     for(const v of vacs1) {
       const fechaSol = new Date(v.fechaSolicitud).getTime();
@@ -470,71 +470,38 @@ const server = http.createServer(async (req, res) => {
         const{id,jefeNombre,jefeWid}=JSON.parse(body);
         const hoy=new Date().toISOString();
         const sol=await db.collection('vacaciones').findOne({id});
-        const esNoel=jefeWid==='43903530';
 
-        if(esNoel){
-          // SEGUNDA APROBACIÓN: Noel aprueba → estado final
-          await db.collection('vacaciones').updateOne({id},{$set:{estado:'aprobado',noelNombre:jefeNombre,noelWid:jefeWid,fechaAprobacionNoel:hoy}});
-          const solFinal=await db.collection('vacaciones').findOne({id});
-          const firmaWorkerDoc=await db.collection('firmas').findOne({wid:solFinal.wid});
-          const firmaJefeDoc=await db.collection('firmas').findOne({wid:solFinal.jefeWid});
-          const firmaNoelDoc=await db.collection('firmas').findOne({wid:'43903530'});
-          const logoB64=fs.existsSync(path.join(__dirname,'logo.png'))?fs.readFileSync(path.join(__dirname,'logo.png')).toString('base64'):'';
-          const htmlPDF=generarHTMLVacaciones({...solFinal,estado:'aprobado'},firmaWorkerDoc?firmaWorkerDoc.firma:null,firmaJefeDoc?firmaJefeDoc.firma:null,logoB64,firmaNoelDoc?firmaNoelDoc.firma:null);
-          await db.collection('vacaciones').updateOne({id},{$set:{htmlPDF}});
-          const wData=WORKERS_DATA.find(x=>x.id===solFinal.wid);
-          const firmaDoc=await db.collection('firmas').findOne({wid:solFinal.wid});
-          const emailFinal=(firmaDoc&&firmaDoc.email)||( wData?wData.email:null);
-          if(emailFinal){
-            const html=`<div style="font-family:Arial;padding:20px;max-width:500px">
-              <h2 style="color:#15803d">Vacaciones aprobadas</h2>
-              <p>Hola <b>${solFinal.nombres}</b>,</p>
-              <p>Tu solicitud de vacaciones ha sido aprobada por tu jefe directo y por la Gerencia General. Por favor ingresa al sistema y descarga el PDF para enviarlo a <b>Gestión Humana</b>.</p>
-              <table style="border-collapse:collapse;margin:16px 0;width:100%">
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Desde</td><td style="padding:6px;border:1px solid #e2e8f0">${solFinal.desde}</td></tr>
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Hasta</td><td style="padding:6px;border:1px solid #e2e8f0">${solFinal.hasta}</td></tr>
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Retorno</td><td style="padding:6px;border:1px solid #e2e8f0">${solFinal.retorno}</td></tr>
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Aprobado por</td><td style="padding:6px;border:1px solid #e2e8f0">${solFinal.jefeNombre}</td></tr>
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Aprobado GG</td><td style="padding:6px;border:1px solid #e2e8f0">${jefeNombre}</td></tr>
-              </table>
-              <a href="${APP_URL}" style="background:#00adef;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block">
-                Ingresar al sistema y descargar PDF
-              </a>
-              <p style="margin-top:16px;color:#64748b;font-size:13px">El documento firmado debe ser enviado a Gestión Humana para su registro.</p>
-            </div>`;
-            try{await enviarCorreo(emailFinal,'Vacaciones aprobadas por Gerencia - Akamai',html);}
-            catch(e){console.error('Email trabajador error:',e.message);}
-          }
-          return jsonResp(res,200,{ok:true,htmlPDF});
-
-        } else {
-          // PRIMERA APROBACIÓN: jefe directo aprueba → notificar a Noel
-          await db.collection('vacaciones').updateOne({id},{$set:{estado:'aprobado_jefe',jefeNombre,jefeWid,fechaAprobacion:hoy}});
-          const solAct=await db.collection('vacaciones').findOne({id});
-          // Enviar email a Noel para segunda aprobación
-          const noelData=WORKERS_DATA.find(x=>x.id==='43903530');
-          if(noelData){
-            const html=`<div style="font-family:Arial;padding:20px;max-width:500px">
-              <h2 style="color:#1e40af">Segunda aprobación requerida</h2>
-              <p>Hola <b>Noel</b>,</p>
-              <p><b>${jefeNombre}</b> ha aprobado la solicitud de vacaciones de <b>${solAct.nombres} ${solAct.apellidos}</b>. Se requiere tu aprobación como Gerente General.</p>
-              <table style="border-collapse:collapse;margin:16px 0;width:100%">
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Trabajador</td><td style="padding:6px;border:1px solid #e2e8f0">${solAct.nombres} ${solAct.apellidos}</td></tr>
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Desde</td><td style="padding:6px;border:1px solid #e2e8f0">${solAct.desde}</td></tr>
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Hasta</td><td style="padding:6px;border:1px solid #e2e8f0">${solAct.hasta}</td></tr>
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Dias</td><td style="padding:6px;border:1px solid #e2e8f0">${solAct.dias}</td></tr>
-                <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Aprobado por</td><td style="padding:6px;border:1px solid #e2e8f0">${jefeNombre}</td></tr>
-              </table>
-              <a href="${APP_URL}" style="background:#1e40af;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block">
-                Ingresar al sistema para aprobar
-              </a>
-              <p style="margin-top:16px;color:#64748b;font-size:12px">Si no aprueba en 48 horas recibirá un recordatorio automático.</p>
-            </div>`;
-            try{await enviarCorreo(noelData.email,'Segunda aprobación - Vacaciones '+solAct.nombres+' '+solAct.apellidos,html);}
-            catch(e){console.error('Email Noel error:',e.message);}
-          }
-          return jsonResp(res,200,{ok:true});
+        // APROBACIÓN ÚNICA: cualquier jefe aprueba → estado final
+        await db.collection('vacaciones').updateOne({id},{$set:{estado:'aprobado',jefeNombre,jefeWid,fechaAprobacion:hoy}});
+        const solFinal=await db.collection('vacaciones').findOne({id});
+        const firmaWorkerDoc=await db.collection('firmas').findOne({wid:solFinal.wid});
+        const firmaJefeDoc=await db.collection('firmas').findOne({wid:jefeWid});
+        const logoB64=fs.existsSync(path.join(__dirname,'logo.png'))?fs.readFileSync(path.join(__dirname,'logo.png')).toString('base64'):'';
+        const htmlPDF=generarHTMLVacaciones({...solFinal,estado:'aprobado'},firmaWorkerDoc?firmaWorkerDoc.firma:null,firmaJefeDoc?firmaJefeDoc.firma:null,logoB64);
+        await db.collection('vacaciones').updateOne({id},{$set:{htmlPDF}});
+        const wData=WORKERS_DATA.find(x=>x.id===solFinal.wid);
+        const firmaDoc=await db.collection('firmas').findOne({wid:solFinal.wid});
+        const emailFinal=(firmaDoc&&firmaDoc.email)||(wData?wData.email:null);
+        if(emailFinal){
+          const html=`<div style="font-family:Arial;padding:20px;max-width:500px">
+            <h2 style="color:#15803d">Vacaciones aprobadas</h2>
+            <p>Hola <b>${solFinal.nombres}</b>,</p>
+            <p>Tu solicitud de vacaciones ha sido aprobada. Por favor ingresa al sistema y descarga el PDF para enviarlo a <b>Gestión Humana</b>.</p>
+            <table style="border-collapse:collapse;margin:16px 0;width:100%">
+              <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Desde</td><td style="padding:6px;border:1px solid #e2e8f0">${solFinal.desde}</td></tr>
+              <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Hasta</td><td style="padding:6px;border:1px solid #e2e8f0">${solFinal.hasta}</td></tr>
+              <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Retorno</td><td style="padding:6px;border:1px solid #e2e8f0">${solFinal.retorno}</td></tr>
+              <tr><td style="padding:6px;border:1px solid #e2e8f0;font-weight:700">Aprobado por</td><td style="padding:6px;border:1px solid #e2e8f0">${jefeNombre}</td></tr>
+            </table>
+            <a href="${APP_URL}" style="background:#00adef;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block">
+              Ingresar al sistema y descargar PDF
+            </a>
+            <p style="margin-top:16px;color:#64748b;font-size:13px">El documento firmado debe ser enviado a Gestión Humana para su registro.</p>
+          </div>`;
+          try{await enviarCorreo(emailFinal,'Vacaciones aprobadas - Akamai',html);}
+          catch(e){console.error('Email trabajador error:',e.message);}
         }
+        return jsonResp(res,200,{ok:true,htmlPDF});
       }catch(e){return jsonResp(res,400,{error:e.message});}
     });return;
   }
