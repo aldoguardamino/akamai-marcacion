@@ -254,7 +254,7 @@ function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64, firmaRRHH, 
     </div>
     ` : '<div style="height:80px"></div><div style="margin-top:8px">Fecha:_________________________</div>'}
   </div>
-  <div class="nota-final">Nota: Este documento debera ser remitido antes del descanso vacacional</div>
+  <div class="nota-final">Nota: Este documento debera ser remitido antes del descanso vacacional via mail a Recursos Humanos</div>
   </body></html>`;
 }
 
