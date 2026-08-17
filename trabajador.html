@@ -381,6 +381,16 @@ function doLogin(){
   if(w.jefeNombre){
     document.getElementById('info-jefe').textContent='Tu solicitud sera enviada a: '+w.jefeNombre;
   }
+  // Si es Noel, cambiar botón y ocultar info de jefe
+  if(CW.id==='43903530'){
+    document.getElementById('btn-solicitar').textContent='Descargar Formato';
+    document.getElementById('btn-solicitar').onclick=descargarFormatoNoel;
+    document.getElementById('info-jefe').style.display='none';
+  } else {
+    document.getElementById('btn-solicitar').textContent='Enviar solicitud';
+    document.getElementById('btn-solicitar').onclick=solicitarVacaciones;
+    document.getElementById('info-jefe').style.display='';
+  }
 
   cargarPerfil();
   // Verificar firma y mostrar banner si no está cargada
@@ -617,6 +627,38 @@ function recalcDias(){
     }
   }
   if(dias>0)mostrarAvisoSaldo(dias);
+}
+
+function descargarFormatoNoel(){
+  var desde=document.getElementById('vac-desde').value;
+  var hasta=document.getElementById('vac-hasta').value;
+  var retorno=document.getElementById('vac-retorno').value;
+  if(!desde||!hasta||!retorno){toast('Completa todas las fechas','err');return;}
+  if(!firmaB64){toast('Debes subir tu firma digital en Mi perfil primero','err');swPanel('perfil');return;}
+  var d1=new Date(desde+'T00:00:00');
+  var dRet=new Date(retorno+'T00:00:00');
+  var dias=Math.round((dRet-d1)/(1000*60*60*24));
+  if(dias<=0){toast('Las fechas no son validas','err');return;}
+  var btn=document.getElementById('btn-solicitar');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Generando...';
+  var sol={wid:CW.id,dni:CW.id,apellidos:CW.ap,nombres:CW.nm,cargo:CW.ca,area:CW.gr,desde:desde,hasta:hasta,dias:dias,retorno:retorno,fechaSolicitud:today()};
+  fetch('/api/vacaciones/formato-directo',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sol)})
+  .then(function(r){return r.json();})
+  .then(function(d){
+    if(d.ok&&d.id){
+      toast('Formato generado. Descargando...','ok');
+      document.getElementById('vac-desde').value='';
+      document.getElementById('vac-hasta').value='';
+      document.getElementById('vac-dias').value='';
+      document.getElementById('vac-retorno').value='';
+      cargarMisVacaciones();
+      cargarSaldo();
+      // Abrir PDF
+      setTimeout(function(){window.open('/api/vacaciones/pdf/'+d.id,'_blank');},500);
+    }else{toast('Error: '+(d.error||'desconocido'),'err');}
+  })
+  .catch(function(){toast('Error de conexion','err');})
+  .finally(function(){btn.disabled=false;btn.innerHTML='Descargar Formato';});
 }
 
 function solicitarVacaciones(){
