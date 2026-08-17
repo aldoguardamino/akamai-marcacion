@@ -161,8 +161,17 @@ function enviarCorreo(to, subject, htmlBody) {
   });
 }
 
-function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64, firmaNoel) {
-  const fmtF = (f) => { if(!f) return ''; const [y,m,d]=f.split('-'); return `${d}/${m}/${y}`; };
+function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64, firmaRRHH, cargoJefe) {
+  const fmtF = (f) => { if(!f) return ''; const p=f.slice(0,10).split('-'); return `${p[2]}/${p[1]}/${p[0]}`; };
+  // Determinar cargo del aprobador
+  const WORKERS_CARGOS = {
+    '41318261': 'Jefe de Administración y Finanzas',
+    '41084859': 'Jefe de Administración de Ventas',
+    '46053495': 'Jefe de Proyectos y Nuevos Negocios',
+    '43903530': 'Gerente General',
+  };
+  const cargoAprobador = cargoJefe || WORKERS_CARGOS[sol.jefeWid] || '';
+
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">
   <style>
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -184,7 +193,8 @@ function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64, firmaNoel) 
   .firma-label{font-weight:700;font-size:10px;}
   .jefe-box{border:1px solid #000;padding:16px;margin-top:30px;}
   .nota-final{border:1px solid #000;padding:8px;margin-top:12px;font-size:10px;font-style:italic;}
-  .aprobado-stamp{color:#15803d;font-size:13px;font-weight:700;border:2px solid #15803d;display:inline-block;padding:2px 10px;border-radius:4px;margin-bottom:8px;}
+  .stamp-aprobado{color:#15803d;font-size:13px;font-weight:700;border:2px solid #15803d;display:inline-block;padding:2px 10px;border-radius:4px;margin-bottom:8px;}
+  .stamp-recibido{color:#1e40af;font-size:13px;font-weight:700;border:2px solid #1e40af;display:inline-block;padding:2px 10px;border-radius:4px;margin-bottom:8px;}
   </style></head><body>
   <div class="header">
     <img class="logo" src="data:image/png;base64,${logoB64}" alt="Akamai">
@@ -222,23 +232,24 @@ function generarHTMLVacaciones(sol, firmaWorker, firmaJefe, logoB64, firmaNoel) 
     <div style="font-weight:700;margin-bottom:16px">APROBACIONES</div>
     ${sol.estado==='aprobado' ? `
     <div style="display:flex;gap:20px;justify-content:space-around;text-align:center;flex-wrap:wrap;">
-      <div style="flex:1;min-width:180px;">
-        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Jefe de Área</div>
-        <div class="aprobado-stamp">APROBADO</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Jefe de Área y/o Gerente</div>
+        <div class="stamp-aprobado">APROBADO</div>
         ${firmaJefe ? `<img class="firma-img" src="${firmaJefe}" alt="firma jefe">` : '<div style="height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;">Sin firma registrada</div>'}
         <div class="firma-linea"></div>
         <div class="firma-label">Firma de conformidad</div>
-        <div style="font-size:10px;margin-top:2px;">${sol.jefeNombre||''}</div>
+        <div style="font-size:10px;margin-top:2px;font-weight:700;">${sol.jefeNombre||''}</div>
+        <div style="font-size:10px;color:#374151;margin-top:2px;">${cargoAprobador}</div>
         <div style="font-size:10px;color:#64748b;margin-top:2px;">Fecha: ${fmtF(sol.fechaAprobacion||'')}</div>
       </div>
-      <div style="flex:1;min-width:180px;">
-        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Gerente General</div>
-        <div class="aprobado-stamp">APROBADO</div>
-        ${firmaNoel ? `<img class="firma-img" src="${firmaNoel}" alt="firma gerente">` : '<div style="height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;">Sin firma registrada</div>'}
+      <div style="flex:1;min-width:200px;">
+        <div style="font-size:11px;font-weight:700;color:#374151;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Recursos Humanos</div>
+        <div class="stamp-recibido">RECIBIDO</div>
+        ${firmaRRHH ? `<img class="firma-img" src="${firmaRRHH}" alt="firma rrhh">` : '<div style="height:80px;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:11px;">Sin firma registrada</div>'}
         <div class="firma-linea"></div>
         <div class="firma-label">Firma de conformidad</div>
-        <div style="font-size:10px;margin-top:2px;">NOEL ALONSO GRANADOS SAENZ</div>
-        <div style="font-size:10px;color:#64748b;margin-top:2px;">Fecha: ${fmtF(sol.fechaAprobacionNoel||sol.fechaAprobacion||'')}</div>
+        <div style="font-size:10px;margin-top:2px;font-weight:700;">ALDO JESUS GUARDAMINO RIOS</div>
+        <div style="font-size:10px;color:#374151;margin-top:2px;">Jefe de Administración y Finanzas</div>
       </div>
     </div>
     ` : '<div style="height:80px"></div><div style="margin-top:8px">Fecha:_________________________</div>'}
@@ -476,8 +487,9 @@ const server = http.createServer(async (req, res) => {
         const solFinal=await db.collection('vacaciones').findOne({id});
         const firmaWorkerDoc=await db.collection('firmas').findOne({wid:solFinal.wid});
         const firmaJefeDoc=await db.collection('firmas').findOne({wid:jefeWid});
+        const firmaRRHHDoc=await db.collection('firmas').findOne({wid:'41318261'}); // Firma de Aldo (RRHH)
         const logoB64=fs.existsSync(path.join(__dirname,'logo.png'))?fs.readFileSync(path.join(__dirname,'logo.png')).toString('base64'):'';
-        const htmlPDF=generarHTMLVacaciones({...solFinal,estado:'aprobado'},firmaWorkerDoc?firmaWorkerDoc.firma:null,firmaJefeDoc?firmaJefeDoc.firma:null,logoB64);
+        const htmlPDF=generarHTMLVacaciones({...solFinal,estado:'aprobado'},firmaWorkerDoc?firmaWorkerDoc.firma:null,firmaJefeDoc?firmaJefeDoc.firma:null,logoB64,firmaRRHHDoc?firmaRRHHDoc.firma:null);
         await db.collection('vacaciones').updateOne({id},{$set:{htmlPDF}});
         const wData=WORKERS_DATA.find(x=>x.id===solFinal.wid);
         const firmaDoc=await db.collection('firmas').findOne({wid:solFinal.wid});
