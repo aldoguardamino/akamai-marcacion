@@ -567,8 +567,8 @@ function renderVacaciones(){
   vacs.sort(function(a,b){return b.fechaSolicitud.localeCompare(a.fechaSolicitud);});
   var rows = [];
   vacs.forEach(function(v){
-    var estadoClass = v.estado==='aprobado'?'bg':v.estado==='rechazado'?'brej':v.estado==='aprobado_jefe'?'bjefe':'bpend';
-    var estadoTxt = v.estado==='aprobado'?'Aprobado':v.estado==='rechazado'?'Rechazado':v.estado==='aprobado_jefe'?'Pdte. Gerente':'Pendiente';
+    var estadoClass = v.estado==='aprobado'?'bg':v.estado==='rechazado'?'brej':'bpend';
+    var estadoTxt = v.estado==='aprobado'?'Aprobado':v.estado==='rechazado'?'Rechazado':'Pendiente';
     var btnPDF = v.estado==='aprobado'?'<a href="/api/vacaciones/pdf/'+v.id+'" target="_blank" class="btn-sm">PDF</a>':'--';
     rows.push('<tr>'+
       '<td><b>'+v.nombres+' '+v.apellidos+'</b></td>'+
@@ -837,7 +837,7 @@ function calCambiarAño(d){CAL_AÑO+=d;document.getElementById('cal-año').textC
 function cargarCalendario(){
   fetch('/api/vacaciones').then(function(r){return r.json();}).then(function(d){
     calVacaciones=(d.vacaciones||[]).filter(function(v){
-      return v.estado==='aprobado'||v.estado==='pendiente'||v.estado==='aprobado_jefe';
+      return v.estado==='aprobado'||v.estado==='pendiente';
     });
     renderCalendario();
   });
