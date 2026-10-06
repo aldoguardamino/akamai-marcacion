@@ -438,9 +438,27 @@ const server = http.createServer(async (req, res) => {
         const marca=JSON.parse(body);
         if(await existeReg(marca.wid,marca.f,marca.t))
           return jsonResp(res,409,{error:'Ya registraste '+marca.t+' hoy'});
+        // Calcular ubicación
+        const OFICINA_LAT=-12.0927;
+        const OFICINA_LON=-77.0365;
+        const RADIO_M=50;
+        if(marca.lat!=null&&marca.lon!=null){
+          const R=6371000;
+          const dLat=(marca.lat-OFICINA_LAT)*Math.PI/180;
+          const dLon=(marca.lon-OFICINA_LON)*Math.PI/180;
+          const a=Math.sin(dLat/2)*Math.sin(dLat/2)+
+            Math.cos(OFICINA_LAT*Math.PI/180)*Math.cos(marca.lat*Math.PI/180)*
+            Math.sin(dLon/2)*Math.sin(dLon/2);
+          const dist=R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+          marca.ubicacion=dist<=RADIO_M?'En oficina':'Fuera de oficina';
+          marca.distancia=Math.round(dist);
+        } else {
+          marca.ubicacion='Sin GPS';
+        }
+        delete marca.lat; delete marca.lon;
         marca.id=Date.now();
         await addReg(marca);
-        return jsonResp(res,200,{ok:true});
+        return jsonResp(res,200,{ok:true,ubicacion:marca.ubicacion});
       }catch(e){return jsonResp(res,400,{error:e.message});}
     });return;
   }
