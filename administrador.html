@@ -232,7 +232,7 @@ tbody tr:hover td{background:#f8faff;}
     <!-- Grid clickable -->
     <div class="wgrid" id="wgrid"></div>
     <div class="tw"><table>
-      <thead><tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>ID</th><th>Grupo</th><th>Turno</th><th>Entró</th><th>Salió</th><th>H. Trabajadas</th><th>Estado</th><th>Gestión</th></tr></thead>
+      <thead><tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>ID</th><th>Grupo</th><th>Turno</th><th>Entró</th><th>Salió</th><th>H. Trabajadas</th><th>Estado</th><th>Ubicación</th><th>Gestión</th></tr></thead>
       <tbody id="tbody-hoy"></tbody>
     </table></div>
     <div class="empty" id="empty-hoy" style="display:none">Esperando marcaciones...</div>
@@ -253,7 +253,7 @@ tbody tr:hover td{background:#f8faff;}
       <button class="btn btn-g" id="btnExHist" onclick="exportar('historial')">Exportar Excel</button>
     </div>
     <div class="tw"><table>
-      <thead><tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>ID</th><th>Grupo</th><th>Fecha</th><th>Permiso</th><th>Turno</th><th>Entró</th><th>Salió</th><th>H. Trabajadas</th><th>Estado</th><th>Gestión</th></tr></thead>
+      <thead><tr><th>#</th><th>Apellidos</th><th>Nombre</th><th>ID</th><th>Grupo</th><th>Fecha</th><th>Permiso</th><th>Turno</th><th>Entró</th><th>Salió</th><th>H. Trabajadas</th><th>Estado</th><th>Ubicación</th><th>Gestión</th></tr></thead>
       <tbody id="tbody-hist"></tbody>
     </table></div>
     <div class="empty" id="empty-hist" style="display:none">No hay registros.</div>
@@ -392,6 +392,12 @@ function today(){var now=new Date();var peru=new Date(now.getTime()-(5*60*60*100
 var DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
 function fGeo(f){var p=f.split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);var i=dt.getDay()===0?6:dt.getDay()-1;return DIAS[i]+' '+p[2]+'-'+p[1]+'-'+p[0];}
 function t2d(t){if(!t)return null;var p=t.split(':');return(+p[0]*60+ +p[1])/1440;}
+function fmtUbicacion(ubE,ubS){
+  var ub=ubE||ubS||'';
+  if(!ub||ub==='Sin GPS')return '<span style="font-size:10px;color:#94a3b8;">Sin GPS</span>';
+  if(ub==='En oficina')return '<span style="font-size:10px;font-weight:600;color:#15803d;">🏢 En oficina</span>';
+  return '<span style="font-size:10px;font-weight:600;color:#b45309;">📍 Fuera</span>';
+}
 function fmtHT(eh,sh){if(!eh||!sh)return'--';var d=t2d(sh)-t2d(eh);if(d<0)d+=1;var m=Math.round(d*1440);return Math.floor(m/60)+'h '+m%60+'m';}
 
 var allRegs=[], timer=null, editingWid=null, editingFecha=null;
@@ -463,6 +469,7 @@ function renderHoy(){
       '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td>'+
       '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td>'+
       '<td>'+fmtHT(e&&e.h,s&&s.h)+'</td><td>'+tbadge+'</td>'+
+      '<td>'+fmtUbicacion(e&&e.ubicacion,s&&s.ubicacion)+'</td>'+
       '<td><button class="btn-sm" onclick="abrirWorker(\''+w.id+'\')">Gestionar</button></td></tr>');
   });
   document.getElementById('wgrid').innerHTML=gcards.join('');
@@ -501,6 +508,7 @@ function renderHist(){
         '<td class="mono" style="color:#15803d;font-weight:700">'+(e?e.h:'--')+'</td>'+
         '<td class="mono" style="color:#dc2626;font-weight:700">'+(s?s.h:'--')+'</td>'+
         '<td>'+fmtHT(e&&e.h,s&&s.h)+'</td><td>'+badge+'</td>'+
+        '<td>'+fmtUbicacion(e&&e.ubicacion,s&&s.ubicacion)+'</td>'+
         '<td><button class="btn-sm" onclick="abrirWorkerFecha(\''+w.id+'\',\''+f+'\')">Gestionar</button></td></tr>');
     });
   });
