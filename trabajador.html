@@ -499,17 +499,36 @@ function renderDash(regs){
 
 function marcar(tipo){
   var btnId=tipo==='entrada'?'btn-e':'btn-s';
-  var btn=document.getElementById(btnId);btn.disabled=true;btn.innerHTML='<span class="spin"></span>Guardando...';
-  var marca={wid:CW.id,f:today(),h:nowT(),t:tipo,p:'Ninguno',ap:CW.ap,nm:CW.nm,gr:CW.gr,tu:CW.tu};
-  fetch('/api/marcar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(marca)})
-  .then(function(r){return r.json().then(function(d){return{status:r.status,data:d};});})
-  .then(function(res){
-    if(res.status===409){toast(res.data.error,'err');}
-    else if(res.data.ok){toast((tipo==='entrada'?'Entrada':'Salida')+' registrada: '+marca.h,'ok');cargarRegistros();}
-    else{toast('Error: '+(res.data.error||'desconocido'),'err');}
-  })
-  .catch(function(){toast('Error de conexion','err');})
-  .finally(function(){btn.disabled=false;btn.innerHTML=tipo==='entrada'?'Registrar Entrada':'Registrar Salida';});
+  var btn=document.getElementById(btnId);
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Obteniendo ubicacion...';
+  function enviarMarca(lat,lon){
+    btn.innerHTML='<span class="spin"></span>Guardando...';
+    var marca={wid:CW.id,f:today(),h:nowT(),t:tipo,p:'Ninguno',ap:CW.ap,nm:CW.nm,gr:CW.gr,tu:CW.tu,lat:lat,lon:lon};
+    fetch('/api/marcar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(marca)})
+    .then(function(r){return r.json().then(function(d){return{status:r.status,data:d};});})
+    .then(function(res){
+      if(res.status===409){toast(res.data.error,'err');}
+      else if(res.data.ok){
+        var ub=res.data.ubicacion||'';
+        var icon=ub==='En oficina'?'🏢':'📍';
+        toast((tipo==='entrada'?'Entrada':'Salida')+' registrada: '+marca.h+' · '+icon+' '+ub,'ok');
+        cargarRegistros();
+      }
+      else{toast('Error: '+(res.data.error||'desconocido'),'err');}
+    })
+    .catch(function(){toast('Error de conexion','err');})
+    .finally(function(){btn.disabled=false;btn.innerHTML=tipo==='entrada'?'Registrar Entrada':'Registrar Salida';});
+  }
+  // Obtener GPS
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(pos){enviarMarca(pos.coords.latitude,pos.coords.longitude);},
+      function(){enviarMarca(null,null);}, // Si niega el permiso, marcar igual sin GPS
+      {timeout:8000,maximumAge:0,enableHighAccuracy:true}
+    );
+  } else {
+    enviarMarca(null,null);
+  }
 }
 
 // VACACIONES - Solicitar
